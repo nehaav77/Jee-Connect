@@ -300,18 +300,35 @@ async function seedWebStore(): Promise<void> {
 
 function saveWebStore() {
     if (Platform.OS === 'web') {
-        const data = JSON.stringify(webStore);
-        window.localStorage.setItem('jee_connect_web_db', data);
+        try {
+            const data = JSON.stringify(webStore);
+            window.localStorage.setItem('jee_connect_web_db', data);
+        } catch (e: any) {
+            console.warn('[DB] localStorage save failed:', e?.message);
+            // If quota exceeded, try clearing old caches and retry
+            if (e?.name === 'QuotaExceededError' || e?.code === 22) {
+                try {
+                    // Remove non-essential cached data to free space
+                    window.localStorage.removeItem('jee_connect_clans_cleared_v1');
+                    window.localStorage.removeItem('jee_connect_gamification_v1');
+                    const data = JSON.stringify(webStore);
+                    window.localStorage.setItem('jee_connect_web_db', data);
+                    console.log('[DB] Retry save succeeded after clearing caches');
+                } catch (e2) {
+                    console.error('[DB] localStorage quota exceeded even after cleanup');
+                }
+            }
+        }
         
-        // SYNC TO TERMINAL BRIDGE (for node view-db.js)
-        fetch('http://localhost:9000', {
-            method: 'POST',
-            mode: 'cors',
-            headers: { 'Content-Type': 'application/json' },
-            body: data
-        }).catch(() => {
-            // Silently ignore if bridge server is not running
-        });
+        // SYNC TO TERMINAL BRIDGE (for node view-db.js) - only in dev
+        if (typeof __DEV__ !== 'undefined' && __DEV__) {
+            fetch('http://localhost:9000', {
+                method: 'POST',
+                mode: 'cors',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(webStore)
+            }).catch(() => {});
+        }
     }
 }
 
@@ -477,8 +494,14 @@ function createWebFallbackDb(): Database {
                         }
 
                         // ON CONFLICT UPDATE - replace if exists
-                        if (sql.includes('ON CONFLICT') && row.id !== undefined) {
-                            const idx = webStore[table].findIndex(r => r.id === row.id);
+                        if (sql.includes('ON CONFLICT') || sql.toUpperCase().includes('OR REPLACE')) {
+                            // Find existing row by id, key, or first unique column
+                            let idx = -1;
+                            if (row.id !== undefined) {
+                                idx = webStore[table].findIndex(r => r.id === row.id);
+                            } else if (row.key !== undefined) {
+                                idx = webStore[table].findIndex(r => r.key === row.key);
+                            }
                             if (idx >= 0) webStore[table][idx] = { ...webStore[table][idx], ...row };
                             else webStore[table].push(row);
                         } else if (row.id !== undefined) {
