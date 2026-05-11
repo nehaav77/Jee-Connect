@@ -53,7 +53,7 @@ export default function OnboardingScreen() {
         { value: 'both', label: 'Both', emoji: '🎯', desc: 'Full preparation for Main + Advanced' },
     ];
 
-    const yearOptions = ['2025', '2026', '2027'];
+    const yearOptions = ['2026', '2027', '2028'];
     const timeOptions = [
         { value: 'morning', label: 'Morning', emoji: '🌅', desc: '6 AM - 12 PM' },
         { value: 'afternoon', label: 'Afternoon', emoji: '☀️', desc: '12 PM - 6 PM' },
