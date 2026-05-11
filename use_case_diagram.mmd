@@ -1,0 +1,65 @@
+graph LR
+    %% Styling
+    classDef actor fill:none,stroke:none;
+    classDef usecase fill:#fff,stroke:#333,stroke-width:1px,rx:20,ry:20;
+    classDef boundary fill:none,stroke:#666,stroke-width:2px,stroke-dasharray: 5 5;
+
+    %% Primary Actors (Left Side)
+    subgraph "Primary Users"
+        direction TB
+        Student["<img src='file:///C:/Users/NEHAA.V/.gemini/antigravity/brain/2e28fe19-977a-4192-a7e1-71c738f5e08b/student_actor_icon_1774266619135.png' width='50'/><br/>Student"]:::actor
+        Parent["<img src='file:///C:/Users/NEHAA.V/.gemini/antigravity/brain/2e28fe19-977a-4192-a7e1-71c738f5e08b/parent_actor_icon_1774266636962.png' width='50'/><br/>Parent"]:::actor
+    end
+
+    %% Use Cases (Middle System Boundary)
+    subgraph "JEE Connect: Resilient Learning System"
+        direction TB
+        
+        UC1("Browse Subjects & Chapters"):::usecase
+        UC2("View PYQ Resources"):::usecase
+        UC3("Learn via Live Sprints"):::usecase
+        UC4("Take Mock Tests (Offline)"):::usecase
+        UC5("Auto-generate Tests from PYQs"):::usecase
+        UC6("Perform OCR Problem Search"):::usecase
+        UC7("Ask Doubts to Saathi AI"):::usecase
+        UC8("Emotional & Mindfulness Support"):::usecase
+        UC9("View Performance Analytics"):::usecase
+        UC10("Monitor Student Progress"):::usecase
+        UC11("Receive Weekly SMS Alerts"):::usecase
+        UC12("Offline Data Sync"):::usecase
+        UC13("AES-256 Data Encryption"):::usecase
+    end
+
+    %% Supporting Actors / System Components (Right Side)
+    subgraph "Secondary / Support Systems"
+        direction TB
+        Saathi["<img src='file:///C:/Users/NEHAA.V/.gemini/antigravity/brain/2e28fe19-977a-4192-a7e1-71c738f5e08b/saathi_ai_icon_1774266652450.png' width='50'/><br/>Saathi (AI)"]:::actor
+        System["<img src='file:///C:/Users/NEHAA.V/.gemini/antigravity/brain/2e28fe19-977a-4192-a7e1-71c738f5e08b/system_actor_icon_1774266682988.png' width='50'/><br/>System"]:::actor
+    end
+
+    %% Student Relationships
+    Student --- UC1
+    Student --- UC2
+    Student --- UC3
+    Student --- UC4
+    Student --- UC6
+    Student --- UC7
+    Student --- UC9
+
+    %% Parent Relationships
+    Parent --- UC10
+    Parent --- UC11
+
+    %% Saathi (AI) Relationships
+    UC7 --- Saathi
+    UC8 --- Saathi
+
+    %% System Dependencies
+    UC12 --- System
+    UC13 --- System
+
+    %% internal relationships
+    UC5 -.-> UC4
+    UC7 -.-> UC8
+    UC9 -.-> UC10
+    UC12 -.-> UC4

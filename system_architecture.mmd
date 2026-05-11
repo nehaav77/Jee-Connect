@@ -1,0 +1,60 @@
+graph LR
+    %% Styling
+    classDef client fill:#e1f5fe,stroke:#01579b,stroke-width:2px;
+    classDef service fill:#fff3e0,stroke:#e65100,stroke-width:2px;
+    classDef storage fill:#e8f5e9,stroke:#1b5e20,stroke-width:2px;
+    classDef infra fill:#f3e5f5,stroke:#4a148c,stroke-width:2px;
+    classDef external fill:#fafafa,stroke:#616161,stroke-width:2px,stroke-dasharray: 5 5;
+
+    subgraph UI ["USER INTERFACE (Expo/React Native)"]
+        direction TB
+        Auth["Authentication & Profile"]:::client
+        Study["Study Dashboard (Subjects/Chapters)"]:::client
+        TestCenter["Test Center (Mock & PYQ Tests)"]:::client
+        SaathiChat["Saathi AI Chat Interface"]:::client
+        ParentDash["Parental Dashboard"]:::client
+    end
+
+    subgraph Logic ["BACKEND SERVICES & LOGIC"]
+        direction TB
+        SyncEngine["Smart Sync Engine (Delta Sync)"]:::service
+        OCR["OCR & Formula Recognition"]:::service
+        AICore["Saathi AI Logic"]:::service
+        Analytics["Performance Analytics Engine"]:::service
+        LiveSprint["Live Sprint Service"]:::service
+    end
+
+    subgraph Data ["DATA STORAGE"]
+        direction TB
+        SQLite["SQLite (Local Questions DB)"]:::storage
+        Encrypted["AES-256 Encrypted Store"]:::storage
+    end
+
+    subgraph Infra ["INFRASTRUCTURE & EXTERNAL"]
+        direction TB
+        GitHub["GitHub Repository"]:::infra
+        ExpoEAS["Expo EAS (Build & Deploy)"]:::infra
+        AI_API["External LLM API (Google/OpenAI)"]:::external
+        SMS_Gate["SMS Gateway (Parent Alerts)"]:::external
+        MLKit["Google ML Kit (OCR)"]:::external
+    end
+
+    %% Connections
+    UI --- Logic
+    Auth --> Encrypted
+    Study --> SQLite
+    TestCenter --> SQLite
+    TestCenter --> SyncEngine
+    SaathiChat --> AICore
+    SaathiChat --> OCR
+    
+    Logic --- Data
+    SyncEngine --> SQLite
+    AICore --> AI_API
+    OCR --> MLKit
+    Analytics --> SQLite
+    Analytics --> SMS_Gate
+    
+    Logic --- Infra
+    GitHub --> ExpoEAS
+    ExpoEAS --> UI

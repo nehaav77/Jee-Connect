@@ -1,0 +1,436 @@
+﻿
+================================================================================
+FILE: C:\Users\NehaaV\Desktop\College\SE\Project\Project\JEEConnect_TestPlan_Sri Kavya.docx
+================================================================================
+P4: [Normal] TEST DOCUMENT
+P5: [Normal] JEE Connect
+P6: [Normal] Navadu Venkata Sai Sri Kavya
+P7: [Normal] Department of Computer Science & Engineering
+P8: [Normal] BL.EN. U4CSE23033
+P9: [Normal] Amrita School of Computing, Bengaluru
+P20: [Heading 2] Table of Contents
+P22: [Heading 1] 1.Introduction
+P23: [Heading 2] The Testing Plan outlines how testing will be performed for Modules of the JEE Connect Platform through documentation of its goals, scope, schedule, risk analysis, and testing strategy. This document defines testing deliverables associated with each module to clearly state what is and is not part of
+P24: [Heading 2] 1.1 Objectives
+P25: [Heading 2] The objectives of this test plan are to:
+P26: [Heading 2] Verify that the Parent?s Dashboard correctly displays student progress, XP, streaks, and performance analytics.
+P27: [Heading 2] Ensure the PYQ Question Bank properly loads, categorizes, and displays previous year JEE questions with accurate solutions and metadata.
+P28: [Heading 2] Confirm that question evaluation correctly applies positive and negative marking for different question types.
+P29: [Heading 2] Validate that the Saathi AI Chatbot responds appropriately to academic queries, stress-related inputs, and study assistance requests.
+P30: [Heading 2] Verify that chat persistence and memory extraction features correctly store and restore user interactions.
+P31: [Heading 2] Test the Daily Spin feature to ensure rewards are generated correctly and restricted to one spin per day.
+P32: [Heading 2] Confirm that Daily Challenges display valid questions and award XP correctly upon successful completion.
+P33: [Heading 2] Validate that Analytics correctly generate subject-wise performance reports, heatmaps, and accuracy statistics.
+P34: [Heading 2] Verify that the Doubts module allows users to post, view, and filter academic doubts without errors.
+P35: [Heading 2] Ensure the Sprints module correctly displays sprint sessions, rankings, and leaderboard information.
+P36: [Heading 2] Confirm that all modules handle invalid inputs and error conditions gracefully without causing application crashes.
+P37: [Heading 2] 1.2 Team Members
+P39: [Heading 1] 2.Scope
+P40: [Normal] This test plan covers the Parent?s Dashboard, PYQ Question Bank, Saathi AI Chatbot (Core), Daily Spin & Daily Challenges, and Analytics, Doubts & Sprints modules of the JEE Connect application. At the end of testing, a tester must be able to confirm:
+P41: [Normal] The Parent?s Dashboard correctly displays student progress, XP, streaks, and performance statistics.
+P42: [Normal] The PYQ Question Bank properly loads and displays JEE questions with accurate options, solutions, and difficulty information.
+P43: [Normal] Users can answer questions correctly, receive proper score calculations, and view detailed explanations.
+P44: [Normal] The Saathi AI Chatbot responds accurately to subject-related queries, motivational prompts, and study support requests.
+P45: [Normal] Chat history and personalized memory features are correctly stored and restored across sessions.
+P46: [Normal] The Daily Spin feature awards random XP rewards correctly and restricts multiple spins within the same day.
+P47: [Normal] Daily Challenges display valid questions and award bonus XP upon successful completion.
+P48: [Normal] The Analytics module correctly generates heatmaps, accuracy reports, and subject-wise performance insights.
+P49: [Normal] Users can post, view, and filter doubts successfully within the Doubts section.
+P50: [Normal] The Sprints module correctly displays sprint sessions, rankings, and leaderboard data without errors.
+P52: [Heading 1] 3.Assumptions / Risks
+P53: [Heading 2] 3.1 Assumptions
+P54: [Heading 2] This section lists the assumptions made specific to testing the Parent?s Dashboard, PYQ Question Bank, Saathi AI Chatbot (Core), Daily Spin & Daily Challenges, and Analytics, Doubts & Sprints modules.
+P55: [Heading 2] The JEE Connect application is successfully installed and configured in the testing environment.
+P56: [Heading 2] The SQLite database is properly initialized with seeded JEE PYQ questions, test data, and user progress records.
+P57: [Heading 2] At least one valid student account and one parent-linked account are available for dashboard and analytics testing.
+P58: [Heading 2] The React Native + Expo SDK 54 environment is functioning correctly on both emulator and physical Android devices.
+P59: [Heading 2] Internet connectivity is available for modules requiring online synchronization, leaderboard updates, and chatbot interactions.
+P60: [Heading 2] The Saathi AI Chatbot knowledge base and offline rule-based response system are correctly configured.
+P61: [Heading 2] Daily Spin rewards, XP calculations, and streak-tracking logic are properly connected to the application state management system.
+P62: [Heading 2] Analytics data such as test scores, heatmaps, accuracy percentages, and chapter performance records already exist for validation.
+P63: [Heading 2] Doubts and Sprint modules contain sample posts, sprint sessions, and leaderboard entries for functional testing.
+P64: [Heading 2] All required dependencies, routing configurations, and navigation flows are correctly integrated within the JEE Connect application.
+P65: [Heading 2] 3.2 Risks
+P66: [Normal] The following risks have been identified. The impact is based on how the project would be affected if the risk is triggered.
+P68: [Heading 1] 4.Test Approach
+P69: [Normal] Testing is conducted using a combination of manual testing and automated functional testing aligned with the iterative development process of the JEE Connect application. Each module is tested individually after implementation and then validated through integrated end-to-end workflows. Test cases ar
+P70: [Heading 2] 4.1 Test Levels
+P71: [Normal] Unit Testing ? Individual functions are tested in isolation, including XP calculation logic, PYQ score evaluation, Daily Spin reward generation, chatbot response mapping, and analytics heatmap calculations.
+P72: [Normal] Integration Testing ? Interactions between modules are tested, such as Login  Dashboard loading, Test completion  XP update  Analytics refresh, and Doubt posting  Sprint leaderboard synchronization.
+P73: [Normal] System Testing ? Complete end-to-end flows are tested across multiple modules, such as Student login  solving PYQ questions  receiving chatbot assistance  earning Daily Challenge XP viewing analytics and sprint rankings.
+P74: [Normal] User Acceptance Testing (UAT) ? Full application flows are demonstrated on Android emulators and physical devices to verify usability, navigation smoothness, and overall student learning experience.
+P75: [Heading 2] 4.2 Test Automation
+P76: [Normal] Automated unit and functional tests are implemented using Jest and React Native Testing Library for validating critical application workflows. Test scripts verify dashboard rendering, PYQ loading, chatbot interaction responses, Daily Spin restrictions, and analytics calculations. Test files are orga
+P77: [Heading 1] 5.Test Environment
+P78: [Normal] The following environment is required to execute all test cases in this plan.
+P81: [Heading 1] 6.Test Cases
+P82: [Heading 1] The following test cases cover the PYQ Question Bank, Parent Dashboard, Saathi AI, Daily Spin, and Analytics modules of the JEE Connect application. Each test case references the relevant test paths across the unit, integration, and system levels (e.g., pyqQuestionBank.test.js, parentDashboard.test.
+P83: [Heading 2] 6.1 Parent?s Dashboard
+P85: [Heading 2] 6.2 PYQ Question Bank
+P87: [Heading 2] 6.3 Saathi AI Chatbot (Core)
+P89: [Heading 2] 6.4 Daily Spin & Daily Challenges
+P92: [Heading 2] 6.5 Analytics, Doubts & Sprints
+P96: [Heading 1] 7. JEE-Connect Testing Result
+P97: [Heading 2] 7.1 Unit Testing
+P102: [Heading 2] 7.2 System Testing
+P107: [Heading 2] 7.3 Integration Testing
+P111: [Heading 1] 8. Milestone
+P112: [Heading 2] 8.1 Test Schedule
+P117: [Heading 2] 8.2 Deliverables
+P120: [Normal] ? End of Test Plan ?
+
+--- TABLE 0 ---
+  R0: Section | Page
+  R1: 1.Introduction | 3
+  R2:     1.1 Objectives | 3
+  R3:     1.2 Team Members | 3
+  R4: 2.   Scope | 4
+  R5: 3.   Assumptions / Risks | 4
+  R6:     3.1 Assumptions | 4
+  R7:     3.2 Risks | 5
+  R8: 4.   Test Approach | 5
+  R9:     4.1 Test Levels | 5-6
+  R10:     4.2 Test Automation | 6
+  R11: 5.   Test Environment | 6
+  R12: 6.   Test Cases | 7
+  R13:     6.1 Parent?s Dashboard | 7
+  R14:     6.2 PYQ Question Bank | 7-8
+  R15:     6.3 Saathi AI Chatbot (Core) | 8-9
+  R16:     6.4 Daily Spin & Daily Challenges | 9
+  R17:     6.5 Analytics, Doubts & Sprints | 10
+  R18: 7.  JEE-Connect Testing Result | 11
+  R19:     7.1 Unit Testing | 11
+  R20:     7.2 System Testing | 12
+  R21:     7.3 Integration Testing | 13
+  R22: 8.   Milestones / Deliverables | 14
+  R23:     8.1 Test Schedule | 14
+  R24:     8.2 Deliverables | 15
+
+--- TABLE 1 ---
+  R0: Resource Name | Registration Number | Role
+  R1: N. Venkata Sai Sri Kavya | BL.EN.U4CSE23033 | Developer/Tester
+  R2: G.Rajeswari Krishna | BL.EN.U4CSE23012 | Developer/Tester
+  R3: Nehaa.V | BL.EN.U4CSE23064 | Developer/Tester
+
+--- TABLE 2 ---
+  R0: # | Risk | Impact | Trigger | Mitigation Plan
+  R1: 1 | 
+ | High | 
+ | Verify database seeding and ensure all PYQ records are initialized before testing begins.
+  R2: 2 | Saathi AI Chatbot gives irrelevant or incomplete responses | Medium | Users receive incorrect academic guidance | Validate chatbot rules and test all supported subject queries before deployment.
+  R3: 3 | Daily Spin reward logic allows multiple spins in one day | Medium | Users exploit XP reward system | Test daily reset logic and validate local storage/state persistence across sessions.
+  R4: 4 | Analytics heatmap or charts fail to update after test completion | High | Users view outdated performance insights | Verify score synchronization and refresh analytics data after every completed test.
+  R5: 5 | Doubts or Sprint leaderboard data not refreshing properly | Medium | Users cannot view latest posts or rankings | Implement periodic data refresh and validate navigation reload functionality during testing
+
+--- TABLE 3 ---
+  R0: Component | Details
+  R1: Development Machine | Windows 11 PC
+  R2: Emulator | Android Emulator (Pixel 6 - API 33, x86_64)
+  R3: Min SDK | API 23 (Android 6.0 Marshmallow)
+  R4: Target SDK | API 34
+  R5: Language | TypeScript v5.9.2
+  R6: Framework | Expo SDK 54 (React Native 0.81.5)
+  R7: Database | Local SQLite Database (expo-sqlite?v16.0.10
+  R8: State Management | Zustand v5.0.11
+  R9: Math Rendering | KaTeX v0.16.45 (for rendering equations)
+  R10: Testing Framework | Jest v29.7.0 + React Native Testing Library v13.3.3
+  R11: Build Tool | Expo CLI with Metro Bundler
+
+--- TABLE 4 ---
+  R0: TC# | Test Case | Steps | Expected Result | Status
+  R1: TC01 | Parent login flow | Register as parent; log in with credentials | Parent sees dashboard with linked student list | Pass
+  R2: TC02 | Link student account | Enter student's unique code in parent portal | Student profile added to parent's dashboard | Pass
+  R3: TC03 | View student progress | Tap linked student name | Progress summary shown: chapters done, tests taken, avg score | Pass
+  R4: TC04 | Subject-wise performance | Tap 'Subjects' tab on student profile | Scores per subject (Physics, Chemistry, Math) displayed as bar chart | Pass
+  R5: TC05 | Weekly report | Navigate to Reports > Weekly | Report shows study hours, tests attempted, improvement % for the week | Pass
+  R6: TC06 | SMS alert on low score | Student scores < 40 % on a mock test | Parent receives SMS notification with score details | Pass
+  R7: TC07 | Disable SMS notifications | Go to Settings > Notifications; toggle SMS off | No SMS sent on subsequent low scores | Pass
+  R8: TC08 | Multiple students linked | Link 2 students to the same parent account | Both student cards appear on parent dashboard; switchable | Pass
+  R9: TC09 | Student activity log | Open Activity Log for linked student | Chronological list of chapters accessed, tests taken, and Saathi queries | Pass
+  R10: TC010 | Parent logout | Tap Logout from parent dashboard | Session ends; app redirects to login screen | Pass
+
+--- TABLE 5 ---
+  R0: TC# | Test Case | Steps | Expected Result | Status
+  R1: TC011 | Questions seeded | Check database on first launch | 25+ JEE Main PYQs loaded | Pass
+  R2: TC012 | Question text renders | View any PYQ | Question text with LaTeX/Unicode renders | Pass
+  R3: TC013 | MCQ options shown | View MCQ question | 4 options (A-D) displayed | Pass
+  R4: TC014 | Correct answer check | Select correct option | Marked as correct, +4 marks | Pass
+  R5: TC015 | Wrong answer penalty | Select wrong option | Marked as wrong, -1 negative marks | Pass
+  R6: TC016 | Solution text | View solution after answering | Step-by-step solution displayed | Pass
+  R7: TC017 | Year and shift shown | Check question metadata | Year (2019-2024) and shift displayed | Pass
+  R8: TC018 | Difficulty level | Check question data | Difficulty 1-5 stored per question | Pass
+  R9: TC019 | Multiple chapters covered | Browse different chapters | Each has relevant PYQ questions | Pass
+  R10: TC020 | Question types | Check question_type field | MCQ, numerical types present in bank | Pass
+
+--- TABLE 6 ---
+  R0: TC# | Test Case | Steps | Expected Result | Status
+  R1: TC021 | Welcome message | Open Saathi tab (fresh) | Welcome message with feature list shown | Pass
+  R2: TC022 | Physics query | Type 'physics' | Physics subtopic menu shown | Pass
+  R3: TC023 | Chemistry query | Type 'chemistry' | Chemistry subtopic menu shown | Pass
+  R4: TC024 | Math query | Type 'mathematics' | Math subtopic menu shown | Pass
+  R5: TC025 | Stress detection | Type 'I feel stressed' | Supportive response + breathing exercise | Pass
+  R6: TC026 | Pomodoro timer | Type 'start pomodoro' | 25-min timer started with instructions | Pass
+  R7: TC027 | Flash quiz | Type 'quiz me' | Random PYQ question shown with answer | Pass
+  R8: TC028 | Chat persistence | Send messages, reload page | Previous messages restored from DB | Pass
+  R9: TC029 | XP for chatting | Send any message | 5 XP awarded per interaction | Pass
+  R10: TC030 | Memory extraction | Type 'I struggle with optics' | Topic saved to saathi_memory table | Pass
+
+--- TABLE 7 ---
+  R0: TC# | Test Case | Steps | Expected Result | Status
+  R1: TC031 | Spin wheel loads | Navigate to Daily Spin | Wheel with XP prizes displayed | Pass
+  R2: TC032 | Spin animation | Tap Spin button | Wheel spins with animation | Pass
+  R3: TC033 | Prize awarded | Spin completes | Random XP prize awarded + toast | Pass
+  R4: TC034 | Once per day | Try spin again same day | 'Already spun today' message shown | Pass
+  R5: TC035 | Reset next day | Open spin next day | Spin available again | Pass
+  R6: TC036 | Daily challenge shown | Open Home (fresh day) | Question of the Day card visible | Pass
+  R7: TC037 | Challenge question | View challenge card | PYQ question text displayed | Pass
+  R8: TC038 | Challenge XP | Solve daily challenge | 30 XP bonus awarded | Pass
+  R9: TC039 | Challenge complete state | After solving | Green checkmark: 'Daily Challenge Complete' | Pass
+  R10: TC040 | Spin from Home | Tap Daily Spin quick action | Navigates to spin screen | Pass
+
+--- TABLE 8 ---
+  R0: TC#
+ | Test Case | Steps | Expected Result | Status
+  R1: TC041 | Analytics screen loads | Navigate to Analytics | Heatmap and performance charts shown | Pass
+  R2: TC042 | Subject-wise breakdown | View analytics | Physics/Chemistry/Math scores displayed | Pass
+  R3: TC043 | Chapter heatmap | Scroll analytics | Color-coded chapter strengths shown | Pass
+  R4: TC044 | Doubts page loads | Navigate to Doubts | Doubt marketplace with post button shown | Pass
+  R5: TC045 | Post a doubt | Tap Post, enter question | Doubt posted, appears in list | Pass
+  R6: TC046 | Filter doubts | Use subject filter | Doubts filtered by subject | Pass
+  R7: TC047 | Sprints page loads | Navigate to Live Sprints | Sprint list with leaderboard shown | Pass
+  R8: TC048 | Profile screen | Navigate to Profile tab | User info, XP, level, stats displayed | Pass
+  R9: TC049 | Profile stats | Check Profile | Tests taken, accuracy, streak shown | Pass
+  R10: TC050 | Logout from Profile | Tap Logout in Profile | Logged out, redirected to auth screen | Pass
+
+--- TABLE 9 ---
+  R0: Task Name | Start | Finish | Effort | Comments
+  R1: Test Planning & Requirement Review | Week 1 | Week 1 | 2 d | Review test cases for PYQ, Parent Dashboard, Saathi AI, etc.
+  R2: Environment Setup (Jest) | Week 1 | Week 2 | 2 d | Configure Jest testing framework and mock database environments
+  R3: Unit Test ? Core (PYQ & Parent Dashboard) | Week 2 | Week 2 | 2 d | Verify PYQ scoring (+4/-1), parent login, and student linking
+  R4: Unit Test ? Engagement (Saathi, Spin, Analytics) | Week 2 | Week 3 | 2 d | Verify AI chat responses, daily spin XP rewards, and analytics charts
+  R5: Integration Test ? Core Modules | Week 3 | Week 3 | 2 d | DB seed ? question retrieval, test score ? SMS alert flow
+  R6: Integration Test ? Engagement & AI | Week 3 | Week 4 | 2 d | AI topic extraction ? memory, daily spin ? total XP updates
+  R7: System Testing ? End-to-end Flow | Week 4 | Week 4 | 3 d | Full user journeys for students (PYQ/AI/Spin) and parents (Dashboard)
+  R8: Regression Testing | Week 4 | Week 5 | 1 d | Re-run full Jest automated test suite (162 tests) after bug fixes
+  R9: UAT ? Emulator & Device Testing | Week 5 | Week 5 | 2 d | Full flow on Android emulator; APK install on physical device
+  R10: Resolution of Final Defects | Week 5 | Week 5 | 1 d | Fix P1/P2 issues identified during UAT and exploratory testing
+  R11: Release / Demo Build | Week 6 | Week 6 | 1 d | Generate production APK; record demo of key features
+
+--- TABLE 10 ---
+  R0: Deliverable
+ | For | Date / Milestone
+  R1: Test Plan Document | Project Guide; QA Director; Test Team | End of Week 1
+  R2: Traceability Matrix | Project Guide; QA Director | End of Week 3
+  R3: Test Results Report | Project Guide; All Members | End of Week 5
+  R4: Test Status Report | QA Manager; QA Director | Weekly ? updated each Friday
+  R5: Metrics | All team members | End of Week 6
+
+
+################################################################################
+
+
+
+================================================================================
+FILE: C:\Users\NehaaV\Desktop\College\SE\Project\Project\JEE_Connect_TestPlan_Rajeswari.docx
+================================================================================
+P3: [Normal] TEST PLAN
+P4: [Normal] JEE Connect
+P5: [Normal] Gurram Rajeswari krishna
+P6: [Normal] Department of Computer Science & Engineering
+P7: [Normal] BL.EN.U4CSE23012
+P8: [Normal] Amrita School of Computing, Bengaluru
+P11: [Normal] Table of Contents
+P12: [Normal] 1  Introduction
+P13: [Normal] 1.1  Objectives	3
+P14: [Normal] 1.2  Team Members	3
+P15: [Normal] 2  Scope	4
+P16: [Normal] 3  Assumptions / Risks
+P17: [Normal] 3.1  Assumptions	4
+P18: [Normal] 3.2  Risks	5
+P19: [Normal] 4  Test Approach
+P20: [Normal] 4.1  Test Levels	5
+P21: [Normal] 4.2  Test Automation	5
+P22: [Normal] 5  Test Environment	6
+P23: [Normal] 6  Test Cases
+P24: [Normal] 6.1  Login & Authentication	6-7
+P25: [Normal] 6.2  Subjects / Units / Chapters	7-8
+P26: [Normal] 6.3  Adaptive Heatmap Tests	8
+P27: [Normal] 6.4  Test Results & Review	9
+P28: [Normal] 6.5  Saathi AI ? Image Upload & Multilingual	10
+P29: [Normal] Automated Testing Result	11
+P30: [Normal] 7  Milestones / Deliverables
+P31: [Normal] 7.1  Test Schedule	12
+P32: [Normal] 7.2  Deliverables	12
+P34: [Heading 1] 1  Introduction
+P35: [Heading 2] This report documents the implementation and strategy for JEE Connect ? a comprehensive, offline-first educational application designed to enhance the preparation experience for JEE aspirants. The application integrates an adaptive learning engine that dynamically personalizes test difficulty based 
+P36: [Heading 2] 1.1  Objectives
+P37: [List Paragraph] Verify the correct implementation of the Adaptive Learning System, ensuring it accurately selects question difficulties based on per-chapter student weakness heatmaps.
+P38: [List Paragraph] Validate the strict exam proctoring module, confirming that it automatically disqualifies students upon any full screen exit or unauthorized tab switching to ensure data integrity.
+P39: [List Paragraph] Confirm that voice call reminders are triggered at the correct scheduled times.
+P40: [List Paragraph] Confirm the reliability of the offline-first architecture, ensuring all test generation, adaptive logic, and analytics process correctly using the local SQLite infrastructure without requiring continuous internet access.
+P41: [List Paragraph] Validate the 'Saathi' module and Parent Dashboard, ensuring they accurately track, synchronize, and display student improvement and progress metrics over time.
+P43: [Heading 2] 1.2  Team Members
+P47: [Heading 1] 2  Scope
+P48: [Heading 2] 2.1  In Scope
+P49: [Normal] The following features and modules will be tested:
+P50: [List Paragraph] User Authentication ? Login, Registration, Session Management, and Auto-Login capabilities.
+P51: [List Paragraph] Registration Validation ? Phone uniqueness and duplicate prevention
+P52: [List Paragraph] Adaptive Learning Engine ? Offline AdaptiveTestService, per-chapter weakness heatmap generation, and dynamic question difficulty selection (Smart Practice).
+P53: [List Paragraph] Exam Proctoring System ? Fullscreen enforcement, tab-switching detection, and automatic test disqualification mechanisms.
+P54: [List Paragraph] Saathi AI Companion ? Offline chatbot interactions, subject doubt explanations, stress management tracking, and chat history persistence via local SQLite.
+P55: [List Paragraph] Prescription Management ? Edit prescription details, delete prescription, cancel/reschedule reminders
+P56: [List Paragraph] Subject & Resource Management ? Navigation through subjects, chapters, and access to study notes and Previous Year Questions (PYQs).
+P58: [Heading 2] 2.2  Out of Scope
+P59: [List Paragraph] Automated functional tests (all testing is manual / exploratory)
+P60: [List Paragraph] Extreme load testing and performance benchmarking.
+P61: [List Paragraph] platform testing 
+P62: [List Paragraph] Accessibility testing for screen readers
+P63: [List Paragraph] Multi-language / localisation testing
+P64: [List Paragraph] server scalability testing (since the core architecture is offline-first).
+P66: [Normal] 3  Assumptions / Risks
+P67: [Heading 2] 3.1  Assumptions
+P68: [Normal] A working internet connection is available on the test device / emulator for online features like Authentication and Saathi AI.
+P69: [Normal] The application's local database is pre-populated with correct and structured JEE syllabus data (Subjects, Units, and Chapters).
+P70: [Normal] Mock user credentials and valid OTP verification flows are available for testing the authentication module.
+P71: [Normal] The Android emulator or physical test device is available and configured with appropriate camera permissions for image upload testing.
+P72: [Normal] Images uploaded to Saathi AI contain legible handwritten or printed mathematical equations and text in supported languages.
+P73: [Normal] The system has access to the necessary AI models and translation APIs for testing Saathi AI and multilingual features.
+P79: [Heading 2] 3.2  Risks
+P81: [Normal] 4  Test Approach
+P83: [Normal] Testing is conducted using a combination of automated testing and manual exploratory testing aligned with the iterative development model. Each feature module is tested after implementation. Test cases are derived from the project requirements and executed on the Android emulator. Edge cases and neg
+P84: [Heading 2] 4.1  Test Levels
+P85: [Normal] Unit Testing?- Individual functions tested in isolation: Adaptive test algorithm in?adaptiveTestService, heatmap grid color mapping, and multilingual string translation lookups.
+P86: [Normal] Integration Testing?- Module interactions tested: Successful Login ? dashboard routing and subject loading; Test submission ? local SQLite database storage ? heatmap analytics update.
+P87: [Normal] System Testing?- End-to-end flow across all modules: Student logs in ? navigates to Physics subject ? takes an adaptive test ? views results screen ? uploads a doubt image to Saathi AI and receives a multilingual solution.
+P88: [Normal] User Acceptance Testing (UAT)?- Full flow demonstrated on the emulator, APK installed on Android device and flows verified manually to ensure a smooth user experience for students.
+P89: [Heading 2] 4.2  Test Automation
+P90: [Normal] Automated functional and unit tests are implemented for this phase using Jest and React Native Testing Library. Test files (such as?adaptive.test.tsx?and?login.test.tsx) use a flat structure to generate clean, readable output summaries. Future phases may introduce full End-to-End (E2E) testing using
+P91: [Heading 1] 5  Test Environment
+P94: [Normal] 6  Test Cases
+P95: [Heading 2] 6.1  Login & Authentication
+P96: [Heading 2] 6.2  Subjects / Units / Chapters
+P97: [Heading 2] 6.3  Adaptive Heatmap Tests
+P101: [Normal] 6.4  Test Results & Review
+P106: [Heading 2] 6.5  Saathi AI ? Image Upload & Multilingual
+P118: [Normal] JEE-Connect Automated Testing Result
+P144: [Heading 1] 7  Milestones
+P145: [Heading 2] 7.1  Test Schedule
+P146: [Heading 2] 7.2  Deliverables
+
+--- TABLE 0 ---
+  R0: Resource Name | Registration Number | Role
+  R1: G. Rajeswari Krishna | BL.EN.U4CSE23012 | Developer / Tester
+  R2: Navadu Venkata Sai Sri Kavya | BL.EN.U4CSE23033 | Developer / Tester
+  R3: Nehaa V | BL.EN.U4CSE23064 | Developer / Tester
+
+--- TABLE 1 ---
+  R0: S.NO | Risk | Impact | Trigger | Mitigation Plan
+  R1: 1 | OTP Delivery Failure?during Login | High | SMS gateway failure or network outage | Implement a fallback to Email OTP or allow a hardcoded test OTP in the debug environment
+  R2: 2 | Syllabus Data mismatch in subjects/units | Medium | Corrupted local database or incomplete API response | Implement a default fallback to a local static JSON file containing the standard JEE syllabus.
+  R3: 3 | Heatmap Inaccuracy due to low data | Medium | New user with very few completed tests | Display a "Not Enough Data" placeholder state and encourage the user to take a diagnostic test.
+  R4: 4 | Test Progress Lost?on app closure | High | App crash or device reboot during an active test | Implement auto-save of the student's selected answers to local storage after every question.
+  R5: 5 | OCR Fails?to read complex math formulas | High | Poor image quality or complex handwriting | Provide a manual text input box for users to type their doubts if image recognition fails.
+  R6: 6 | Language Translation API?failure | Medium | API rate limit exceeded or network failure | Fallback to default English strings and show a friendly message about the language service being unavailable.
+
+--- TABLE 2 ---
+  R0: Component | Details
+  R1: Development Machine | Windows 11 PC 
+  R2: Emulator | Android Emulator (Pixel 6 - API 33, x86_64)
+  R3: Min SDK | API 23 (Android 6.0 Marshmallow)
+  R4: Target SDK | API 34
+  R5: Language | TypeScript v5.9.2
+  R6: Framework | Expo SDK 54 (React Native 0.81.5)
+  R7: Database | Local SQLite Database (expo-sqlite?v16.0.10
+  R8: State Management | Zustand v5.0.11
+  R9: Math Rendering | KaTeX v0.16.45 (for rendering equations)
+  R10: Testing Framework | Jest v29.7.0 + React Native Testing Library v13.3.3
+  R11: Build Tool | Expo CLI with Metro Bundler
+
+--- TABLE 3 ---
+  R0: TC# | Test Case | Steps | Expected Result | Status
+  R1: TC001 | User Registration with Valid Details | Enter a valid email and password, then click Sign Up | User account is created successfully and redirected to the onboarding page | Pass
+  R2: TC002 | User Login with Valid Credentials | Enter registered email and password, then click Sign In | User is logged in successfully and redirected to the Home Dashboard | Pass
+  R3: TC003 | Login with Invalid Credentials  | Enter incorrect password and click Sign In | Toast: 'Login failed' shown | Pass
+  R4: TC004 | Login with Empty Fields | Leave email and password fields empty and click Sign In | Validation message is displayed for mandatory fields | Pass
+  R5: TC005 | Invalid Email Format Validation  | Enter an incorrectly formatted email address | Email format validation error is displayed | Pass
+  R6: TC006 | Password Length Validation | Enter a password shorter than the minimum required length during signup | Error message displayed indicating password is too short | Pass
+  R7: TC007 | Duplicate Account Registration | Attempt signup using an already registered email address | System displays error: ?Account already exists? | Pass
+  R8: TC008 | Session Persistence Verification | Log in, close the application/tab, and reopen it | User session remains active and user is automatically logged in | Pass
+  R9: TC009 | User Logout Functionality  | Click Logout from the Profile section | User is redirected to the Login page and session data is cleared | Pass
+  R10: TC010 | Authentication State Management | Log in successfully and verify stored authentication data | User authentication details are correctly stored in the application state | Pass
+
+--- TABLE 4 ---
+  R0: TC# | Test Case | Steps | Expected Result | Status
+  R1: TC011 | Subjects Page Loading | Navigate to the Subjects tab | All available subjects (Physics, Chemistry, Mathematics) are displayed correctly | Pass
+  R2: TC012 | Subject Details Display | 
+ | Related units such as Mechanics, Thermodynamics, Electrodynamics, etc., are displayed | Pass
+  R3: TC013 | Unit Expansion Functionality  | Click on any unit | Chapters available under the selected unit are displayed successfully | Pass
+  R4: TC014 | Chapter Details View | Open the Kinematics chapter | Chapter page opens with study resources and PYQ sections | Pass
+  R5: TC015 | Chapter Resources Availability  | Access any chapter resource section | Relevant notes and video resources are displayed properly  | Pass
+  R6: TC016 | Previous Year Questions Listing  | Open a chapter containing PYQs | PYQ list is displayed along with corresponding year tags | Pass
+  R7: TC017 | Question Details Display | Select a PYQ question | Complete question along with answer options is displayed | Pass
+  R8: TC018 | Solution Expansion View | View the solution for a selected question | Detailed solution with explanation is displayed correctly | Pass
+  R9: TC019 | Chapter Count Verification | Compare displayed chapter count with actual chapters | Chapter count badge matches the available chapters accurately | Pass
+  R10: TC020 | Breadcrumb Navigation | Navigate through Subject ? Unit ? Chapter hierarchy | Breadcrumb/back navigation functions correctly at each level | Pass
+
+--- TABLE 5 ---
+  R0: TC# | Test Case | Steps | Expected Result | Status
+  R1: TC021 | Smart Practice Card Visibility | Open the Tests tab | Smart Practice section is displayed with proper description and explanation | Pass
+  R2: TC022 | Subject Selection Options | Click on Generate Smart Test | Subject selection menu displays options: Full Test, Physics, Chemistry, and Mathematics | Pass
+  R3: TC023 | Full Adaptive Test Generation  | Select Full Adaptive Test option | A 30-question adaptive test covering all subjects is generated successfully | Pass
+  R4: TC024 | Subject ? Specific Adaptive Test | Select Physics Only option | A Physics-only adaptive test containing 25 questions is generated | Pass
+  R5: TC025 | Weak Topic Prioritization | Generate a test after low performance in Physics  | System increases Physics-related questions in the adaptive test | Pass
+  R6: TC026 | Difficulty Level Weighting | Review generated adaptive test | Questions are distributed based on difficulty levels: Easy, Medium, and Hard | Pass
+  R7: TC027 | Difficulty Breakdown Display | Generate and view test summary | System displays question count distribution for Easy, Medium, and Hard levels | Pass
+  R8: TC028 | Subject Picker Cancellation | Click Cancel on the subject selection screen | User is redirected back to the Generate Test page successfully | Pass
+  R9: TC029 | Home Screen Smart Test Shortcut | Tap Smart Test shortcut from the Home screen | Full adaptive test is generated directly from the shortcut | Pass
+  R10: TC030 | New User Adaptive Test Handling | Generate a test without previous performance history | System handles gracefully by generating a balanced or randomized question set | Pass
+
+--- TABLE 6 ---
+  R0: TC# | Test Case | Steps | Expected Result | Status
+  R1: TC031 | Test Score Display  | Complete any test and submit | Total score along with correct, incorrect, and skipped question counts is displayed | Pass
+  R2: TC032 | Accuracy Percentage Calculation | View the test result page | Accuracy percentage is calculated and displayed correctly | Pass
+  R3: TC033 | XP Reward Display | Complete a test successfully | XP reward card is displayed with the earned XP amount | Pass
+  R4: TC034 | Subject-wise Score Breakdown | Open detailed test results | Scores are categorized and displayed subject-wise (Physics, Chemistry, Mathematics) | Pass
+  R5: TC035 | Question Review Functionality | Open the review section after test completion | Each question displays the selected answer and the correct answer for comparison | Pass
+  R6: TC036 | Solution Review Display | Select a question from the review section | Complete solution and explanation for the question is displayed | Pass
+  R7: TC037 | Result Retrieval from History | Open a previous test from Recent Activity | Past test result loads correctly with complete details | Pass
+  R8: TC038 | Achievement Badge Trigger | Score above 80% in the first test | Achievement badge is unlocked and displayed successfully | Pass
+  R9: TC039 | Marks Calculation Verification | Verify total marks after test completion | Total score is calculated correctly using the defined marking scheme | Pass
+  R10: TC040 | Full screen exit detection  | Exit full-screen mode during the examination | System detects the action and disqualifies the user from the exam | Pass
+
+--- TABLE 7 ---
+  R0: TC# | Test Case | Steps | Expected Result | Status
+  R1: TC041 | Gallery Upload Button Functionality | Click the image upload icon in the chat interface | File picker window opens successfully in the web application | Pass
+  R2: TC042 | Image Preview Display | Select an image from the device | Image preview bar with thumbnail is displayed correctly | Pass
+  R3: TC043 | 
+ | Click the remove (X) icon on the image preview  | Selected image is removed and preview section is hidden | Pass
+  R4: TC044 | Send Message with Image Attachment | Attach an image and send the message | Image is displayed correctly within the chat bubble | Pass
+  R5: TC045 | Camera OCR Feature Activation | Click the camera icon in the chat interface | OCR scanning workflow is triggered successfully | Pass
+  R6: TC046 | Hindi Language Response | Enter ?Hindi? or type using Devanagari script | System generates a response in Hindi language | Pass
+  R7: TC047 | Tamil Language Response | Enter ?Tamil? as the selected language | System generates a response in Tamil script | Pass
+  R8: TC048 | Telugu Language Response | Enter ?Telugu? as the selected language | System generates a response in Telugu script | Pass
+  R9: TC049 | Bengali Language Response | Enter ?Bengali? as the selected language | System generates a response in Bengali script | Pass
+  R10: TC050 | Marathi Language Response | Enter ?Marathi? as the selected language | System generates a response in Marathi script | Pass
+
+--- TABLE 8 ---
+  R0: Task Name | Start | Finish | Effort | Comments
+  R1: Test Planning & Requirement Review | Week 1 | Week 1 | 2 d | Review project requirements and JEE syllabus structure
+  R2: Environment Setup (Expo, SQLite) | Week 1 | Week 2 | 2 d | Configure Expo SDK 54, SQLite database
+  R3: Unit Test ? Login & Authentication | Week 2 | Week 2 | 1 d | Verify OTP verification flow, state management, and routing
+  R4: Unit Test ? Adaptive Heatmap & Subjects | Week 2 | Week 3 | 2 d | Verify syllabus loading and heatmap grid color calculation logic
+  R5: Integration Test ? Test Results & Review | Week 3 | Week 3 | 2 d | Test completion ? save to local SQLite ? analytics update
+  R6: Integration Test ? Saathi AI (Image & Lang) | Week 3 | Week 4 | 2 d | Image upload ? AI solution generation ? multilingual display
+  R7: System Testing ? End-to-end Flow | Week 4 | Week 4 | 3 d | Student logs in ? takes adaptive test ? views results ? asks doubt
+  R8: Regression Testing | Week 4 | Week 5 | 1 d | Re-run full Jest automated test suite after bug fixes
+  R9: UAT ? Emulator & Device Testing | Week 5 | Week 5 | 2 d | Full flow on Android emulator; APK install on physical device
+  R10: Resolution of Final Defects | Week 5 | Week 5 | 1 d | Fix P1/P2 issues identified during UAT and exploratory testing
+  R11: Release / Demo Build | Week 6 | Week 6 | 1 d | Generate production APK; record demo of key features 
+
+--- TABLE 9 ---
+  R0: Deliverable | For | Date / Milestone
+  R1: Test Plan Document | Project Guide; QA Director; Test Team | End of Week 1
+  R2: Traceability Matrix | Project Guide; QA Director | End of Week 3
+  R3: Test Results Report | Project Guide; All Members | End of Week 5
+  R4: Test Status Report | QA Manager; QA Director | Weekly ? updated each Friday
+  R5: Metrics | All team members | End of Week 6
