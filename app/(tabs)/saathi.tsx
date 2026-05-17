@@ -11,6 +11,7 @@ import { getDatabase } from '@/src/db/database';
 import { generateId } from '@/src/repositories/BaseRepository';
 import { ocrService } from '@/src/services/OCRService';
 import { gamificationService } from '@/src/services/GamificationService';
+import { buildMnemonic } from '@/src/data/mnemonicBuilder';
 
 interface ChatMessage {
     id: string; role: 'user' | 'assistant'; content: string;
@@ -286,12 +287,13 @@ export default function SaathiScreen() {
 
     async function handleSend() {
         if (!inputText.trim() && !selectedImage) return;
-        const sentiment = analyzeSentiment(inputText);
+        const capturedInput = inputText.trim(); // capture BEFORE clearing
+        const sentiment = analyzeSentiment(capturedInput);
         setStressLevel(sentiment);
         const hasImage = !!selectedImage;
         const userMsg: ChatMessage = {
             id: generateId(), role: 'user',
-            content: hasImage ? (inputText.trim() || '🖼️ [Image uploaded]') : inputText.trim(),
+            content: hasImage ? (capturedInput || '🖼️ [Image uploaded]') : capturedInput,
             timestamp: new Date().toISOString(), sentiment_score: sentiment,
             imageUri: selectedImage || undefined,
         };
@@ -319,7 +321,15 @@ export default function SaathiScreen() {
                 'anime': { e: '🎌', f: ['Naruto','Dragon Ball Z','One Piece','Attack on Titan','Death Note'] },
                 'memes': { e: '😂', f: ['Dank Memes','Bollywood Memes','Science Memes','Reddit','Twitter'] },
             };
-            const TP = ['Kinematics','Newton\'s Laws','Electrostatics','Thermodynamics','Optics','Organic Chem','Calculus','Trigonometry','Probability'];
+            const TP = [
+                'Kinematics','Newton\'s Laws','Work Energy & Power','Rotational Motion','Gravitation',
+                'Thermodynamics','SHM & Waves','Electrostatics','Current Electricity','Magnetism & EMI',
+                'Optics','Modern Physics',
+                'Mole Concept','Atomic Structure','Chemical Thermo','Equilibrium','Chemical Kinetics',
+                'Electrochemistry','Organic Chemistry','Inorganic Chemistry',
+                'Algebra','Sequences & Series','Matrices','Calculus','Coordinate Geometry',
+                'Trigonometry','Vectors & 3D','Probability'
+            ];
 
             if (mnemonicStep === 'pick_category') {
                 let c = '';
@@ -340,15 +350,21 @@ export default function SaathiScreen() {
                 if (n>=1&&n<=ci.f.length) fv = ci.f[n-1];
                 setMnemonicFavorite(fv); setMnemonicStep('pick_topic');
                 try { gamificationService.saveSaathiMemory(userEmail,'mnemonic_fav',fv); } catch{}
-                return `🔥 ${fv} — love it!\n\nWhich JEE topic to explain using ${fv}?\n\n${TP.map((t,j)=>`${j+1}️⃣ ${t}`).join('\n')}\n\nType number or topic name!`;
+                const phyTopics = TP.slice(0,12).map((t,j)=>`${j+1}️⃣ ${t}`).join('\n');
+                const chemTopics = TP.slice(12,20).map((t,j)=>`${j+13}️⃣ ${t}`).join('\n');
+                const mathTopics = TP.slice(20).map((t,j)=>`${j+21}️⃣ ${t}`).join('\n');
+                return `🔥 ${fv} — love it!\n\nWhich JEE topic to explain using ${fv}?\n\n⚛️ PHYSICS:\n${phyTopics}\n\n🧪 CHEMISTRY:\n${chemTopics}\n\n📐 MATH:\n${mathTopics}\n\nType number or topic name!`;
             }
             if (mnemonicStep === 'pick_topic') {
                 let ti = parseInt(il)-1;
                 if (ti<0||ti>=TP.length) {
-                    const keys = ['kinematic','newton','electro','thermo','optic','organic','calcul','trigo','probab'];
-                    ti = keys.findIndex(k=>il.includes(k.substring(0,5)));
+                    const keys = ['kinematic','newton','work','rotat','gravit','thermo','shm','electrostatic','current','magnet','optic','modern','mole','atomic','chem thermo','equilib','kinetic','electrochem','organic','inorganic','algebra','sequence','matri','calcul','coordin','trigo','vector','probab'];
+                    ti = keys.findIndex(k=>il.includes(k.substring(0,4)));
                     if (ti<0&&(il.includes('force')||il.includes('law'))) ti=1;
                     if (ti<0&&il.includes('motion')) ti=0;
+                    if (ti<0&&il.includes('wave')) ti=6;
+                    if (ti<0&&il.includes('energy')||il.includes('power')) ti=2;
+                    if (ti<0&&il.includes('conic')||il.includes('circle')||il.includes('parabola')) ti=24;
                 }
                 if (ti<0||ti>=TP.length) return `Pick 1-${TP.length}:\n${TP.map((t,j)=>`${j+1}️⃣ ${t}`).join('\n')}`;
                 setMnemonicStep('idle');
@@ -359,27 +375,7 @@ export default function SaathiScreen() {
         }
 
         function bldM(tp: string, fav: string, cat: string): string {
-            const f=fav.split('/')[0], h=`🎮🧠 ${tp} × ${fav}\n\n`;
-            const ft=`\n\n📌 Subjects → ${tp} chapter → PYQs!\n💡 "mnemonic" to learn more with ${fav}! 🔥`;
-            if (tp.includes('Kinematic')) {
-                if (cat==='cricket') return h+`🏏 ${f} hits a six = PROJECTILE MOTION!\n• u = bat speed, θ = bat angle\n• Range = u²sin2θ/g (max at 45°!)\n• Time of flight = 2u·sinθ/g\n• Bumrah's yorker = θ≈0°, Lofted drive = θ≈45°\n\n🧠 "${f}'s SUVAT"\nS=run distance, U=bat speed, V=ball speed\nA=gravity(−g), T=hang time\n\nv=u+at • s=ut+½at² • v²=u²+2as`+ft;
-                if (cat==='movies') return h+`🎬 ${f} action = Physics!\n• Falling = s=½gt² (free fall)\n• Throwing = Projectile (Range=u²sin2θ/g)\n• Chase scene = v=u+at\n\n🧠 "${f} SUVAT"\nv=u+at, s=ut+½at², v²=u²+2as\nMax height = u²sin²θ/(2g)`+ft;
-                if (cat==='games') return h+`🎮 ${f} physics!\n• Jump = Projectile (max height=u²sin²θ/2g)\n• Fall damage ∝ v²=u²+2gs\n• Grenade arc = Range=u²sin2θ/g\n\n🧠 SUVAT: v=u+at, s=ut+½at², v²=u²+2as`+ft;
-                if (cat==='anime') return h+`🎌 ${f} energy blast = Projectile!\n• vx=u·cosθ (constant), vy=u·sinθ−gt\n• Power-up = force boost (F=ma!)\n\nSUVAT: v=u+at, s=ut+½at², v²=u²+2as`+ft;
-                return h+`😂 "Nobody: Physics: Find velocity at 30°"\n\nv=u+at, s=ut+½at², v²=u²+2as\n"Coconut on Newton: s=½gt², F=ma (ouch 😂)"`+ft;
-            }
-            if (tp.includes('Newton')) {
-                if (cat==='cricket') return h+`🏏 ${f} & Newton:\n1st: Ball rolls until friction (inertia!)\n2nd: Harder ${f} hits (F↑) → faster ball (a=F/m)\n3rd: Bat↔Ball equal & opposite force!\n\n🧠 "I FAR" = Inertia, F=ma, Action-Reaction\nFBD → resolve forces → F_net=ma`+ft;
-                return h+`${f} & Newton:\n1st (Inertia): No force=no change\n2nd (F=ma): Stronger=more impact, Heavy=slow\n3rd: Every attack pushes BOTH equally!\n\n🧠 "I FAR" = Inertia, F=ma, Action-Reaction`+ft;
-            }
-            if (tp.includes('Electro')) return h+`⚡ ${f} = charged particle!\nCoulomb: F=kq₁q₂/r²\nField: E=kQ/r² (influence zone)\nPotential: V=kQ/r\nCapacitor: C=Q/V, C=ε₀A/d\n\n🧠 "CEFV" = Coulomb, E-field, Force, Voltage`+ft;
-            if (tp.includes('Thermo')) return h+`🔥 1st Law: ΔQ=ΔU+ΔW\n\n${f}'s modes:\n• Isothermal=calm • Adiabatic=isolation\n• Isobaric=pressure • Isochoric=boxed in\n\n🧠 "I Am In Isolation"\nCarnot: η=1−T_cold/T_hot`+ft;
-            if (tp.includes('Optic')) return h+`🔭 Mirror: 1/v+1/u=1/f\nSnell: n₁sinθ₁=n₂sinθ₂\nYoung's: β=λD/d\n\n🧠 "Real Is Inverted", TIR: sinC=n₂/n₁`+ft;
-            if (tp.includes('Organic')) return h+`🧪 SN1: ${f}'s careful plan (slow, tertiary C)\nSN2: ${f}'s blitz (fast, primary C)\n\n🧠 "SN1=Slow Needs 1" "SN2=Swift with 2"\nMarkovnikov: "Rich get Richer"\nZaitsev: "Most Substituted Wins"`+ft;
-            if (tp.includes('Calcul')) return h+`📐 Differentiation: rate of ${f}'s growth!\nIntegration: total accumulated\n\n🧠 LIATE: Logs,Inverse,Algebraic,Trig,Exp\n"Low D-High − High D-Low, square below"\nd/dx(xⁿ)=nxⁿ⁻¹, ∫xⁿ=xⁿ⁺¹/(n+1)+C`+ft;
-            if (tp.includes('Trigo')) return h+`📊 SOH-CAH-TOA: "Some Old Horses Can Always Hear Their Owner Approach"\nSin=O/H, Cos=A/H, Tan=O/A\n\nQuadrants: "All Students Take Coffee"\nQ1:All+ Q2:Sin+ Q3:Tan+ Q4:Cos+\nsin²θ+cos²θ=1, sin2A=2sinAcosA`+ft;
-            if (tp.includes('Probab')) return h+`🎲 P=favorable/total\nnCr=n!/(r!(n-r)!), nPr=n!/(n-r)!\nBayes: P(A|B)=P(B|A)·P(A)/P(B)\n💡 Draw tree diagrams!`+ft;
-            return h+`Connect ${tp} formulas to ${f} scenarios!\nAnalogies make concepts STICK! 🧠`+ft;
+            return buildMnemonic(tp, fav, cat);
         }
 
         setTimeout(async () => {
@@ -387,9 +383,9 @@ export default function SaathiScreen() {
 
             // ─── Personalized Mnemonic Flow ───
             if (mnemonicStep !== 'idle') {
-                resp = handleMnemonicFlow(inputText.trim());
+                resp = handleMnemonicFlow(capturedInput);
             } else {
-                resp = await generateResponse(inputText, sentiment);
+                resp = await generateResponse(capturedInput, sentiment);
                 // If generateResponse triggered mnemonic start, begin the flow
                 if (resp === '__MNEMONIC_START__') {
                     setMnemonicStep('pick_category');
@@ -407,7 +403,7 @@ export default function SaathiScreen() {
 
             // Sprint 9: Memory — extract key facts from user messages
             try {
-                const lower = inputText.toLowerCase();
+                const lower = capturedInput.toLowerCase();
                 if (lower.includes('struggle') || lower.includes('weak') || lower.includes('difficult') || lower.includes('hard')) {
                     const topics = ['kinematics', 'newton', 'shm', 'optics', 'electrostatics', 'organic', 'inorganic',
                         'calculus', 'trigonometry', 'algebra', 'vectors', 'probability', 'thermodynamics', 'magnetism'];
