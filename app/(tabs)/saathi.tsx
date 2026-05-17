@@ -274,18 +274,40 @@ async function generateResponse(msg: string, sentiment: number): Promise<string>
     if (l.includes('quiz me') || l.includes('flash') || l.includes('test me') || l.includes('random question')) {
         try {
             const db = await getDatabase();
-            const qs = await db.getAllAsync<any>('SELECT * FROM questions ORDER BY RANDOM() LIMIT 1');
+            const allQs = await db.getAllAsync<any>('SELECT * FROM questions');
+            // Fisher-Yates shuffle for true randomness
+            const shuffled = [...allQs];
+            for (let i = shuffled.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+            }
+            const qs = shuffled.slice(0, 5);
             if (qs.length > 0) {
-                const q = qs[0];
-                const opts = q.options ? JSON.parse(q.options) : null;
-                let optsText = '';
-                if (opts && Array.isArray(opts) && opts[0] !== null) {
-                    optsText = '\n\n' + opts.join('\n');
+                let quizText = '🃏 Flash Quiz (5 Questions)!\n\n';
+                
+                for (let i = 0; i < qs.length; i++) {
+                    const q = qs[i];
+                    const opts = q.options ? JSON.parse(q.options) : null;
+                    let optsText = '';
+                    if (opts && Array.isArray(opts) && opts[0] !== null) {
+                        optsText = '\n\n' + opts.join('\n');
+                    }
+                    quizText += `📝 Q${i + 1}: ${q.question_text}${optsText}\n\n---\n\n`;
                 }
-                return `🃏 Flash Quiz!\n\n📝 ${q.question_text}${optsText}\n\n⏰ Think about it, then scroll down for the answer...\n\n\n\n\n\n\n\n✅ Answer: ${JSON.parse(q.correct_answers)[0]}\n📖 ${q.solution_text || 'Apply standard concepts!'}\n\n+10 XP for practicing! Type \"quiz me\" for another! 🎯`;
+                
+                quizText += `⏰ Take your time! Tap "Show Answers" or scroll below 👇\n\n`;
+                
+                let answersText2 = `✅ Answers:\n\n`;
+                for (let i = 0; i < qs.length; i++) {
+                    const q = qs[i];
+                    const ans = q.correct_answers ? JSON.parse(q.correct_answers)[0] : '';
+                    answersText2 += `Q${i + 1}: ${ans}\n📖 ${q.solution_text || 'Apply standard concepts!'}\n\n`;
+                }
+                answersText2 += `+50 XP for practicing! Type "quiz me" for another round! 🎯`;
+                return '__QUIZ_SPLIT__' + quizText + '__QUIZ_ANSWERS__' + answersText2;
             }
         } catch(e) {}
-        return "Let me find a question for you... Try going to Tests tab for a structured quiz! 📝";
+        return "Let me find some questions for you... Try going to Tests tab for a structured quiz! 📝";
     }
 
     // Default
@@ -309,6 +331,7 @@ export default function SaathiScreen() {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const scrollRef = useRef<ScrollView>(null);
     const fadeAnim = useRef(new Animated.Value(0)).current;
+    const [pendingAnswers, setPendingAnswers] = useState<string | null>(null);
 
     useEffect(() => { loadMessages(); }, []);
 
@@ -322,7 +345,7 @@ export default function SaathiScreen() {
             if (saved.length === 0) {
                 const welcome: ChatMessage = {
                     id: generateId(), role: 'assistant',
-                    content: "Namaste! I'm Saathi 🙏 — your offline AI study companion.\n\n• 📚 Subject doubts (Physics, Chemistry, Math)\n• 🎮 Pop-culture mnemonics (Cricket, Avengers, Games!)\n• 🖼️ Upload photos of problems\n• 🌐 Hindi, Tamil, Telugu, Bengali, Marathi support\n• 🧘 Stress management & motivation\n• ⏱️ Pomodoro timer & Flash quizzes\n\nHow are you feeling today?",
+                    content: "Namaste! I'm Saathi 🙏 — your offline AI study companion.\n\n• 📚 Subject doubts (Physics, Chemistry, Math)\n• 🎮 Pop-culture mnemonics (Cricket, Avengers, Games!)\n• 🌐 Hindi, Tamil, Telugu, Bengali, Marathi support\n• 🧘 Stress management & motivation\n• ⏱️ Pomodoro timer & Flash quizzes\n\nHow are you feeling today?",
                     timestamp: new Date().toISOString()
                 };
                 setMessages([welcome]);
@@ -438,6 +461,23 @@ export default function SaathiScreen() {
                     setMnemonicStep('pick_category');
                     resp = `🎮 Personalized Mnemonic Mode!\n\nI'll explain JEE concepts using YOUR favorite references!\n\nFirst, what do you enjoy most?\n\n1️⃣ 🏏 Cricket / Sports\n2️⃣ 🎬 Movies / TV Series\n3️⃣ 🎮 Video Games\n4️⃣ 🎌 Anime / Manga\n5️⃣ 😂 Memes / Internet Culture\n\nJust type the number or name! 👆`;
                 }
+            }
+
+            // Handle quiz: show questions first, answers appear as separate message after 8s
+            if (resp.startsWith('__QUIZ_SPLIT__')) {
+                const parts = resp.replace('__QUIZ_SPLIT__', '').split('__QUIZ_ANSWERS__');
+                const questionsText = parts[0] || '';
+                const answersText = parts[1] || '';
+                const questionsMsg: ChatMessage = { id: generateId(), role: 'assistant', content: questionsText, timestamp: new Date().toISOString() };
+                setMessages(prev => [...prev, questionsMsg]);
+                setPendingAnswers(answersText);
+                try {
+                    const db2 = await getDatabase();
+                    await db2.runAsync('INSERT INTO chat_messages (id,role,content,timestamp,user_email) VALUES (?,?,?,?,?)',
+                        [questionsMsg.id, questionsMsg.role, questionsMsg.content, questionsMsg.timestamp, userEmail]);
+                } catch (e) { }
+                setTimeout(() => scrollRef.current?.scrollToEnd({ animated: true }), 100);
+                return;
             }
 
             const botMsg: ChatMessage = { id: generateId(), role: 'assistant', content: resp, timestamp: new Date().toISOString() };
@@ -574,9 +614,28 @@ export default function SaathiScreen() {
                             {new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</Text>
                     </View>
                 ))}
+                {pendingAnswers && (
+                    <TouchableOpacity 
+                        style={{ alignSelf: 'center', backgroundColor: Colors.primary, paddingVertical: 12, paddingHorizontal: 24, borderRadius: 25, marginVertical: 15, elevation: 3, shadowColor: '#000', shadowOffset: {width: 0, height: 2}, shadowOpacity: 0.2, shadowRadius: 3 }}
+                        onPress={async () => {
+                            const ansText = pendingAnswers;
+                            setPendingAnswers(null);
+                            const answersMsg: ChatMessage = { id: generateId(), role: 'assistant', content: "⏱️ Here are the answers:\n\n" + ansText, timestamp: new Date().toISOString() };
+                            setMessages(prev => [...prev, answersMsg]);
+                            try {
+                                const db2 = await getDatabase();
+                                await db2.runAsync('INSERT INTO chat_messages (id,role,content,timestamp,user_email) VALUES (?,?,?,?,?)',
+                                    [answersMsg.id, answersMsg.role, answersMsg.content, answersMsg.timestamp, userEmail]);
+                            } catch (e) { }
+                            setTimeout(() => scrollRef.current?.scrollToEnd({ animated: true }), 100);
+                        }}
+                    >
+                        <Text style={{ color: '#fff', fontWeight: 'bold', fontSize: 16 }}>Show Answers 👀</Text>
+                    </TouchableOpacity>
+                )}
             </ScrollView>
             <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ paddingHorizontal: 16, maxHeight: 40 }}>
-                {['🎮 Mnemonics','Physics doubt','Feeling stressed','⏱️ Pomodoro','🃏 Quiz me','🌐 Languages','📷 Upload Photo'].map((r, i) => (
+                {['🎮 Mnemonics','Physics doubt','Feeling stressed','⏱️ Pomodoro','🃏 Quiz me','🌐 Languages'].map((r, i) => (
                     <TouchableOpacity key={i} style={[styles.qr, { borderColor: Colors.primary + '40' }]}
                         onPress={() => {
                             if (r.includes('📷') || r.includes('Upload')) { handleImageUpload(); }
