@@ -22,27 +22,57 @@ const LEVELS = [
 
 // ─── XP Award Values ───
 export const XP_VALUES = {
-    test_complete: 50,
-    correct_answer: 10,
-    pyq_solved: 10,
-    saathi_chat: 5,
-    doubt_posted: 15,
-    doubt_answered: 25,
-    streak_daily: 20,
-    daily_challenge: 30,
-    perfect_score: 100,
+    // Test completion base XP by test type
+    test_complete_full: 20,      // full-length mock test
+    test_complete_subject: 10,   // subject-wise test
+    test_complete_chapter: 5,    // chapter test
+    test_complete: 10,           // fallback
+    // Per-question XP by difficulty (1-5 scale)
+    // Easy (1-2): 2-3 XP, Medium (3): 4-5 XP, Hard (4-5): 5-6 XP
+    correct_answer_easy: 2,      // difficulty 1-2
+    correct_answer_medium: 4,    // difficulty 3
+    correct_answer_hard: 5,      // difficulty 4-5
+    pyq_solved: 3,
+    saathi_chat: 2,
+    doubt_posted: 5,
+    doubt_answered: 8,
+    streak_daily: 5,
+    daily_challenge: 6,
+    perfect_score: 15,
     spin_reward: 0, // variable
 };
 
+// Helper: get XP for a correct answer based on question difficulty (1-5)
+export function getXPForDifficulty(difficulty: number): number {
+    if (difficulty <= 2) {
+        // Easy: random 2 or 3
+        return Math.random() < 0.5 ? 2 : 3;
+    } else if (difficulty === 3) {
+        // Medium: random 4 or 5
+        return Math.random() < 0.5 ? 4 : 5;
+    } else {
+        // Hard (4-5): random 5 or 6
+        return Math.random() < 0.5 ? 5 : 6;
+    }
+}
+
+// Helper: get base XP for test completion based on test type
+export function getTestCompleteXP(testType: string): number {
+    if (testType === 'full') return XP_VALUES.test_complete_full;
+    if (testType === 'subject') return XP_VALUES.test_complete_subject;
+    if (testType === 'chapter') return XP_VALUES.test_complete_chapter;
+    return XP_VALUES.test_complete;
+}
+
 // ─── Spin Rewards Pool ───
 const SPIN_REWARDS: SpinReward[] = [
-    { type: 'xp', label: '+10 Bonus XP', value: 10, message: '🎉 You won 10 bonus XP!' },
-    { type: 'xp', label: '+25 Bonus XP', value: 25, message: '🎉 Amazing! 25 bonus XP!' },
-    { type: 'xp', label: '+50 Bonus XP', value: 50, message: '🎉 Jackpot! 50 bonus XP!' },
+    { type: 'xp', label: '+3 Bonus XP', value: 3, message: '🎉 You won 3 bonus XP!' },
+    { type: 'xp', label: '+5 Bonus XP', value: 5, message: '🎉 Amazing! 5 bonus XP!' },
+    { type: 'xp', label: '+8 Bonus XP', value: 8, message: '🎉 Jackpot! 8 bonus XP!' },
     { type: 'streak_shield', label: 'Streak Shield', value: 1, message: '🛡️ Streak Shield! Your streak is protected for 1 day.' },
     { type: 'tip', label: 'Study Tip', value: 0, message: '💡 Pro Tip: Solve PYQs in timed conditions to build exam stamina!' },
     { type: 'fun_fact', label: 'Fun Fact', value: 0, message: '🧠 Fun Fact: IIT Bombay receives 10 lakh+ applications every year but admits only ~16,000 students!' },
-    { type: 'xp', label: '+15 Bonus XP', value: 15, message: '🎉 Nice! 15 bonus XP!' },
+    { type: 'xp', label: '+4 Bonus XP', value: 4, message: '🎉 Nice! 4 bonus XP!' },
     { type: 'tip', label: 'Study Tip', value: 0, message: '💡 Pro Tip: Review your wrong answers immediately after a test — that\'s when learning sticks!' },
 ];
 

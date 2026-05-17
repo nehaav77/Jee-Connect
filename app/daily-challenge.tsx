@@ -1,6 +1,6 @@
 // JEE Connect — Daily Challenge Screen
 // Timed single-question challenge: Chemistry 60s, Physics/Maths 120s
-// Awards +30 XP only on correct answer, enforces 1 question per day
+// Awards +6 XP only on correct answer, enforces 1 question per day
 
 import React, { useEffect, useState, useRef } from 'react';
 import {
@@ -307,7 +307,7 @@ export default function DailyChallengeScreen() {
                     <Text style={[styles.subjectChipText, { color: subjectColor }]}>{subjectLabel}</Text>
                 </View>
                 <View style={[styles.xpChip, { backgroundColor: Colors.warning }]}>
-                    <Text style={styles.xpChipText}>+30 XP</Text>
+                    <Text style={styles.xpChipText}>+6 XP</Text>
                 </View>
                 {question.year && (
                     <View style={[styles.yearChip, { backgroundColor: theme.surfaceElevated }]}>
@@ -400,7 +400,7 @@ export default function DailyChallengeScreen() {
                         color: answerState === 'correct' ? Colors.success :
                             answerState === 'wrong' ? Colors.error : Colors.warning
                     }]}>
-                        {answerState === 'correct' ? 'Correct! +30 XP Earned!' :
+                        {answerState === 'correct' ? 'Correct! +6 XP Earned!' :
                             answerState === 'wrong' ? 'Better Luck Next Time' : "Time's Up!"}
                     </Text>
                     <Text style={[styles.resultSub, { color: isDark ? '#aaa' : '#666' }]}>

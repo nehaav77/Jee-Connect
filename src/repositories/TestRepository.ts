@@ -31,6 +31,8 @@ export interface TestAttempt {
     time_per_question: string; // JSON map: questionId -> seconds
     tab_violations?: number;
     is_disqualified?: number;
+    xp_awarded?: number;
+    question_ids?: string; // JSON array of question IDs for this attempt
     user_email?: string;
 }
 
@@ -73,19 +75,39 @@ class TestRepository extends BaseRepository<Test> {
     }
 
     // Get questions for a test (web-compatible: no JOIN)
-    async getTestQuestions(testId: string): Promise<Question[]> {
+    async getTestQuestions(testId: string, attemptId?: string): Promise<Question[]> {
         const db = await getDatabase();
-        // Step 1: get test_question links
-        const links = await db.getAllAsync<TestQuestion>(
-            'SELECT * FROM test_questions WHERE test_id = ? ORDER BY order_num',
-            [testId]
-        );
-        // Step 2: fetch each question by id
+        let questionIdsToFetch: string[] = [];
+
+        if (attemptId) {
+            const attempt = await db.getFirstAsync<TestAttempt>(
+                'SELECT question_ids FROM test_attempts WHERE id = ?',
+                [attemptId]
+            );
+            if (attempt && attempt.question_ids) {
+                try {
+                    questionIdsToFetch = JSON.parse(attempt.question_ids);
+                } catch (e) {
+                    console.log('Error parsing dynamic question_ids:', e);
+                }
+            }
+        }
+
+        // Fallback to static test_questions if no attempt or no dynamic questions
+        if (questionIdsToFetch.length === 0) {
+            const links = await db.getAllAsync<TestQuestion>(
+                'SELECT * FROM test_questions WHERE test_id = ? ORDER BY order_num',
+                [testId]
+            );
+            questionIdsToFetch = links.map(l => l.question_id);
+        }
+
+        // Fetch each question by id
         const questions: Question[] = [];
-        for (const link of links) {
+        for (const qid of questionIdsToFetch) {
             const q = await db.getFirstAsync<Question>(
                 'SELECT * FROM questions WHERE id = ?',
-                [link.question_id]
+                [qid]
             );
             if (q) questions.push(q);
         }
@@ -122,15 +144,109 @@ class TestRepository extends BaseRepository<Test> {
         return testId;
     }
 
-    // Start a test attempt
+    // Start a test attempt (generates dynamic questions based on previous mistakes)
     async startAttempt(testId: string, userEmail?: string): Promise<string> {
         const db = await getDatabase();
         const attemptId = generateId();
 
+        let finalQuestionIds: string[] = [];
+        
+        try {
+            if (userEmail) {
+                // 1. Get original questions to know target length and chapters
+                const originalLinks = await db.getAllAsync<TestQuestion>(
+                    'SELECT question_id FROM test_questions WHERE test_id = ? ORDER BY order_num',
+                    [testId]
+                );
+                const targetLength = originalLinks.length;
+                
+                if (targetLength > 0) {
+                    const originalQuestionIds = originalLinks.map(l => l.question_id);
+                    const chapters = new Set<string>();
+                    for (const qid of originalQuestionIds) {
+                        const q = await db.getFirstAsync<Question>('SELECT chapter_id FROM questions WHERE id = ?', [qid]);
+                        if (q) chapters.add(q.chapter_id);
+                    }
+
+                    // 2. Fetch last attempt to find mistakes
+                    const lastAttempt = await db.getFirstAsync<TestAttempt>(
+                        `SELECT answers FROM test_attempts WHERE test_id = ? AND user_email = ? AND status = 'completed' ORDER BY started_at DESC LIMIT 1`,
+                        [testId, userEmail]
+                    );
+
+                    const wrongQuestionIds = new Set<string>();
+                    const correctQuestionIds = new Set<string>();
+
+                    if (lastAttempt) {
+                        const answers = JSON.parse(lastAttempt.answers || '{}');
+                        const questionIds = Object.keys(answers);
+                        for (const qId of questionIds) {
+                            const question = await db.getFirstAsync<Question>('SELECT * FROM questions WHERE id = ?', [qId]);
+                            if (!question) continue;
+                            const userAnswer = answers[qId];
+                            if (userAnswer === undefined || userAnswer === null || String(userAnswer).trim() === '') {
+                                wrongQuestionIds.add(qId);
+                                continue;
+                            }
+                            let correctAnsArray: string[] = [];
+                            try { correctAnsArray = JSON.parse(question.correct_answers); } catch { correctAnsArray = [question.correct_answers]; }
+                            const correctAnsStr = Array.isArray(correctAnsArray) ? correctAnsArray[0] : correctAnsArray;
+                            let isCorrect = false;
+                            if (question.question_type === 'numerical') {
+                                isCorrect = parseFloat(String(userAnswer).trim()) === parseFloat(String(correctAnsStr).trim());
+                            } else {
+                                isCorrect = String(userAnswer).trim().toUpperCase() === String(correctAnsStr).trim().toUpperCase();
+                            }
+                            if (isCorrect) correctQuestionIds.add(qId);
+                            else wrongQuestionIds.add(qId);
+                        }
+                    }
+
+                    // 3. Pool of all questions from relevant chapters
+                    const allChapterQuestions: string[] = [];
+                    for (const chapter of chapters) {
+                        const qs = await db.getAllAsync<{id: string}>('SELECT id FROM questions WHERE chapter_id = ?', [chapter]);
+                        allChapterQuestions.push(...qs.map(q => q.id));
+                    }
+
+                    // Exclude questions already in wrongQuestionIds and correctQuestionIds
+                    const availablePool = allChapterQuestions.filter(id => !wrongQuestionIds.has(id) && !correctQuestionIds.has(id));
+                    // Shuffle
+                    const shuffled = availablePool.sort(() => 0.5 - Math.random());
+
+                    finalQuestionIds = Array.from(wrongQuestionIds);
+                    // Fill remaining slots
+                    while (finalQuestionIds.length < targetLength && shuffled.length > 0) {
+                        finalQuestionIds.push(shuffled.pop()!);
+                    }
+                    // If still short, use correct questions from last time
+                    const correctArr = Array.from(correctQuestionIds).sort(() => 0.5 - Math.random());
+                    while (finalQuestionIds.length < targetLength && correctArr.length > 0) {
+                        finalQuestionIds.push(correctArr.pop()!);
+                    }
+                    // If STILL short, fallback to original test questions
+                    if (finalQuestionIds.length < targetLength) {
+                        finalQuestionIds = originalQuestionIds;
+                    }
+                    
+                    // Final shuffle so the test feels fresh and questions aren't always in wrong -> correct order
+                    finalQuestionIds = finalQuestionIds.sort(() => 0.5 - Math.random());
+                } else {
+                    finalQuestionIds = await db.getAllAsync<{question_id: string}>('SELECT question_id FROM test_questions WHERE test_id = ? ORDER BY order_num', [testId])
+                        .then(res => res.map(r => r.question_id));
+                }
+            }
+        } catch (e) {
+            console.error('Error generating dynamic test questions:', e);
+            finalQuestionIds = []; // fallback to static
+        }
+
+        const questionIdsJson = finalQuestionIds.length > 0 ? JSON.stringify(finalQuestionIds) : null;
+
         await db.runAsync(
-            `INSERT INTO test_attempts (id, test_id, started_at, status, answers, time_per_question, user_email) 
-       VALUES (?, ?, datetime('now'), 'in_progress', '{}', '{}', ?)`,
-            [attemptId, testId, userEmail || null]
+            `INSERT INTO test_attempts (id, test_id, started_at, status, answers, time_per_question, question_ids, user_email) 
+       VALUES (?, ?, datetime('now'), 'in_progress', '{}', '{}', ?, ?)`,
+            [attemptId, testId, questionIdsJson, userEmail || null]
         );
 
         return attemptId;
@@ -286,6 +402,12 @@ class TestRepository extends BaseRepository<Test> {
         
         const result = await db.getFirstAsync<TestAttempt>(query, params);
         return result || null;
+    }
+
+    // Mark that XP has been awarded for an attempt
+    async markXPAwarded(attemptId: string): Promise<void> {
+        const db = await getDatabase();
+        await db.runAsync('UPDATE test_attempts SET xp_awarded = ? WHERE id = ?', [1, attemptId]);
     }
 }
 

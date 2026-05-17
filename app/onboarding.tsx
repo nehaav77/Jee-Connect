@@ -31,8 +31,6 @@ export default function OnboardingScreen() {
             if (studyTime) await gamificationService.setProfileValue(userEmail, 'study_time_pref', studyTime);
             if (subjectPriority.length > 0) await gamificationService.setProfileValue(userEmail, 'subject_priority', JSON.stringify(subjectPriority));
             await gamificationService.setProfileValue(userEmail, 'onboarding_complete', 'true');
-            // Award welcome XP
-            await gamificationService.awardXP(userEmail, 'onboarding_complete', 20);
             setOnboardingComplete(true);
             refreshGamificationData(userEmail);
         }

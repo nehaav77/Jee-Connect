@@ -32,6 +32,7 @@ export default function TestAttemptScreen() {
     const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
     const autoSaveRef = useRef<ReturnType<typeof setInterval> | null>(null);
     const [isDisqualifiedOverlay, setIsDisqualifiedOverlay] = useState(false);
+    const [showEarlySubmitAlert, setShowEarlySubmitAlert] = useState(false);
     const submittedRef = useRef(false);
 
     useEffect(() => { loadTest(); return () => { if (timerRef.current) clearInterval(timerRef.current); if (autoSaveRef.current) clearInterval(autoSaveRef.current); }; }, []);
@@ -71,7 +72,7 @@ export default function TestAttemptScreen() {
                 setTimeLeft(test.duration_min * 60);
             }
 
-            const qs = await testRepository.getTestQuestions(testId!);
+            const qs = await testRepository.getTestQuestions(testId!, attemptId!);
             setQuestions(qs);
             
             const initialVisited = new Set(Object.keys(restoredAnswers));
@@ -249,13 +250,35 @@ export default function TestAttemptScreen() {
         });
     }
 
-    function selectOption(qId: string, option: string) {
+    function selectOption(qId: string, option: string, isMulti: boolean = false) {
         setAnswers(prev => {
             const draft = { ...prev };
-            if (draft[qId] === option) {
-                delete draft[qId]; // toggle off
+            if (isMulti) {
+                const current = draft[qId];
+                let arr: string[] = [];
+                if (Array.isArray(current)) {
+                    arr = [...current];
+                } else if (typeof current === 'string' && current.trim() !== '') {
+                    arr = [current];
+                }
+                
+                if (arr.includes(option)) {
+                    arr = arr.filter(o => o !== option);
+                } else {
+                    arr.push(option);
+                }
+                
+                if (arr.length === 0) {
+                    delete draft[qId];
+                } else {
+                    draft[qId] = arr;
+                }
             } else {
-                draft[qId] = option;
+                if (draft[qId] === option) {
+                    delete draft[qId]; // toggle off
+                } else {
+                    draft[qId] = option;
+                }
             }
             return draft;
         });
@@ -407,13 +430,21 @@ export default function TestAttemptScreen() {
                 ) : (
                     options.map((opt, oi) => {
                         const letter = String.fromCharCode(65 + oi);
-                        const sel = answers[q.id] === letter;
+                        const isMulti = q.question_type === 'multi_answer';
+                        const currentAns = answers[q.id];
+                        let sel = false;
+                        if (isMulti) {
+                            sel = Array.isArray(currentAns) ? currentAns.includes(letter) : currentAns === letter;
+                        } else {
+                            sel = currentAns === letter;
+                        }
+                        
                         return (
                             <TouchableOpacity key={oi} style={[styles.optRow, {
                                 borderColor: sel ? Colors.primary : theme.border,
                                 backgroundColor: sel ? Colors.primary + '10' : 'transparent',
-                            }]} onPress={() => selectOption(q.id, letter)} activeOpacity={0.7}>
-                                <View style={[styles.optCircle, { borderColor: sel ? Colors.primary : theme.textMuted, backgroundColor: sel ? Colors.primary : 'transparent' }]}>
+                            }]} onPress={() => selectOption(q.id, letter, isMulti)} activeOpacity={0.7}>
+                                <View style={[isMulti ? styles.optSquare : styles.optCircle, { borderColor: sel ? Colors.primary : theme.textMuted, backgroundColor: sel ? Colors.primary : 'transparent' }]}>
                                     {sel && <Text style={{ color: '#fff', fontSize: 10, fontWeight: '800' }}>✓</Text>}
                                 </View>
                                 <Text style={[styles.optText, { color: theme.text }]}>{opt.replace(/^[A-D]\)\s*/, '')}</Text>
@@ -454,13 +485,7 @@ export default function TestAttemptScreen() {
                             <View style={{ flex: 1 }} />
                         )}
                         <TouchableOpacity style={[styles.navBtn, { backgroundColor: isHalfTimePassed ? '#28a745' : theme.surfaceElevated, flex: 0.5, marginLeft: 'auto', opacity: isHalfTimePassed ? 1 : 0.6 }]}
-                            onPress={isHalfTimePassed ? confirmSubmit : () => {
-                                if (Platform.OS === 'web') {
-                                    window.alert('You cannot submit the exam until at least 50% of the time has elapsed.');
-                                } else {
-                                    Alert.alert('Early Submission Locked', 'You cannot submit the exam until at least 50% of the time has elapsed.');
-                                }
-                            }}>
+                            onPress={isHalfTimePassed ? confirmSubmit : () => setShowEarlySubmitAlert(true)}>
                             <Text style={[styles.navBtnText, { color: isHalfTimePassed ? '#fff' : theme.textMuted }]}>SUBMIT</Text>
                         </TouchableOpacity>
                     </View>
@@ -517,6 +542,22 @@ export default function TestAttemptScreen() {
                     </ScrollView>
                 </View>
             </View>
+
+            {/* Early Submit Alert Modal */}
+            {showEarlySubmitAlert && (
+                <View style={[StyleSheet.absoluteFill, styles.center, { backgroundColor: 'rgba(0,0,0,0.6)', zIndex: 9999 }]}>
+                    <View style={{ backgroundColor: theme.surface, padding: 24, borderRadius: 12, maxWidth: 350, alignItems: 'center' }}>
+                        <Text style={{ fontSize: 40, marginBottom: 12 }}>⏳</Text>
+                        <Text style={{ color: theme.text, fontSize: 18, fontWeight: '700', marginBottom: 12, textAlign: 'center' }}>Early Submission Locked</Text>
+                        <Text style={{ color: theme.textMuted, fontSize: 14, textAlign: 'center', marginBottom: 20, lineHeight: 22 }}>
+                            Exam can be submitted after 50% of the time has elapsed. Please review your answers.
+                        </Text>
+                        <TouchableOpacity style={[styles.btn, { backgroundColor: '#007bff', width: '100%' }]} onPress={() => setShowEarlySubmitAlert(false)}>
+                            <Text style={{ color: '#fff', fontWeight: 'bold' }}>OK</Text>
+                        </TouchableOpacity>
+                    </View>
+                </View>
+            )}
         </View>
     );
 }
@@ -540,6 +581,7 @@ const styles = StyleSheet.create({
     latexBox: { padding: 12, borderRadius: 8, borderWidth: 1, marginBottom: 16, overflow: 'scroll' },
     optRow: { flexDirection: 'row', alignItems: 'center', padding: 14, borderRadius: 12, borderWidth: 1.5, marginBottom: 8, minHeight: 48 },
     optCircle: { width: 22, height: 22, borderRadius: 11, borderWidth: 2, marginRight: 12, justifyContent: 'center', alignItems: 'center' },
+    optSquare: { width: 22, height: 22, borderRadius: 4, borderWidth: 2, marginRight: 12, justifyContent: 'center', alignItems: 'center' },
     optText: { flex: 1, fontSize: 15 },
     numInput: { borderWidth: 1.5, borderRadius: 12, padding: 14, fontSize: 16, fontWeight: '600' },
     actionRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, padding: 12, borderTopWidth: 0.5, borderColor: '#ccc' },

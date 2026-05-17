@@ -24,7 +24,7 @@ export default function DoubtsScreen() {
     const [showCompose, setShowCompose] = useState(false);
     const [newQuestion, setNewQuestion] = useState('');
     const [newSubject, setNewSubject] = useState('Physics');
-    const [filter, setFilter] = useState<'all' | 'open' | 'resolved'>('all');
+    const [filter, setFilter] = useState<'all' | 'replies'>('all');
 
     // Detail view state
     const [selectedDoubt, setSelectedDoubt] = useState<DoubtPost | null>(null);
@@ -168,8 +168,7 @@ export default function DoubtsScreen() {
     }
 
     const filtered = doubts.filter(d => {
-        if (filter === 'open') return !d.is_resolved;
-        if (filter === 'resolved') return d.is_resolved;
+        if (filter === 'replies') return d.answers_count > 0;
         return true;
     });
 
@@ -361,12 +360,12 @@ export default function DoubtsScreen() {
 
             {/* Filter Row */}
             <View style={styles.filterRow}>
-                {(['all', 'open', 'resolved'] as const).map(f => (
+                {(['all', 'replies'] as const).map(f => (
                     <TouchableOpacity key={f}
                         style={[styles.filterBtn, filter === f && { backgroundColor: Colors.primary }]}
                         onPress={() => setFilter(f)} activeOpacity={0.7}>
                         <Text style={[{ fontWeight: '600', fontSize: 13, color: filter === f ? '#fff' : theme.textSecondary }]}>
-                            {f === 'all' ? '📋 All' : f === 'open' ? '❓ Open' : '✅ Resolved'}
+                            {f === 'all' ? '📋 All' : '💬 Replies'}
                         </Text>
                     </TouchableOpacity>
                 ))}

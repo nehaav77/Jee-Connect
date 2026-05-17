@@ -121,6 +121,20 @@ export async function initializeDatabase(): Promise<void> {
         // Column already exists, ignore
     }
 
+    // Migration: add question_ids column to test_attempts for dynamic retakes
+    try {
+        await db.execAsync('ALTER TABLE test_attempts ADD COLUMN question_ids TEXT');
+    } catch (_) {
+        // Column already exists, ignore
+    }
+
+    // Migration: add xp_awarded column to test_attempts
+    try {
+        await db.execAsync('ALTER TABLE test_attempts ADD COLUMN xp_awarded INTEGER DEFAULT 0');
+    } catch (_) {
+        // Column already exists, ignore
+    }
+
     // Seed data if subjects are empty
     const existing = await db.getFirstAsync<{ count: number }>(
         'SELECT COUNT(*) as count FROM subjects'
@@ -206,23 +220,22 @@ async function seedWebStore(): Promise<void> {
                         user_email: t.user_email ?? null,
                     }));
                 }
-                // Patch: ensure tab_violations and is_disqualified fields exist on all test_attempts
+                // Patch: ensure tab_violations, is_disqualified, and xp_awarded fields exist on all test_attempts
                 if (webStore['test_attempts']) {
                     webStore['test_attempts'] = webStore['test_attempts'].map((a: any) => ({
                         ...a,
                         tab_violations: a.tab_violations ?? 0,
                         is_disqualified: a.is_disqualified ?? 0,
+                        xp_awarded: a.xp_awarded ?? 0,
                     }));
                 }
-                // Hotfix: Patch vector question math formatting
-                if (webStore['questions']) {
-                    const idx = webStore['questions'].findIndex((q: any) => q.id === 'pyq-math-2021-1');
-                    if (idx !== -1) {
-                        webStore['questions'][idx].question_text = 'Evaluate the dot product of the two vectors given the following properties:';
-                        webStore['questions'][idx].question_latex = '|\\vec{a}|=3, \\quad |\\vec{b}|=4, \\quad \\text{Angle between them} = 60^\\circ \\\\ \\text{Find } \\vec{a} \\cdot \\vec{b}';
-                        webStore['questions'][idx].solution_latex = '\\vec{a}\\cdot\\vec{b} = |\\vec{a}||\\vec{b}|\\cos\\theta = 3 \\times 4 \\times \\cos 60^\\circ = 6';
-                    }
-                }
+                // Hotfix: Force update questions to load new actual solutions
+                webStore['questions'] = [
+                    ...SEED_QUESTIONS.map(q => ({ ...q })),
+                    ...SEED_QUESTIONS_EXTRA.map(q => ({ ...q })),
+                    ...JEE_MAIN_QUESTIONS.map(q => ({ ...q })),
+                    ...JEE_ADVANCED_QUESTIONS.map(q => ({ ...q }))
+                ];
 
                 // --- ONE-TIME AUTO CLEAR FOR CLANS ---
                 if (!window.localStorage.getItem('jee_connect_clans_cleared_v1')) {

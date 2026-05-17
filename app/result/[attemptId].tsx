@@ -7,7 +7,7 @@ import { Colors, Spacing, BorderRadius, FontSize, Shadow } from '@/src/constants
 import { getDatabase } from '@/src/db/database';
 import { testRepository } from '@/src/repositories/TestRepository';
 import { adaptiveTestService } from '@/src/services/AdaptiveTestService';
-import { gamificationService, XP_VALUES } from '@/src/services/GamificationService';
+import { gamificationService, XP_VALUES, getXPForDifficulty, getTestCompleteXP } from '@/src/services/GamificationService';
 import { useAppStore } from '@/src/store/appStore';
 import MathText from '@/components/MathText';
 
@@ -61,7 +61,7 @@ export default function ResultScreen() {
                 is_disqualified: attempt.is_disqualified === 1,
             });
 
-            const qs = await testRepository.getTestQuestions(attempt.test_id);
+            const qs = await testRepository.getTestQuestions(attempt.test_id, attemptId as string);
             setQuestions(qs);
             setAnswers(JSON.parse(attempt.answers || '{}'));
 
@@ -73,17 +73,41 @@ export default function ResultScreen() {
                 } catch (ie) { console.log('Improvement data:', ie); }
             }
 
-            // Sprint 9: Award XP for test completion
-            if (userEmail && !xpProcessed) {
+            // Sprint 9: Award XP for test completion (difficulty-based)
+            if (userEmail && !xpProcessed && Number(attempt.is_disqualified) !== 1 && Number(attempt.xp_awarded) !== 1) {
                 try {
-                    let xp = XP_VALUES.test_complete; // 50 base
-                    xp += (attempt.correct_count || 0) * XP_VALUES.correct_answer; // +10 per correct
+                    // Base XP depends on test type (full=20, subject=10, chapter=5)
+                    const testType = test?.test_type || 'full';
+                    let xp = getTestCompleteXP(testType);
+
+                    // Add per-question XP based on difficulty for each correct answer
+                    const qs = await testRepository.getTestQuestions(attempt.test_id, attemptId as string);
+                    const userAnswers = JSON.parse(attempt.answers || '{}');
+                    for (const q of qs) {
+                        const userAns = userAnswers[q.id];
+                        if (userAns === undefined || userAns === null || String(userAns).trim() === '') continue;
+                        let correctAnsArray: string[] = [];
+                        try { correctAnsArray = JSON.parse(q.correct_answers); } catch { correctAnsArray = [q.correct_answers]; }
+                        const correctAnsStr = Array.isArray(correctAnsArray) ? correctAnsArray[0] : correctAnsArray;
+                        let isCorrect = false;
+                        if (q.question_type === 'numerical') {
+                            isCorrect = parseFloat(String(userAns).trim()) === parseFloat(String(correctAnsStr).trim());
+                        } else {
+                            isCorrect = String(userAns).trim().toUpperCase() === String(correctAnsStr).trim().toUpperCase();
+                        }
+                        if (isCorrect) {
+                            xp += getXPForDifficulty(q.difficulty || 3);
+                        }
+                    }
+
                     const totalQ = test?.total_questions || 0;
                     if (totalQ > 0 && (attempt.correct_count || 0) === totalQ) {
-                        xp += XP_VALUES.perfect_score; // +100 for perfect
+                        xp += XP_VALUES.perfect_score; // +15 for perfect
                     }
                     await gamificationService.awardXP(userEmail, 'test_complete', xp);
                     await gamificationService.recordDailyActivity(userEmail, xp, attempt.total_attempted || 0, 1);
+                    await testRepository.markXPAwarded(attemptId as string);
+                    
                     setXPAwarded(xp);
                     triggerXPToast(xp, 'Test Complete');
 
@@ -296,28 +320,7 @@ export default function ResultScreen() {
                 </View>
             </View>
 
-            {/* Improvement Tracker */}
-            {improvements.length > 0 && (
-                <View style={[styles.analysisCard, { backgroundColor: theme.surface, borderColor: theme.cardBorder }]}>
-                    <Text style={[styles.analyTitle, { color: theme.text }]}>📈 Your Improvement</Text>
-                    {improvements.map((imp, idx) => (
-                        <View key={idx} style={{ flexDirection: 'row', alignItems: 'center', paddingVertical: 6, borderBottomWidth: idx < improvements.length - 1 ? 0.5 : 0, borderColor: theme.border, gap: 8 }}>
-                            <View style={{ flex: 1 }}>
-                                <Text style={{ color: theme.text, fontSize: 13, fontWeight: '600' }} numberOfLines={1}>{imp.chapter}</Text>
-                                <Text style={{ color: theme.textMuted, fontSize: 10 }}>{imp.subject}</Text>
-                            </View>
-                            <Text style={{ color: theme.textSecondary, fontSize: 12 }}>{imp.previousAccuracy}%</Text>
-                            <Text style={{ color: theme.textMuted, fontSize: 10 }}>→</Text>
-                            <Text style={{ color: theme.text, fontSize: 12, fontWeight: '700' }}>{imp.currentAccuracy}%</Text>
-                            <View style={{ paddingHorizontal: 6, paddingVertical: 2, borderRadius: 4, backgroundColor: imp.change > 0 ? Colors.success + '20' : Colors.error + '20' }}>
-                                <Text style={{ color: imp.change > 0 ? Colors.success : Colors.error, fontSize: 11, fontWeight: '800' }}>
-                                    {imp.change > 0 ? '+' : ''}{imp.change}%
-                                </Text>
-                            </View>
-                        </View>
-                    ))}
-                </View>
-            )}
+
 
             {/* Actions */}
             <TouchableOpacity style={[styles.actionBtn, { backgroundColor: Colors.primary }]}

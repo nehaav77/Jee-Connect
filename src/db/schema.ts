@@ -102,6 +102,8 @@ export const CREATE_TABLES_SQL = [
     time_per_question TEXT DEFAULT '{}',
     tab_violations INTEGER DEFAULT 0,
     is_disqualified INTEGER DEFAULT 0,
+    xp_awarded INTEGER DEFAULT 0,
+    question_ids TEXT,
     user_email TEXT,
     FOREIGN KEY (test_id) REFERENCES tests(id) ON DELETE CASCADE
   )`,

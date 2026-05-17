@@ -58,9 +58,26 @@ export default function AuthScreen() {
     }
 
     function validate(): boolean {
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
         if (!email.trim()) { showAlert('Error', 'Please enter your email'); return false; }
-        if (!emailRegex.test(email.trim())) { showAlert('Invalid Format', 'Please enter a valid email address (e.g. name@domain.com)'); return false; }
+        if (!emailRegex.test(email.trim())) { showAlert('Invalid Format', 'Please enter a valid email address (e.g. name@gmail.com)'); return false; }
+
+        // Check for common email domain typos
+        const domain = email.trim().split('@')[1]?.toLowerCase() || '';
+        const KNOWN_TYPOS: Record<string, string> = {
+            'gmali.com': 'gmail.com', 'gmai.com': 'gmail.com', 'gamil.com': 'gmail.com',
+            'gmal.com': 'gmail.com', 'gmial.com': 'gmail.com', 'gmaill.com': 'gmail.com',
+            'gmail.con': 'gmail.com', 'gmail.co': 'gmail.com', 'gmail.cm': 'gmail.com',
+            'gnail.com': 'gmail.com', 'gmsil.com': 'gmail.com', 'gmil.com': 'gmail.com',
+            'yaho.com': 'yahoo.com', 'yahooo.com': 'yahoo.com', 'yahoo.con': 'yahoo.com',
+            'yhaoo.com': 'yahoo.com', 'outlok.com': 'outlook.com', 'outloo.com': 'outlook.com',
+            'hotmal.com': 'hotmail.com', 'hotmai.com': 'hotmail.com', 'hotmail.con': 'hotmail.com',
+        };
+        if (KNOWN_TYPOS[domain]) {
+            showAlert('Did you mean...?', `It looks like you typed "${domain}". Did you mean "${KNOWN_TYPOS[domain]}"? Please correct your email and try again.`);
+            return false;
+        }
+
         if (password.length < 6) { showAlert('Weak Password', 'Password must be at least 6 characters for security.'); return false; }
         if (isSignup) {
             if (!name.trim()) { showAlert('Error', 'Please enter your name'); return false; }

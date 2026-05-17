@@ -163,7 +163,7 @@ export default function HomeScreen() {
                         <Text style={{ fontSize: 20 }}>⚡</Text>
                         <Text style={[styles.challengeTitle, { color: Colors.warning }]}>Question of the Day</Text>
                         <View style={[styles.xpChip, { backgroundColor: Colors.warning }]}>
-                            <Text style={styles.xpChipText}>+30 XP</Text>
+                            <Text style={styles.xpChipText}>+6 XP</Text>
                         </View>
                     </View>
                     <Text style={[styles.challengeQ, { color: theme.text }]} numberOfLines={3}>
@@ -179,7 +179,7 @@ export default function HomeScreen() {
             )}
             {challengeOutcome === 'solved' && (
                 <View style={[styles.challengeCard, { backgroundColor: Colors.success + '10', borderColor: Colors.success + '30' }]}>
-                    <Text style={{ color: Colors.success, fontWeight: '700', fontSize: 15, textAlign: 'center' }}>✅ Daily Challenge Complete! +30 XP earned 🎉</Text>
+                    <Text style={{ color: Colors.success, fontWeight: '700', fontSize: 15, textAlign: 'center' }}>✅ Daily Challenge Complete! +6 XP earned 🎉</Text>
                 </View>
             )}
             {challengeOutcome === 'attempted' && (
