@@ -290,7 +290,15 @@ class GamificationServiceClass {
 
     async getDailyChallenge(): Promise<DailyChallenge | null> {
         const db = await getDatabase();
-        const questions = await db.getAllAsync<any>('SELECT * FROM questions');
+        const allQuestions = await db.getAllAsync<any>('SELECT * FROM questions');
+        // Only pick MCQ questions that have actual options (not numerical-only questions)
+        const questions = allQuestions.filter((q: any) => {
+            if (!q.options) return false;
+            try {
+                const parsed = JSON.parse(q.options);
+                return Array.isArray(parsed) && parsed.length > 0;
+            } catch { return false; }
+        });
         if (questions.length === 0) return null;
 
         // Use today's date as a seed for deterministic selection
@@ -306,7 +314,19 @@ class GamificationServiceClass {
         const setting = await db.getFirstAsync<{ value: string }>(
             'SELECT value FROM user_settings WHERE key = ?', [`daily_challenge_${userEmail}_${today}`]
         );
-        return setting?.value === 'solved';
+        // 'solved' = correct answer, 'attempted' = wrong answer/timeout — either way, no more attempts today
+        return setting?.value === 'solved' || setting?.value === 'attempted';
+    }
+
+    async getDailyChallengeOutcome(userEmail: string): Promise<'none' | 'solved' | 'attempted'> {
+        const db = await getDatabase();
+        const today = getTodayDateStr();
+        const setting = await db.getFirstAsync<{ value: string }>(
+            'SELECT value FROM user_settings WHERE key = ?', [`daily_challenge_${userEmail}_${today}`]
+        );
+        if (setting?.value === 'solved') return 'solved';
+        if (setting?.value === 'attempted') return 'attempted';
+        return 'none';
     }
 
     async solveDailyChallenge(userEmail: string): Promise<void> {

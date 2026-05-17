@@ -28,7 +28,7 @@ export default function HomeScreen() {
     const [stats, setStats] = useState({ tests: 0, studyHours: 0, streak: 0 });
     const [focusChapter, setFocusChapter] = useState<{ chapter_id: string; chapter_name: string; subject_name: string; accuracy: number; weakness_level: string } | null>(null);
     const [dailyChallenge, setDailyChallenge] = useState<any>(null);
-    const [challengeSolved, setChallengeSolved] = useState(false);
+    const [challengeOutcome, setChallengeOutcome] = useState<'none' | 'solved' | 'attempted'>('none');
     const [adaptiveLoading, setAdaptiveLoading] = useState(false);
 
     useEffect(() => {
@@ -53,7 +53,7 @@ export default function HomeScreen() {
                 refreshGamificationData(userEmail);
                 gamificationService.getFocusTodayChapter(userEmail).then(setFocusChapter);
                 gamificationService.getDailyChallenge().then(setDailyChallenge);
-                gamificationService.isDailyChallengeSolved(userEmail).then(setChallengeSolved);
+                gamificationService.getDailyChallengeOutcome(userEmail).then(setChallengeOutcome);
                 // Record daily activity for streak
                 gamificationService.recordDailyActivity(userEmail, 0, 0, 0);
             }
@@ -157,13 +157,13 @@ export default function HomeScreen() {
             )}
 
             {/* Daily Challenge Card */}
-            {dailyChallenge && !challengeSolved && (
+            {dailyChallenge && challengeOutcome === 'none' && (
                 <View style={[styles.challengeCard, { backgroundColor: Colors.warning + '10', borderColor: Colors.warning + '30' }]}>
                     <View style={styles.challengeHeader}>
                         <Text style={{ fontSize: 20 }}>⚡</Text>
                         <Text style={[styles.challengeTitle, { color: Colors.warning }]}>Question of the Day</Text>
                         <View style={[styles.xpChip, { backgroundColor: Colors.warning }]}>
-                            <Text style={styles.xpChipText}>+{30} XP</Text>
+                            <Text style={styles.xpChipText}>+30 XP</Text>
                         </View>
                     </View>
                     <Text style={[styles.challengeQ, { color: theme.text }]} numberOfLines={3}>
@@ -171,15 +171,20 @@ export default function HomeScreen() {
                     </Text>
                     <TouchableOpacity
                         style={[styles.challengeBtn, { backgroundColor: Colors.warning }]}
-                        onPress={() => router.push('/(tabs)/subjects' as any)}
+                        onPress={() => router.push('/daily-challenge' as any)}
                         activeOpacity={0.7}>
                         <Text style={styles.challengeBtnText}>Solve Challenge →</Text>
                     </TouchableOpacity>
                 </View>
             )}
-            {challengeSolved && (
+            {challengeOutcome === 'solved' && (
                 <View style={[styles.challengeCard, { backgroundColor: Colors.success + '10', borderColor: Colors.success + '30' }]}>
-                    <Text style={{ color: Colors.success, fontWeight: '700', fontSize: 15, textAlign: 'center' }}>✅ Daily Challenge Complete! +30 XP earned</Text>
+                    <Text style={{ color: Colors.success, fontWeight: '700', fontSize: 15, textAlign: 'center' }}>✅ Daily Challenge Complete! +30 XP earned 🎉</Text>
+                </View>
+            )}
+            {challengeOutcome === 'attempted' && (
+                <View style={[styles.challengeCard, { backgroundColor: Colors.error + '10', borderColor: Colors.error + '30' }]}>
+                    <Text style={{ color: Colors.error, fontWeight: '700', fontSize: 15, textAlign: 'center' }}>❌ Challenge Attempted — No XP. Better luck next time!</Text>
                 </View>
             )}
 
