@@ -26121,12 +26121,17 @@
       "id": "1779048591983-ros4at71u",
       "test_id": "test-chem-quick",
       "started_at": "2026-05-17T20:09:51.984Z",
-      "status": "in_progress",
-      "answers": "{\"ja-chemistry-numerical-1\":\"5\",\"jm-chemistry-mcq-20\":\"B\",\"jm-chemistry-num-10\":\"4\",\"ja-chemistry-multi_answer-7\":[\"A\",\"B\",\"D\"],\"jm-chemistry-mcq-1\":\"B\",\"jm-chemistry-mcq-7\":\"A\",\"jm-chemistry-mcq-5\":\"B\"}",
+      "status": "completed",
+      "answers": "{\"ja-chemistry-numerical-1\":\"5\",\"jm-chemistry-mcq-20\":\"B\",\"jm-chemistry-num-10\":\"4\",\"ja-chemistry-multi_answer-7\":[\"A\",\"B\",\"D\"],\"jm-chemistry-mcq-1\":\"B\",\"jm-chemistry-mcq-7\":\"A\",\"jm-chemistry-mcq-5\":\"A\"}",
       "time_per_question": "{\"ja-chemistry-numerical-1\":0,\"jm-chemistry-mcq-20\":0,\"jm-chemistry-num-10\":0,\"ja-chemistry-multi_answer-7\":0,\"jm-chemistry-mcq-1\":0,\"jm-chemistry-mcq-7\":0,\"jm-chemistry-mcq-5\":0}",
       "question_ids": "[\"ja-chemistry-numerical-1\",\"jm-chemistry-mcq-20\",\"jm-chemistry-num-10\",\"ja-chemistry-multi_answer-7\",\"jm-chemistry-mcq-1\",\"jm-chemistry-mcq-7\",\"jm-chemistry-mcq-5\"]",
       "user_email": "nishitha@gmail.com",
-      "total_attempted": 7
+      "total_attempted": 7,
+      "ended_at": "2026-05-17T20:14:12.602Z",
+      "score": 0,
+      "correct_count": 0,
+      "wrong_count": 0,
+      "is_disqualified": 1
     }
   ],
   "chat_messages": [
@@ -26410,6 +26415,88 @@
       "content": "Namaste! I'm Saathi 🙏 — your offline AI study companion.\n\n• 📚 Subject doubts (Physics, Chemistry, Math)\n• 🎮 Pop-culture mnemonics (Cricket, Avengers, Games!)\n• 🖼️ Upload photos of problems\n• 🌐 Hindi, Tamil, Telugu, Bengali, Marathi support\n• 🧘 Stress management & motivation\n• ⏱️ Pomodoro timer & Flash quizzes\n\nHow are you feeling today?",
       "timestamp": "2026-05-17T20:04:44.304Z",
       "user_email": ""
+    },
+    {
+      "id": "1779051105226-p53xda11x",
+      "role": "user",
+      "content": "🃏 Quiz me",
+      "sentiment_score": 0.5,
+      "timestamp": "2026-05-17T20:51:45.226Z",
+      "user_email": "nishitha@gmail.com"
+    },
+    {
+      "id": "1779051106418-4jdrv4swj",
+      "role": "assistant",
+      "content": "🃏 Flash Quiz (5 Questions)!\n\n📝 Q1: [PYQ] [2024] The area of the region bounded by y = x^2 and y = x is:\n\n1/6\n1/2\n1\n1/3\n\n---\n\n📝 Q2: [PYQ] [2024] A uniform solid cylinder of mass 4 kg rolls without slipping. If its cm velocity is 5 m/s, the total kinetic energy is:\n\n1.5x\n0.75x\n1x\n1.25x\n\n---\n\n📝 Q3: A solid sphere of mass 1 kg and radius 10 cm rolls without slipping with velocity 2 m/s. Its total KE in joules is ___.\n\n---\n\n📝 Q4: [PYQ] [2024] Which quantum number distinguishes an electron in a 2s orbital from a 2p orbital?\n\nAzimuthal\nPrincipal\nSpin\nMagnetic\n\n---\n\n📝 Q5: [PYQ] [2023] The pH of a 1e-06 M HCl solution is:\n\n---\n\n⏰ Take your time! Tap \"Show Answers\" or scroll below 👇\n\n",
+      "timestamp": "2026-05-17T20:51:46.418Z",
+      "user_email": "nishitha@gmail.com"
+    },
+    {
+      "id": "1779051110758-w74fgnl3e",
+      "role": "assistant",
+      "content": "⏱️ Here are the answers:\n\n✅ Answers:\n\nQ1: A\n📖 Points of intersection are x=0 and x=1. Area = ∫(x - x²)dx from 0 to 1 = 1/2 - 1/3 = 1/6.\n\nQ2: B\n📖 Total KE = Translational KE + Rotational KE = (1/2)mv² + (1/2)Iω². For a solid cylinder, I = (1/2)mR² and ω = v/R. Thus, Total KE = (3/4)mv² = 0.75mv².\n\nQ3: 2.8\n📖 KE = ½mv²(1+k²/R²) = ½(1)(4)(7/5) = 2.8 J\n\nQ4: A\n📖 The azimuthal quantum number (l) is 0 for s orbitals and 1 for p orbitals.\n\nQ5: 6\n📖 pH = -log[H+]\n\n+50 XP for practicing! Type \"quiz me\" for another round! 🎯",
+      "timestamp": "2026-05-17T20:51:50.758Z",
+      "user_email": "nishitha@gmail.com"
+    },
+    {
+      "id": "1779051116407-dmso8e81f",
+      "role": "user",
+      "content": "⏱️ Pomodoro",
+      "sentiment_score": 0.5,
+      "timestamp": "2026-05-17T20:51:56.407Z",
+      "user_email": "nishitha@gmail.com"
+    },
+    {
+      "id": "1779051117665-r2uai0vk9",
+      "role": "assistant",
+      "content": "⏱️ Pomodoro Study Timer\n\n🍅 The Technique:\n1. 📚 Study for 25 minutes (ONE topic only)\n2. ☕ Break for 5 minutes\n3. 🔄 Repeat 4 times\n4. 🎉 Take a 15-min break after 4 rounds\n\n📌 For your session now:\n1. Pick your weakest topic from the Focus Today card on Home\n2. Set a 25-min timer on your phone\n3. Solve PYQs from that chapter\n4. Come back and tell me how it went!\n\n💡 Pro tip: Put your phone on DND (except this app 😄)\n\nReady? Go to Subjects → pick your chapter → START! 🚀",
+      "timestamp": "2026-05-17T20:51:57.665Z",
+      "user_email": "nishitha@gmail.com"
+    },
+    {
+      "id": "1779051122352-4v14pysv6",
+      "role": "user",
+      "content": "Which languages do you support?",
+      "sentiment_score": 0.5,
+      "timestamp": "2026-05-17T20:52:02.352Z",
+      "user_email": "nishitha@gmail.com"
+    },
+    {
+      "id": "1779051123544-vcjhpvf2a",
+      "role": "assistant",
+      "content": "🌐 I support multiple languages!\n\nYou can ask me questions in:\n• 🇬🇧 English\n• 🇮🇳 Hindi (हिंदी)\n• 🇮🇳 Bengali (বাংলা)\n• 🇮🇳 Marathi (मराठी)\n• 🇮🇳 Telugu (తెలుగు)\n• 🇮🇳 Tamil (தமிழ்)\n• 🇮🇳 Gujarati (ગુજરાતી)\n• 🇮🇳 Urdu (اردو)\n• 🇮🇳 Kannada (ಕನ್ನಡ)\n• 🇮🇳 Odia (ଓଡ଼ିଆ)\n• 🇮🇳 Malayalam (മലയാളം)\n\nJust type your question in your preferred language, or say 'Explain [topic] in [language]'!",
+      "timestamp": "2026-05-17T20:52:03.544Z",
+      "user_email": "nishitha@gmail.com"
+    },
+    {
+      "id": "1779051146950-6gqy4o5ak",
+      "role": "user",
+      "content": "Explain Probablity in Telugu",
+      "sentiment_score": 0.5,
+      "timestamp": "2026-05-17T20:52:26.950Z",
+      "user_email": "nishitha@gmail.com"
+    },
+    {
+      "id": "1779051148161-qsvz9ljtc",
+      "role": "assistant",
+      "content": "📖 సంభావ్యత & కాంబినేటరిక్స్ \n\n🔑 ప్రస్తారణలు & కలయికలు: \n• nPr = n!/(n-r)! (ఆర్డర్ ముఖ్యమైనది) \n• nCr = n!/[r!(n-r)!] (ఆర్డర్ పట్టింపు లేదు) \n\n🎲 సంభావ్యత: \n• P(A) = అనుకూలమైన ఫలితాలు / మొత్తం ఫలితాలు \n• P(A∪B) = P(A) + P(B) - P(A∩B) \n• P(A|B) = P(A∩B)/P(B) (షరతులతో కూడినది) \n• బేస్: P(A|B) = P(B|A)·P(A) / P(B) \n\n📐 పంపిణీలు: \n• ద్విపద: P(x=r) = nCr · p^r · q^(n-r) \n\n📌 సబ్జెక్ట్‌లు → గణితం → వనరులు & PYQల సంభావ్యతకి వెళ్లండి! \n\n💡 షరతులతో కూడిన సంభావ్యత కోసం చెట్టు రేఖాచిత్రాలను గీయండి — దానిని దృశ్యమానంగా చేస్తుంది!",
+      "timestamp": "2026-05-17T20:52:28.161Z",
+      "user_email": "nishitha@gmail.com"
+    },
+    {
+      "id": "1779051167240-awfqj6hw7",
+      "role": "user",
+      "content": "Quiz me on Probability",
+      "sentiment_score": 0.5,
+      "timestamp": "2026-05-17T20:52:47.240Z",
+      "user_email": "nishitha@gmail.com"
+    },
+    {
+      "id": "1779051168501-t3imf38o6",
+      "role": "assistant",
+      "content": "📖 Probability & Combinatorics\n\n🔑 Permutations & Combinations:\n• nPr = n!/(n-r)! (order matters)\n• nCr = n!/[r!(n-r)!] (order doesn't matter)\n\n🎲 Probability:\n• P(A) = favorable outcomes / total outcomes\n• P(A∪B) = P(A) + P(B) - P(A∩B)\n• P(A|B) = P(A∩B)/P(B) (conditional)\n• Bayes: P(A|B) = P(B|A)·P(A) / P(B)\n\n📐 Distributions:\n• Binomial: P(x=r) = nCr · p^r · q^(n-r)\n\n📌 Go to Subjects → Mathematics → Probability for resources & PYQs!\n\n💡 Draw tree diagrams for conditional probability — makes it visual!",
+      "timestamp": "2026-05-17T20:52:48.501Z",
+      "user_email": "nishitha@gmail.com"
     }
   ],
   "mindfulness_logs": [],
@@ -26654,6 +26741,15 @@
       "record_id": "1779048388743-e35pr1pmv",
       "action": "insert",
       "payload": "{\"attemptId\":\"1779048388743-e35pr1pmv\",\"testId\":\"test-chem-quick\",\"score\":0,\"correct_count\":0,\"wrong_count\":0,\"total_attempted\":7,\"completed_at\":\"2026-05-17T20:09:04.149Z\"}",
+      "synced": "1",
+      "sync_attempts": "0"
+    },
+    {
+      "id": "1779048852634-mpy7r3qwa",
+      "table_name": "test_attempts",
+      "record_id": "1779048591983-ros4at71u",
+      "action": "insert",
+      "payload": "{\"attemptId\":\"1779048591983-ros4at71u\",\"testId\":\"test-chem-quick\",\"score\":0,\"correct_count\":0,\"wrong_count\":0,\"total_attempted\":7,\"completed_at\":\"2026-05-17T20:14:12.634Z\"}",
       "synced": "1",
       "sync_attempts": "0"
     }
@@ -27190,6 +27286,34 @@
       "action": "test_complete",
       "xp_earned": 17,
       "created_at": "2026-05-17T20:05:18.146Z"
+    },
+    {
+      "id": "mpa93numqz39lg6p8",
+      "user_email": "nishitha@gmail.com",
+      "action": "saathi_chat",
+      "xp_earned": 5,
+      "created_at": "2026-05-17T20:51:57.694Z"
+    },
+    {
+      "id": "mpa93sdtviuvrxqmc",
+      "user_email": "nishitha@gmail.com",
+      "action": "saathi_chat",
+      "xp_earned": 5,
+      "created_at": "2026-05-17T20:52:03.569Z"
+    },
+    {
+      "id": "mpa94bdzfazcrbczk",
+      "user_email": "nishitha@gmail.com",
+      "action": "saathi_chat",
+      "xp_earned": 5,
+      "created_at": "2026-05-17T20:52:28.199Z"
+    },
+    {
+      "id": "mpa94r2vos8uvsv05",
+      "user_email": "nishitha@gmail.com",
+      "action": "saathi_chat",
+      "xp_earned": 5,
+      "created_at": "2026-05-17T20:52:48.535Z"
     }
   ],
   "daily_streaks": [
@@ -27277,7 +27401,7 @@
       "id": "mpa6boq952k07bxzt",
       "user_email": "nishitha@gmail.com",
       "date": "2026-05-17",
-      "xp_earned": 474,
+      "xp_earned": 494,
       "questions_solved": 84,
       "tests_completed": 12
     }
