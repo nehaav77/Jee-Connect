@@ -12,6 +12,8 @@ import { generateId } from '@/src/repositories/BaseRepository';
 import { ocrService } from '@/src/services/OCRService';
 import { gamificationService } from '@/src/services/GamificationService';
 import { buildMnemonic } from '@/src/data/mnemonicBuilder';
+import { SaathiTranslations } from '@/src/data/saathiTranslations';
+import { Feather } from '@expo/vector-icons';
 
 interface ChatMessage {
     id: string; role: 'user' | 'assistant'; content: string;
@@ -35,6 +37,26 @@ function analyzeSentiment(text: string): number {
 
 async function generateResponse(msg: string, sentiment: number): Promise<string> {
     const l = msg.toLowerCase();
+
+    // Detect requested language
+    let lang = 'en';
+    if (l.includes('hindi') || l.includes('हिंदी')) lang = 'hi';
+    else if (l.includes('telugu') || l.includes('తెలుగు')) lang = 'te';
+    else if (l.includes('tamil') || l.includes('தமிழ்')) lang = 'ta';
+    else if (l.includes('bengali') || l.includes('bangla') || l.includes('বাংলা')) lang = 'bn';
+    else if (l.includes('marathi') || l.includes('मराठी')) lang = 'mr';
+    else if (l.includes('gujarati') || l.includes('ગુજરાતી')) lang = 'gu';
+    else if (l.includes('urdu') || l.includes('اردو')) lang = 'ur';
+    else if (l.includes('kannada') || l.includes('ಕನ್ನಡ')) lang = 'kn';
+    else if (l.includes('odia') || l.includes('ଓଡ଼ିଆ') || l.includes('ଓଡିଆ')) lang = 'or';
+    else if (l.includes('malayalam') || l.includes('മലയാളം')) lang = 'ml';
+
+    const getTopicText = (topic: string, def: string) => {
+        if (lang !== 'en' && SaathiTranslations[lang] && SaathiTranslations[lang][topic]) {
+            return SaathiTranslations[lang][topic];
+        }
+        return def;
+    };
 
     // Check if the user is asking a specific database question
     try {
@@ -80,115 +102,111 @@ async function generateResponse(msg: string, sentiment: number): Promise<string>
 
     // ============ PHYSICS SUB-TOPICS ============
     if (l.includes('kinematic') || l.includes('motion') || (l.includes('velocity') || l.includes('accelerat'))) {
-        return "📖 Kinematics — Study of Motion\n\n🔑 Key Equations:\n• v = u + at\n• s = ut + ½at²\n• v² = u² + 2as\n• s = ½(u+v)t\n\nWhere: u = initial velocity, v = final velocity, a = acceleration, t = time, s = displacement\n\n⚡ JEE Focus:\n• Relative motion problems\n• Projectile motion (split into x & y components)\n• Graphs: slope of x-t = velocity, slope of v-t = acceleration\n\n📌 To practice: Go to Subjects → Physics → Kinematics chapter for resources & PYQs!\n\n🎯 Most asked: Projectile at angle θ → time of flight = 2u·sinθ/g, Range = u²·sin2θ/g";
+        return getTopicText('kinematics', "📖 Kinematics — Study of Motion\n\n🔑 Key Equations:\n• v = u + at\n• s = ut + ½at²\n• v² = u² + 2as\n• s = ½(u+v)t\n\nWhere: u = initial velocity, v = final velocity, a = acceleration, t = time, s = displacement\n\n⚡ JEE Focus:\n• Relative motion problems\n• Projectile motion (split into x & y components)\n• Graphs: slope of x-t = velocity, slope of v-t = acceleration\n\n📌 To practice: Go to Subjects → Physics → Kinematics chapter for resources & PYQs!\n\n🎯 Most asked: Projectile at angle θ → time of flight = 2u·sinθ/g, Range = u²·sin2θ/g");
     }
 
     if (l.includes('newton') || l.includes('force') || l.includes('friction')) {
-        return "📖 Newton's Laws & Forces\n\n🔑 The Three Laws:\n1️⃣ Law of Inertia: Object stays at rest/motion unless acted on by net force\n2️⃣ F = ma (Force = mass × acceleration)\n3️⃣ Every action has equal & opposite reaction\n\n📐 Problem-Solving Strategy:\n1. Draw Free Body Diagram (FBD)\n2. Identify ALL forces (gravity, normal, friction, tension)\n3. Resolve forces into components\n4. Apply F = ma for each axis\n\n🔥 Friction: f = μN (static: f ≤ μₛN, kinetic: f = μₖN)\n\n📌 Go to Subjects → Physics → Laws of Motion for PYQs!\n\n💡 JEE Tip: ~15% questions come from Mechanics. Master FBDs!";
+        return getTopicText('newton', "📖 Newton's Laws & Forces\n\n🔑 The Three Laws:\n1️⃣ Law of Inertia: Object stays at rest/motion unless acted on by net force\n2️⃣ F = ma (Force = mass × acceleration)\n3️⃣ Every action has equal & opposite reaction\n\n📐 Problem-Solving Strategy:\n1. Draw Free Body Diagram (FBD)\n2. Identify ALL forces (gravity, normal, friction, tension)\n3. Resolve forces into components\n4. Apply F = ma for each axis\n\n🔥 Friction: f = μN (static: f ≤ μₛN, kinetic: f = μₖN)\n\n📌 Go to Subjects → Physics → Laws of Motion for PYQs!\n\n💡 JEE Tip: ~15% questions come from Mechanics. Master FBDs!");
     }
 
     if (l.includes('energy') || l.includes('work') || l.includes('power') || l.includes('conservat')) {
-        return "📖 Work, Energy & Power\n\n🔑 Key Formulas:\n• Work: W = F·d·cosθ\n• Kinetic Energy: KE = ½mv²\n• Potential Energy: PE = mgh (gravity), ½kx² (spring)\n• Power: P = W/t = F·v\n\n⚡ Work-Energy Theorem:\nNet work = Change in KE → W_net = ½mv² - ½mu²\n\n🔄 Conservation of Energy:\nTotal E = KE + PE = constant (in conservative systems)\n\n📐 JEE Strategy:\n• Always check if forces are conservative → use energy conservation\n• Non-conservative forces → use work-energy theorem\n\n📌 Go to Subjects → Physics → Work, Energy & Power for resources & PYQs!";
+        return getTopicText('work', "📖 Work, Energy & Power\n\n🔑 Key Formulas:\n• Work: W = F·d·cosθ\n• Kinetic Energy: KE = ½mv²\n• Potential Energy: PE = mgh (gravity), ½kx² (spring)\n• Power: P = W/t = F·v\n\n⚡ Work-Energy Theorem:\nNet work = Change in KE → W_net = ½mv² - ½mu²\n\n🔄 Conservation of Energy:\nTotal E = KE + PE = constant (in conservative systems)\n\n📐 JEE Strategy:\n• Always check if forces are conservative → use energy conservation\n• Non-conservative forces → use work-energy theorem\n\n📌 Go to Subjects → Physics → Work, Energy & Power for resources & PYQs!");
     }
 
     if (l.includes('electric') || l.includes('coulomb') || l.includes('charge') || l.includes('field')) {
-        return "📖 Electrostatics\n\n🔑 Key Laws:\n• Coulomb's Law: F = kq₁q₂/r² (k = 9×10⁹ Nm²/C²)\n• Electric Field: E = F/q = kQ/r²\n• Electric Potential: V = kQ/r\n• Gauss's Law: Φ = q_enclosed/ε₀\n\n📐 Problem Strategy:\n1. For point charges → use Coulomb's law\n2. For symmetric distributions → use Gauss's law\n3. For conductors → E_inside = 0, charge on surface\n\n⚡ Capacitance: C = Q/V\n• Parallel plate: C = ε₀A/d\n• Series: 1/C = 1/C₁ + 1/C₂\n• Parallel: C = C₁ + C₂\n\n📌 Go to Subjects → Physics → Electrostatics for chapter resources & PYQs!";
+        return getTopicText('electrostatics', "📖 Electrostatics\n\n🔑 Key Laws:\n• Coulomb's Law: F = kq₁q₂/r² (k = 9×10⁹ Nm²/C²)\n• Electric Field: E = F/q = kQ/r²\n• Electric Potential: V = kQ/r\n• Gauss's Law: Φ = q_enclosed/ε₀\n\n📐 Problem Strategy:\n1. For point charges → use Coulomb's law\n2. For symmetric distributions → use Gauss's law\n3. For conductors → E_inside = 0, charge on surface\n\n⚡ Capacitance: C = Q/V\n• Parallel plate: C = ε₀A/d\n• Series: 1/C = 1/C₁ + 1/C₂\n• Parallel: C = C₁ + C₂\n\n📌 Go to Subjects → Physics → Electrostatics for chapter resources & PYQs!");
     }
 
     if (l.includes('magnet') || l.includes('induct') || l.includes('faraday')) {
-        return "📖 Magnetism & Electromagnetic Induction\n\n🔑 Key Formulas:\n• Force on moving charge: F = qv×B (direction: right-hand rule)\n• Force on wire: F = BIL·sinθ\n• Biot-Savart Law: dB = μ₀/4π · Idl×r̂/r²\n• Faraday's Law: EMF = -dΦ/dt\n• Lenz's Law: Induced current opposes change\n\n📐 Strategy:\n• Use right-hand rule for force direction\n• Ampere's law for symmetric current distributions\n• Self-inductance: L = NΦ/I, EMF = -L·dI/dt\n\n📌 Go to Subjects → Physics → Magnetism for resources & PYQs!\n\n💡 JEE Tip: EMI + AC circuits = ~8% of paper. Very scoring!";
+        return getTopicText('magnetism', "📖 Magnetism & Electromagnetic Induction\n\n🔑 Key Formulas:\n• Force on moving charge: F = qv×B (direction: right-hand rule)\n• Force on wire: F = BIL·sinθ\n• Biot-Savart Law: dB = μ₀/4π · Idl×r̂/r²\n• Faraday's Law: EMF = -dΦ/dt\n• Lenz's Law: Induced current opposes change\n\n📐 Strategy:\n• Use right-hand rule for force direction\n• Ampere's law for symmetric current distributions\n• Self-inductance: L = NΦ/I, EMF = -L·dI/dt\n\n📌 Go to Subjects → Physics → Magnetism for resources & PYQs!\n\n💡 JEE Tip: EMI + AC circuits = ~8% of paper. Very scoring!");
     }
 
     if (l.includes('optic') || l.includes('lens') || l.includes('mirror') || l.includes('refract') || l.includes('light')) {
-        return "📖 Optics\n\n🔑 Key Formulas:\n• Mirror: 1/v + 1/u = 1/f (sign convention!)\n• Lens: 1/v - 1/u = 1/f\n• Snell's Law: n₁sinθ₁ = n₂sinθ₂\n• Critical angle: sinC = n₂/n₁ (for total internal reflection)\n• Magnification: m = -v/u (mirror), m = v/u (lens)\n\n🌈 Wave Optics:\n• Young's double slit: fringe width β = λD/d\n• Diffraction: first minimum at sinθ = λ/a\n\n📐 Strategy: Always draw ray diagrams first!\n\n📌 Go to Subjects → Physics → Optics for resources & PYQs!";
+        return getTopicText('optics', "📖 Optics\n\n🔑 Key Formulas:\n• Mirror: 1/v + 1/u = 1/f (sign convention!)\n• Lens: 1/v - 1/u = 1/f\n• Snell's Law: n₁sinθ₁ = n₂sinθ₂\n• Critical angle: sinC = n₂/n₁ (for total internal reflection)\n• Magnification: m = -v/u (mirror), m = v/u (lens)\n\n🌈 Wave Optics:\n• Young's double slit: fringe width β = λD/d\n• Diffraction: first minimum at sinθ = λ/a\n\n📐 Strategy: Always draw ray diagrams first!\n\n📌 Go to Subjects → Physics → Optics for resources & PYQs!");
     }
 
     if (l.includes('wave') || l.includes('oscillat') || l.includes('shm') || l.includes('pendulum')) {
-        return "📖 Waves & Oscillations (SHM)\n\n🔑 SHM Equations:\n• x = A·sin(ωt + φ)\n• v = Aω·cos(ωt + φ)\n• a = -ω²x\n• Time period: T = 2π/ω\n• Spring: T = 2π√(m/k)\n• Pendulum: T = 2π√(l/g)\n\n🌊 Wave Equation: v = fλ\n• Speed of sound: v = √(γP/ρ)\n• Doppler Effect: f' = f(v±v₀)/(v∓vₛ)\n\n📐 Remember: SHM is projection of uniform circular motion!\n\n📌 Go to Subjects → Physics → Waves & SHM for resources & PYQs!";
+        return getTopicText('waves', "📖 Waves & Oscillations (SHM)\n\n🔑 SHM Equations:\n• x = A·sin(ωt + φ)\n• v = Aω·cos(ωt + φ)\n• a = -ω²x\n• Time period: T = 2π/ω\n• Spring: T = 2π√(m/k)\n• Pendulum: T = 2π√(l/g)\n\n🌊 Wave Equation: v = fλ\n• Speed of sound: v = √(γP/ρ)\n• Doppler Effect: f' = f(v±v₀)/(v∓vₛ)\n\n📐 Remember: SHM is projection of uniform circular motion!\n\n📌 Go to Subjects → Physics → Waves & SHM for resources & PYQs!");
     }
 
     if (l.includes('thermo') || l.includes('heat') || l.includes('entropy') || l.includes('carnot')) {
-        return "📖 Thermodynamics\n\n🔑 Laws:\n• 1st Law: ΔQ = ΔU + ΔW (energy conservation)\n• 2nd Law: Entropy always increases in isolated systems\n\n📐 Processes:\n• Isothermal (const T): W = nRT·ln(V₂/V₁)\n• Adiabatic (no heat): PVᵞ = const, TV^(γ-1) = const\n• Isobaric (const P): W = PΔV\n• Isochoric (const V): W = 0\n\n🔥 Carnot Efficiency: η = 1 - T_cold/T_hot\n\n💡 JEE Tip: Know Cp - Cv = R and γ = Cp/Cv\n\n📌 Go to Subjects → Physics → Thermodynamics for resources & PYQs!";
+        return getTopicText('thermo', "📖 Thermodynamics\n\n🔑 Laws:\n• 1st Law: ΔQ = ΔU + ΔW (energy conservation)\n• 2nd Law: Entropy always increases in isolated systems\n\n📐 Processes:\n• Isothermal (const T): W = nRT·ln(V₂/V₁)\n• Adiabatic (no heat): PVᵞ = const, TV^(γ-1) = const\n• Isobaric (const P): W = PΔV\n• Isochoric (const V): W = 0\n\n🔥 Carnot Efficiency: η = 1 - T_cold/T_hot\n\n💡 JEE Tip: Know Cp - Cv = R and γ = Cp/Cv\n\n📌 Go to Subjects → Physics → Thermodynamics for resources & PYQs!");
     }
 
     // General physics fallback
     if (l.includes('physics') || l.includes('mechanic') || l.includes('circuit') || l.includes('capacit')
         || l.includes('momentum') || l.includes('rotation') || l.includes('fluid') || l.includes('gravit')) {
-        return "📖 Physics — Let's dive deeper! 🔬\n\nTell me the specific topic:\n• Mechanics: Kinematics, Newton's Laws, Work-Energy, Rotation\n• Electrodynamics: Electrostatics, Current, Magnetism, EMI\n• Waves & Optics: SHM, Wave Optics, Ray Optics\n• Thermodynamics & Modern Physics\n\n📐 Each topic in the Subjects → Physics section has:\n• 📖 Chapter notes & resources\n• 📝 Previous Year Questions (PYQs)\n• 🎯 Practice problems\n\nJust type the topic name and I'll explain the key concepts & formulas!";
+        return getTopicText('fallback', "📖 Physics — Let's dive deeper! 🔬\n\nTell me the specific topic:\n• Mechanics: Kinematics, Newton's Laws, Work-Energy, Rotation\n• Electrodynamics: Electrostatics, Current, Magnetism, EMI\n• Waves & Optics: SHM, Wave Optics, Ray Optics\n• Thermodynamics & Modern Physics\n\n📐 Each topic in the Subjects → Physics section has:\n• 📖 Chapter notes & resources\n• 📝 Previous Year Questions (PYQs)\n• 🎯 Practice problems\n\nJust type the topic name and I'll explain the key concepts & formulas!");
     }
 
     // ============ CHEMISTRY SUB-TOPICS ============
     if (l.includes('organic') || l.includes('sn1') || l.includes('sn2') || l.includes('aldehyde')
         || l.includes('ketone') || l.includes('alcohol') || l.includes('amine') || l.includes('alkyl')
         || l.includes('aromatic') || l.includes('benzene') || l.includes('isomer')) {
-        return "📖 Organic Chemistry\n\n🔑 Core Mechanisms:\n• SN1: Tertiary substrate → carbocation → racemization\n• SN2: Primary substrate → backside attack → inversion\n• E1: Unimolecular elimination → Zaitsev's rule\n• E2: Bimolecular → anti-periplanar geometry\n\n📐 Key Reactions to Master:\n• Grignard (RMgX + carbonyl)\n• Aldol condensation\n• Cannizzaro reaction\n• Friedel-Crafts (alkylation/acylation)\n\n💡 Strategy: Don't memorize blindly — understand electron flow with curved arrows!\n\n📌 Go to Subjects → Chemistry → Organic chapters for resources & PYQs!\n\n🎯 ~28% of Chemistry paper is Organic. Very high weightage!";
+        return getTopicText('organic', "📖 Organic Chemistry\n\n🔑 Core Mechanisms:\n• SN1: Tertiary substrate → carbocation → racemization\n• SN2: Primary substrate → backside attack → inversion\n• E1: Unimolecular elimination → Zaitsev's rule\n• E2: Bimolecular → anti-periplanar geometry\n\n📐 Key Reactions to Master:\n• Grignard (RMgX + carbonyl)\n• Aldol condensation\n• Cannizzaro reaction\n• Friedel-Crafts (alkylation/acylation)\n\n💡 Strategy: Don't memorize blindly — understand electron flow with curved arrows!\n\n📌 Go to Subjects → Chemistry → Organic chapters for resources & PYQs!\n\n🎯 ~28% of Chemistry paper is Organic. Very high weightage!");
     }
 
     if (l.includes('inorganic') || l.includes('periodic') || l.includes('coordination')
         || l.includes('metallurgy') || l.includes('salt') || l.includes('qualitative')) {
-        return "📖 Inorganic Chemistry\n\n🔑 Key Areas:\n• Periodic Properties: IE, EA, EN, atomic radius trends\n• Chemical Bonding: VSEPR theory, hybridization, MOT\n• Coordination Chemistry: CFT, isomerism, EAN rule\n• p-block: Group 15-18 reactions & compounds\n• d-block: Color, magnetic properties, variable oxidation states\n\n📐 Strategy:\n1. Learn periodic trends FIRST — they explain 60% of inorganic\n2. Make tables for p-block compounds & their properties\n3. Practice coordination complex naming\n\n📌 Go to Subjects → Chemistry → Inorganic chapters for resources & PYQs!\n\n💡 NCERT is GOLD for inorganic — read it cover to cover!";
+        return getTopicText('inorganic', "📖 Inorganic Chemistry\n\n🔑 Key Areas:\n• Periodic Properties: IE, EA, EN, atomic radius trends\n• Chemical Bonding: VSEPR theory, hybridization, MOT\n• Coordination Chemistry: CFT, isomerism, EAN rule\n• p-block: Group 15-18 reactions & compounds\n• d-block: Color, magnetic properties, variable oxidation states\n\n📐 Strategy:\n1. Learn periodic trends FIRST — they explain 60% of inorganic\n2. Make tables for p-block compounds & their properties\n3. Practice coordination complex naming\n\n📌 Go to Subjects → Chemistry → Inorganic chapters for resources & PYQs!\n\n💡 NCERT is GOLD for inorganic — read it cover to cover!");
     }
 
     if (l.includes('mole') || l.includes('stoich') || l.includes('equilibrium') || l.includes('ionic')
         || l.includes('electrode') || l.includes('electroch') || l.includes('kinetics') || l.includes('rate')) {
-        return "📖 Physical Chemistry\n\n🔑 Must-Know Formulas:\n• Mole concept: n = mass/molar mass = PV/RT (ideal gas)\n• Equilibrium: Kc = [products]/[reactants], ΔG = -RT·lnK\n• Electrochemistry: E°cell = E°cathode - E°anode\n  Nernst: E = E° - (RT/nF)·lnQ\n• Kinetics: Rate = k[A]ⁿ, t½ = 0.693/k (first order)\n\n📐 Strategy:\n• Physical Chem is MOST scoring — pure formula application\n• Practice numerical problems daily\n• Master dimensional analysis for checking answers\n\n📌 Go to Subjects → Chemistry for chapter-wise resources & PYQs!\n\n🎯 Physical Chem = ~35% of Chemistry paper!";
+        return getTopicText('physical', "📖 Physical Chemistry\n\n🔑 Must-Know Formulas:\n• Mole concept: n = mass/molar mass = PV/RT (ideal gas)\n• Equilibrium: Kc = [products]/[reactants], ΔG = -RT·lnK\n• Electrochemistry: E°cell = E°cathode - E°anode\n  Nernst: E = E° - (RT/nF)·lnQ\n• Kinetics: Rate = k[A]ⁿ, t½ = 0.693/k (first order)\n\n📐 Strategy:\n• Physical Chem is MOST scoring — pure formula application\n• Practice numerical problems daily\n• Master dimensional analysis for checking answers\n\n📌 Go to Subjects → Chemistry for chapter-wise resources & PYQs!\n\n🎯 Physical Chem = ~35% of Chemistry paper!");
     }
 
     // General chemistry fallback
     if (l.includes('chemistry') || l.includes('reaction') || l.includes('bond') || l.includes('acid')
         || l.includes('base') || l.includes('atom') || l.includes('compound') || l.includes('element')
         || l.includes('solution') || l.includes('polymer') || l.includes('oxidat')) {
-        return "📖 Chemistry — Let me help! 🧪\n\nWhich branch?\n• 🧬 Organic: Reactions, mechanisms, named reactions\n• ⚛️ Inorganic: Periodic table, coordination, p-block, d-block\n• 🔢 Physical: Mole concept, equilibrium, kinetics, electrochemistry\n\n📌 Each topic in Subjects → Chemistry has:\n• 📖 Chapter notes & resources\n• 📝 PYQs with solutions\n• 🎯 Practice problems\n\nType the specific topic (e.g., 'organic reactions', 'equilibrium') for a detailed explanation!";
+        return getTopicText('fallback', "📖 Chemistry — Let me help! 🧪\n\nWhich branch?\n• 🧬 Organic: Reactions, mechanisms, named reactions\n• ⚛️ Inorganic: Periodic table, coordination, p-block, d-block\n• 🔢 Physical: Mole concept, equilibrium, kinetics, electrochemistry\n\n📌 Each topic in Subjects → Chemistry has:\n• 📖 Chapter notes & resources\n• 📝 PYQs with solutions\n• 🎯 Practice problems\n\nType the specific topic (e.g., 'organic reactions', 'equilibrium') for a detailed explanation!");
     }
 
     // ============ MATH SUB-TOPICS ============
     if (l.includes('calculus') || l.includes('integral') || l.includes('differen') || l.includes('limit')
         || l.includes('continu') || l.includes('derivative')) {
-        return "📖 Calculus\n\n🔑 Differentiation Rules:\n• Power: d/dx(xⁿ) = nxⁿ⁻¹\n• Chain: d/dx[f(g(x))] = f'(g(x))·g'(x)\n• Product: d/dx(uv) = u'v + uv'\n• Quotient: d/dx(u/v) = (u'v - uv')/v²\n\n🔑 Integration Techniques:\n1. Substitution: ∫f(g(x))g'(x)dx\n2. By Parts: ∫udv = uv - ∫vdu (LIATE rule)\n3. Partial Fractions: for rational functions\n\n📐 Key Results:\n• ∫sinx dx = -cosx + C\n• ∫eˣ dx = eˣ + C\n• ∫1/x dx = ln|x| + C\n\n📌 Go to Subjects → Mathematics → Calculus for resources & PYQs!\n\n🎯 Calculus = ~20% of JEE Math. Very important!";
+        return getTopicText('calculus', "📖 Calculus\n\n🔑 Differentiation Rules:\n• Power: d/dx(xⁿ) = nxⁿ⁻¹\n• Chain: d/dx[f(g(x))] = f'(g(x))·g'(x)\n• Product: d/dx(uv) = u'v + uv'\n• Quotient: d/dx(u/v) = (u'v - uv')/v²\n\n🔑 Integration Techniques:\n1. Substitution: ∫f(g(x))g'(x)dx\n2. By Parts: ∫udv = uv - ∫vdu (LIATE rule)\n3. Partial Fractions: for rational functions\n\n📐 Key Results:\n• ∫sinx dx = -cosx + C\n• ∫eˣ dx = eˣ + C\n• ∫1/x dx = ln|x| + C\n\n📌 Go to Subjects → Mathematics → Calculus for resources & PYQs!\n\n🎯 Calculus = ~20% of JEE Math. Very important!");
     }
 
     if (l.includes('algebra') || l.includes('quadrat') || l.includes('complex') || l.includes('polynom')
         || l.includes('matrix') || l.includes('matrices') || l.includes('determinant') || l.includes('binomial')) {
-        return "📖 Algebra\n\n🔑 Quadratic: ax² + bx + c = 0\n• Roots: x = (-b ± √(b²-4ac)) / 2a\n• Discriminant: D > 0 (real), D = 0 (equal), D < 0 (complex)\n• Sum of roots: -b/a, Product: c/a\n\n🔑 Complex Numbers:\n• z = a + ib, |z| = √(a²+b²)\n• Euler: e^(iθ) = cosθ + isinθ\n• De Moivre: (cosθ + isinθ)ⁿ = cos(nθ) + isin(nθ)\n\n📊 Matrices:\n• |AB| = |A|·|B|\n• A·A⁻¹ = I (inverse exists when |A| ≠ 0)\n\n📌 Go to Subjects → Mathematics → Algebra for resources & PYQs!\n\n💡 JEE Tip: Complex numbers + quadratics = most asked algebra topics!";
+        return getTopicText('algebra', "📖 Algebra\n\n🔑 Quadratic: ax² + bx + c = 0\n• Roots: x = (-b ± √(b²-4ac)) / 2a\n• Discriminant: D > 0 (real), D = 0 (equal), D < 0 (complex)\n• Sum of roots: -b/a, Product: c/a\n\n🔑 Complex Numbers:\n• z = a + ib, |z| = √(a²+b²)\n• Euler: e^(iθ) = cosθ + isinθ\n• De Moivre: (cosθ + isinθ)ⁿ = cos(nθ) + isin(nθ)\n\n📊 Matrices:\n• |AB| = |A|·|B|\n• A·A⁻¹ = I (inverse exists when |A| ≠ 0)\n\n📌 Go to Subjects → Mathematics → Algebra for resources & PYQs!\n\n💡 JEE Tip: Complex numbers + quadratics = most asked algebra topics!");
     }
 
     if (l.includes('trigono') || l.includes('sine') || l.includes('cosine') || l.includes('tan')) {
-        return "📖 Trigonometry\n\n🔑 Key Identities:\n• sin²θ + cos²θ = 1\n• 1 + tan²θ = sec²θ\n• sin(A±B) = sinA·cosB ± cosA·sinB\n• cos(A±B) = cosA·cosB ∓ sinA·sinB\n• sin2A = 2sinA·cosA\n• cos2A = cos²A - sin²A = 2cos²A - 1\n\n📐 Triangle formulas:\n• Sine rule: a/sinA = b/sinB = c/sinC = 2R\n• Cosine rule: c² = a² + b² - 2ab·cosC\n\n💡 Strategy: Convert everything to sin & cos first!\n\n📌 Go to Subjects → Mathematics → Trigonometry for resources & PYQs!";
+        return getTopicText('trigonometry', "📖 Trigonometry\n\n🔑 Key Identities:\n• sin²θ + cos²θ = 1\n• 1 + tan²θ = sec²θ\n• sin(A±B) = sinA·cosB ± cosA·sinB\n• cos(A±B) = cosA·cosB ∓ sinA·sinB\n• sin2A = 2sinA·cosA\n• cos2A = cos²A - sin²A = 2cos²A - 1\n\n📐 Triangle formulas:\n• Sine rule: a/sinA = b/sinB = c/sinC = 2R\n• Cosine rule: c² = a² + b² - 2ab·cosC\n\n💡 Strategy: Convert everything to sin & cos first!\n\n📌 Go to Subjects → Mathematics → Trigonometry for resources & PYQs!");
     }
 
     if (l.includes('coordinate') || l.includes('conic') || l.includes('parabola') || l.includes('ellipse')
         || l.includes('hyperbola') || l.includes('circle') || l.includes('straight line')) {
-        return "📖 Coordinate Geometry & Conics\n\n🔑 Straight Line: y - y₁ = m(x - x₁)\n• Distance: d = |ax₁+by₁+c| / √(a²+b²)\n\n⭕ Circle: x² + y² + 2gx + 2fy + c = 0\n• Center: (-g, -f), Radius: √(g²+f²-c)\n\n🔑 Conics (standard forms):\n• Parabola: y² = 4ax → Focus (a,0), Directrix x = -a\n• Ellipse: x²/a² + y²/b² = 1 → e = √(1-b²/a²)\n• Hyperbola: x²/a² - y²/b² = 1 → e = √(1+b²/a²)\n\n📐 Strategy: Always sketch the curve first!\n\n📌 Go to Subjects → Mathematics → Coordinate Geometry for PYQs!\n\n🎯 Conics carry very high weightage in JEE!";
+        return getTopicText('coordinate', "📖 Coordinate Geometry & Conics\n\n🔑 Straight Line: y - y₁ = m(x - x₁)\n• Distance: d = |ax₁+by₁+c| / √(a²+b²)\n\n⭕ Circle: x² + y² + 2gx + 2fy + c = 0\n• Center: (-g, -f), Radius: √(g²+f²-c)\n\n🔑 Conics (standard forms):\n• Parabola: y² = 4ax → Focus (a,0), Directrix x = -a\n• Ellipse: x²/a² + y²/b² = 1 → e = √(1-b²/a²)\n• Hyperbola: x²/a² - y²/b² = 1 → e = √(1+b²/a²)\n\n📐 Strategy: Always sketch the curve first!\n\n📌 Go to Subjects → Mathematics → Coordinate Geometry for PYQs!\n\n🎯 Conics carry very high weightage in JEE!");
     }
 
     if (l.includes('probab') || l.includes('permut') || l.includes('combinat') || l.includes('p&c')
         || l.includes('pnc') || l.includes('bayes')) {
-        return "📖 Probability & Combinatorics\n\n🔑 Permutations & Combinations:\n• nPr = n!/(n-r)! (order matters)\n• nCr = n!/[r!(n-r)!] (order doesn't matter)\n\n🎲 Probability:\n• P(A) = favorable outcomes / total outcomes\n• P(A∪B) = P(A) + P(B) - P(A∩B)\n• P(A|B) = P(A∩B)/P(B) (conditional)\n• Bayes: P(A|B) = P(B|A)·P(A) / P(B)\n\n📐 Distributions:\n• Binomial: P(x=r) = nCr · p^r · q^(n-r)\n\n📌 Go to Subjects → Mathematics → Probability for resources & PYQs!\n\n💡 Draw tree diagrams for conditional probability — makes it visual!";
+        return getTopicText('probability', "📖 Probability & Combinatorics\n\n🔑 Permutations & Combinations:\n• nPr = n!/(n-r)! (order matters)\n• nCr = n!/[r!(n-r)!] (order doesn't matter)\n\n🎲 Probability:\n• P(A) = favorable outcomes / total outcomes\n• P(A∪B) = P(A) + P(B) - P(A∩B)\n• P(A|B) = P(A∩B)/P(B) (conditional)\n• Bayes: P(A|B) = P(B|A)·P(A) / P(B)\n\n📐 Distributions:\n• Binomial: P(x=r) = nCr · p^r · q^(n-r)\n\n📌 Go to Subjects → Mathematics → Probability for resources & PYQs!\n\n💡 Draw tree diagrams for conditional probability — makes it visual!");
     }
 
     if (l.includes('vector') || l.includes('3d') || l.includes('three dim') || l.includes('plane')) {
-        return "📖 Vectors & 3D Geometry\n\n🔑 Vector Operations:\n• Dot product: a·b = |a||b|cosθ (gives scalar)\n• Cross product: a×b = |a||b|sinθ·n̂ (gives vector)\n• a·b = a₁b₁ + a₂b₂ + a₃b₃\n\n📐 3D Geometry:\n• Direction cosines: l² + m² + n² = 1\n• Line: (x-x₁)/a = (y-y₁)/b = (z-z₁)/c\n• Plane: ax + by + cz = d\n• Distance from point to plane: |ax₁+by₁+cz₁-d| / √(a²+b²+c²)\n\n📌 Go to Subjects → Mathematics → Vectors & 3D for PYQs!\n\n💡 Cross product direction → right-hand rule!";
+        return getTopicText('vectors', "📖 Vectors & 3D Geometry\n\n🔑 Vector Operations:\n• Dot product: a·b = |a||b|cosθ (gives scalar)\n• Cross product: a×b = |a||b|sinθ·n̂ (gives vector)\n• a·b = a₁b₁ + a₂b₂ + a₃b₃\n\n📐 3D Geometry:\n• Direction cosines: l² + m² + n² = 1\n• Line: (x-x₁)/a = (y-y₁)/b = (z-z₁)/c\n• Plane: ax + by + cz = d\n• Distance from point to plane: |ax₁+by₁+cz₁-d| / √(a²+b²+c²)\n\n📌 Go to Subjects → Mathematics → Vectors & 3D for PYQs!\n\n💡 Cross product direction → right-hand rule!");
     }
 
     // General math fallback
     if (l.includes('math') || l.includes('sequence') || l.includes('function') || l.includes('equation')
         || l.includes('geometry')) {
-        return "📖 Mathematics — Let's solve it! 📐\n\nWhich area?\n• 📊 Algebra: Quadratics, Complex Numbers, Matrices\n• 📈 Calculus: Limits, Differentiation, Integration\n• 📐 Coordinate: Lines, Circles, Conics\n• 🔺 Trigonometry: Identities, Equations\n• 🎲 Probability & Combinatorics\n• ➡️ Vectors & 3D Geometry\n\n📌 Each topic in the Subjects → Math section has:\n• 📖 Chapter notes & learning resources\n• 📝 PYQs with step-by-step solutions  \n\nType the specific topic for a detailed explanation with formulas!";
+        return getTopicText('fallback', "📖 Mathematics — Let's solve it! 📐\n\nWhich area?\n• 📊 Algebra: Quadratics, Complex Numbers, Matrices\n• 📈 Calculus: Limits, Differentiation, Integration\n• 📐 Coordinate: Lines, Circles, Conics\n• 🔺 Trigonometry: Identities, Equations\n• 🎲 Probability & Combinatorics\n• ➡️ Vectors & 3D Geometry\n\n📌 Each topic in the Subjects → Math section has:\n• 📖 Chapter notes & learning resources\n• 📝 PYQs with step-by-step solutions  \n\nType the specific topic for a detailed explanation with formulas!");
     }
 
     // ============ MULTILINGUAL SUPPORT ============
+    // Query about supported languages
+    if (l.includes('language') || l.includes('languages')) {
+        return "🌐 I support multiple languages!\n\nYou can ask me questions in:\n• 🇬🇧 English\n• 🇮🇳 Hindi (हिंदी)\n• 🇮🇳 Bengali (বাংলা)\n• 🇮🇳 Marathi (मराठी)\n• 🇮🇳 Telugu (తెలుగు)\n• 🇮🇳 Tamil (தமிழ்)\n• 🇮🇳 Gujarati (ગુજરાતી)\n• 🇮🇳 Urdu (اردو)\n• 🇮🇳 Kannada (ಕನ್ನಡ)\n• 🇮🇳 Odia (ଓଡ଼ିଆ)\n• 🇮🇳 Malayalam (മലയാളം)\n\nJust type your question in your preferred language, or say 'Explain [topic] in [language]'!";
+    }
     // Hindi
     if (l.includes('hindi') || l.includes('हिंदी') || l.includes('हिन्दी') || l.includes('बात')
         || l.includes('समझ') || l.includes('मदद') || l.includes('कैसे') || l.includes('क्या')) {
         return "बिल्कुल! मैं हिंदी में मदद कर सकता हूं 🇮🇳\n\nआप किस विषय में doubt पूछना चाहते हैं?\n• ⚛️ Physics (भौतिकी)\n• 🧪 Chemistry (रसायन)\n• 📐 Mathematics (गणित)\n\n📌 Resources और PYQs के लिए:\nSubjects tab → अपना विषय चुनें → Chapter खोलें\n\n🧠 Mnemonics: \"मुझे [topic] समझाओ [movie/game] से\" बोलो!\n\nबेझिझक पूछिए! 😊";
-    }
-    // Tamil
-    if (l.includes('tamil') || l.includes('தமிழ்') || l.includes('எப்படி') || l.includes('உதவி')) {
-        return "நிச்சயமாக! நான் தமிழில் உதவ முடியும் 🇮🇳\n\nஎந்த பாடத்தில் doubt கேட்க விரும்புகிறீர்கள்?\n• ⚛️ Physics (இயற்பியல்)\n• 🧪 Chemistry (வேதியியல்)\n• 📐 Mathematics (கணிதம்)\n\n📌 Subjects tab → பாடம் தேர்வு → Chapter திறக்கவும்\n\nதைரியமாக கேளுங்கள்! 😊";
-    }
-    // Telugu
-    if (l.includes('telugu') || l.includes('తెలుగు') || l.includes('ఎలా') || l.includes('సహాయం')) {
-        return "తప్పకుండా! నేను తెలుగులో సహాయం చేయగలను 🇮🇳\n\nమీరు ఏ సబ్జెక్ట్‌లో doubt అడగాలనుకుంటున్నారు?\n• ⚛️ Physics (భౌతిక శాస్త్రం)\n• 🧪 Chemistry (రసాయన శాస్త్రం)\n• 📐 Mathematics (గణితం)\n\n📌 Subjects tab → సబ్జెక్ట్ ఎంచుకోండి → Chapter తెరవండి\n\nధైర్యంగా అడగండి! 😊";
     }
     // Bengali
     if (l.includes('bengali') || l.includes('bangla') || l.includes('বাংলা') || l.includes('কিভাবে') || l.includes('সাহায্য')) {
@@ -197,6 +215,34 @@ async function generateResponse(msg: string, sentiment: number): Promise<string>
     // Marathi
     if (l.includes('marathi') || l.includes('मराठी') || l.includes('कसे') || l.includes('मदत')) {
         return "नक्कीच! मी मराठीत मदत करू शकतो 🇮🇳\n\nतुम्हाला कोणत्या विषयात doubt विचारायचा आहे?\n• ⚛️ Physics (भौतिकशास्त्र)\n• 🧪 Chemistry (रसायनशास्त्र)\n• 📐 Mathematics (गणित)\n\n📌 Subjects tab → विषय निवडा → Chapter उघडा\n\nमोकळेपणाने विचारा! 😊";
+    }
+    // Telugu
+    if (l.includes('telugu') || l.includes('తెలుగు') || l.includes('ఎలా') || l.includes('సహాయం')) {
+        return "తప్పకుండా! నేను తెలుగులో సహాయం చేయగలను 🇮🇳\n\nమీరు ఏ సబ్జెక్ట్‌లో doubt అడగాలనుకుంటున్నారు?\n• ⚛️ Physics (భౌతిక శాస్త్రం)\n• 🧪 Chemistry (రసాయన శాస్త్రం)\n• 📐 Mathematics (గణితం)\n\n📌 Subjects tab → సబ్జెక్ట్ ఎంచుకోండి → Chapter తెరవండి\n\nధైర్యంగా అడగండి! 😊";
+    }
+    // Tamil
+    if (l.includes('tamil') || l.includes('தமிழ்') || l.includes('எப்படி') || l.includes('உதவி')) {
+        return "நிச்சயமாக! நான் தமிழில் உதவ முடியும் 🇮🇳\n\nஎந்த பாடத்தில் doubt கேட்க விரும்புகிறீர்கள்?\n• ⚛️ Physics (இயற்பியல்)\n• 🧪 Chemistry (வேதியியல்)\n• 📐 Mathematics (கணிதம்)\n\n📌 Subjects tab → பாடம் தேர்வு → Chapter திறக்கவும்\n\nதைரியமாக கேளுங்கள்! 😊";
+    }
+    // Gujarati
+    if (l.includes('gujarati') || l.includes('ગુજરાતી') || l.includes('કેમ') || l.includes('મદદ')) {
+        return "ચોક્કસ! હું ગુજરાતીમાં મદદ કરી શકું છું 🇮🇳\n\nતમારે કયા વિષયમાં doubt પૂછવો છે?\n• ⚛️ Physics (ભૌતિકવિજ્ઞાન)\n• 🧪 Chemistry (રસાયણવિજ્ઞાન)\n• 📐 Mathematics (ગણિત)\n\n📌 Subjects tab → વિષય પસંદ કરો → Chapter ખોલો\n\nનિઃસંકોચ પૂછો! 😊";
+    }
+    // Urdu
+    if (l.includes('urdu') || l.includes('اردو') || l.includes('کیسے') || l.includes('مدد')) {
+        return "بالکل! میں اردو میں مدد کر سکتا ہوں 🇮🇳\n\nآپ کس مضمون میں doubt پوچھنا چاہتے ہیں؟\n• ⚛️ Physics (طبیعیات)\n• 🧪 Chemistry (کیمسٹری)\n• 📐 Mathematics (ریاضی)\n\n📌 Subjects tab → مضمون منتخب کریں → Chapter کھولیں\n\nبلا جھجھک پوچھیں! 😊";
+    }
+    // Kannada
+    if (l.includes('kannada') || l.includes('ಕನ್ನಡ') || l.includes('ಹೇಗೆ') || l.includes('ಸಹಾಯ')) {
+        return "ಖಂಡಿತ! ನಾನು ಕನ್ನಡದಲ್ಲಿ ಸಹಾಯ ಮಾಡಬಲ್ಲೆ 🇮🇳\n\nನೀವು ಯಾವ ವಿಷಯದಲ್ಲಿ doubt ಕೇಳಲು ಬಯಸುತ್ತೀರಿ?\n• ⚛️ Physics (ಭೌತಶಾಸ್ತ್ರ)\n• 🧪 Chemistry (ರಸಾಯನಶಾಸ್ತ್ರ)\n• 📐 Mathematics (ಗಣಿತ)\n\n📌 Subjects tab → ವಿಷಯ ಆಯ್ಕೆಮಾಡಿ → Chapter ತೆರೆಯಿರಿ\n\nಮುಕ್ತವಾಗಿ ಕೇಳಿ! 😊";
+    }
+    // Odia
+    if (l.includes('odia') || l.includes('ଓଡିଆ') || l.includes('ଓଡ଼ିଆ') || l.includes('କିପରି') || l.includes('ସାହାଯ୍ୟ')) {
+        return "ନିଶ୍ଚିତ! ମୁଁ ଓଡ଼ିଆରେ ସାହାଯ୍ୟ କରିପାରିବି 🇮🇳\n\nଆପଣ କେଉଁ ବିଷୟରେ doubt ପଚାରିବାକୁ ଚାହୁଁଛନ୍ତି?\n• ⚛️ Physics (ପଦାର୍ଥ ବିଜ୍ଞାନ)\n• 🧪 Chemistry (ରସାୟନ ବିଜ୍ଞାନ)\n• 📐 Mathematics (ଗଣିତ)\n\n📌 Subjects tab → ବିଷୟ ବାଛନ୍ତୁ → Chapter ଖୋଲନ୍ତୁ\n\nନିର୍ଭୟରେ ପଚାରନ୍ତୁ! 😊";
+    }
+    // Malayalam
+    if (l.includes('malayalam') || l.includes('മലയാളം') || l.includes('എങ്ങനെ') || l.includes('സഹായം')) {
+        return "തീർച്ചയായും! എനിക്ക് മലയാളത്തിൽ സഹായിക്കാൻ കഴിയും 🇮🇳\n\nഏത് വിഷയത്തിലാണ് നിങ്ങൾ doubt ചോദിക്കാൻ ആഗ്രഹിക്കുന്നത്?\n• ⚛️ Physics (ഭൗതികശാസ്ത്രം)\n• 🧪 Chemistry (രസതന്ത്രം)\n• 📐 Mathematics (ഗണിതം)\n\n📌 Subjects tab → വിഷയം തിരഞ്ഞെടുക്കുക → Chapter തുറക്കുക\n\nധൈര്യമായി ചോദിക്കൂ! 😊";
     }
 
     // Resources / PYQ specific questions
@@ -228,18 +274,40 @@ async function generateResponse(msg: string, sentiment: number): Promise<string>
     if (l.includes('quiz me') || l.includes('flash') || l.includes('test me') || l.includes('random question')) {
         try {
             const db = await getDatabase();
-            const qs = await db.getAllAsync<any>('SELECT * FROM questions ORDER BY RANDOM() LIMIT 1');
+            const allQs = await db.getAllAsync<any>('SELECT * FROM questions');
+            // Fisher-Yates shuffle for true randomness
+            const shuffled = [...allQs];
+            for (let i = shuffled.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+            }
+            const qs = shuffled.slice(0, 5);
             if (qs.length > 0) {
-                const q = qs[0];
-                const opts = q.options ? JSON.parse(q.options) : null;
-                let optsText = '';
-                if (opts && Array.isArray(opts) && opts[0] !== null) {
-                    optsText = '\n\n' + opts.join('\n');
+                let quizText = '🃏 Flash Quiz (5 Questions)!\n\n';
+                
+                for (let i = 0; i < qs.length; i++) {
+                    const q = qs[i];
+                    const opts = q.options ? JSON.parse(q.options) : null;
+                    let optsText = '';
+                    if (opts && Array.isArray(opts) && opts[0] !== null) {
+                        optsText = '\n\n' + opts.join('\n');
+                    }
+                    quizText += `📝 Q${i + 1}: ${q.question_text}${optsText}\n\n---\n\n`;
                 }
-                return `🃏 Flash Quiz!\n\n📝 ${q.question_text}${optsText}\n\n⏰ Think about it, then scroll down for the answer...\n\n\n\n\n\n\n\n✅ Answer: ${JSON.parse(q.correct_answers)[0]}\n📖 ${q.solution_text || 'Apply standard concepts!'}\n\n+10 XP for practicing! Type \"quiz me\" for another! 🎯`;
+                
+                quizText += `⏰ Take your time! Tap "Show Answers" or scroll below 👇\n\n`;
+                
+                let answersText2 = `✅ Answers:\n\n`;
+                for (let i = 0; i < qs.length; i++) {
+                    const q = qs[i];
+                    const ans = q.correct_answers ? JSON.parse(q.correct_answers)[0] : '';
+                    answersText2 += `Q${i + 1}: ${ans}\n📖 ${q.solution_text || 'Apply standard concepts!'}\n\n`;
+                }
+                answersText2 += `+50 XP for practicing! Type "quiz me" for another round! 🎯`;
+                return '__QUIZ_SPLIT__' + quizText + '__QUIZ_ANSWERS__' + answersText2;
             }
         } catch(e) {}
-        return "Let me find a question for you... Try going to Tests tab for a structured quiz! 📝";
+        return "Let me find some questions for you... Try going to Tests tab for a structured quiz! 📝";
     }
 
     // Default
@@ -260,8 +328,10 @@ export default function SaathiScreen() {
     const [mnemonicStep, setMnemonicStep] = useState<'idle'|'pick_category'|'pick_favorite'|'pick_topic'>('idle');
     const [mnemonicCategory, setMnemonicCategory] = useState('');
     const [mnemonicFavorite, setMnemonicFavorite] = useState('');
+    const [isMenuOpen, setIsMenuOpen] = useState(false);
     const scrollRef = useRef<ScrollView>(null);
     const fadeAnim = useRef(new Animated.Value(0)).current;
+    const [pendingAnswers, setPendingAnswers] = useState<string | null>(null);
 
     useEffect(() => { loadMessages(); }, []);
 
@@ -275,7 +345,7 @@ export default function SaathiScreen() {
             if (saved.length === 0) {
                 const welcome: ChatMessage = {
                     id: generateId(), role: 'assistant',
-                    content: "Namaste! I'm Saathi 🙏 — your offline AI study companion.\n\n• 📚 Subject doubts (Physics, Chemistry, Math)\n• 🎮 Pop-culture mnemonics (Cricket, Avengers, Games!)\n• 🖼️ Upload photos of problems\n• 🌐 Hindi, Tamil, Telugu, Bengali, Marathi support\n• 🧘 Stress management & motivation\n• ⏱️ Pomodoro timer & Flash quizzes\n\nHow are you feeling today?",
+                    content: "Namaste! I'm Saathi 🙏 — your offline AI study companion.\n\n• 📚 Subject doubts (Physics, Chemistry, Math)\n• 🎮 Pop-culture mnemonics (Cricket, Avengers, Games!)\n• 🌐 Hindi, Tamil, Telugu, Bengali, Marathi support\n• 🧘 Stress management & motivation\n• ⏱️ Pomodoro timer & Flash quizzes\n\nHow are you feeling today?",
                     timestamp: new Date().toISOString()
                 };
                 setMessages([welcome]);
@@ -391,6 +461,23 @@ export default function SaathiScreen() {
                     setMnemonicStep('pick_category');
                     resp = `🎮 Personalized Mnemonic Mode!\n\nI'll explain JEE concepts using YOUR favorite references!\n\nFirst, what do you enjoy most?\n\n1️⃣ 🏏 Cricket / Sports\n2️⃣ 🎬 Movies / TV Series\n3️⃣ 🎮 Video Games\n4️⃣ 🎌 Anime / Manga\n5️⃣ 😂 Memes / Internet Culture\n\nJust type the number or name! 👆`;
                 }
+            }
+
+            // Handle quiz: show questions first, answers appear as separate message after 8s
+            if (resp.startsWith('__QUIZ_SPLIT__')) {
+                const parts = resp.replace('__QUIZ_SPLIT__', '').split('__QUIZ_ANSWERS__');
+                const questionsText = parts[0] || '';
+                const answersText = parts[1] || '';
+                const questionsMsg: ChatMessage = { id: generateId(), role: 'assistant', content: questionsText, timestamp: new Date().toISOString() };
+                setMessages(prev => [...prev, questionsMsg]);
+                setPendingAnswers(answersText);
+                try {
+                    const db2 = await getDatabase();
+                    await db2.runAsync('INSERT INTO chat_messages (id,role,content,timestamp,user_email) VALUES (?,?,?,?,?)',
+                        [questionsMsg.id, questionsMsg.role, questionsMsg.content, questionsMsg.timestamp, userEmail]);
+                } catch (e) { }
+                setTimeout(() => scrollRef.current?.scrollToEnd({ animated: true }), 100);
+                return;
             }
 
             const botMsg: ChatMessage = { id: generateId(), role: 'assistant', content: resp, timestamp: new Date().toISOString() };
@@ -527,9 +614,28 @@ export default function SaathiScreen() {
                             {new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</Text>
                     </View>
                 ))}
+                {pendingAnswers && (
+                    <TouchableOpacity 
+                        style={{ alignSelf: 'center', backgroundColor: Colors.primary, paddingVertical: 12, paddingHorizontal: 24, borderRadius: 25, marginVertical: 15, elevation: 3, shadowColor: '#000', shadowOffset: {width: 0, height: 2}, shadowOpacity: 0.2, shadowRadius: 3 }}
+                        onPress={async () => {
+                            const ansText = pendingAnswers;
+                            setPendingAnswers(null);
+                            const answersMsg: ChatMessage = { id: generateId(), role: 'assistant', content: "⏱️ Here are the answers:\n\n" + ansText, timestamp: new Date().toISOString() };
+                            setMessages(prev => [...prev, answersMsg]);
+                            try {
+                                const db2 = await getDatabase();
+                                await db2.runAsync('INSERT INTO chat_messages (id,role,content,timestamp,user_email) VALUES (?,?,?,?,?)',
+                                    [answersMsg.id, answersMsg.role, answersMsg.content, answersMsg.timestamp, userEmail]);
+                            } catch (e) { }
+                            setTimeout(() => scrollRef.current?.scrollToEnd({ animated: true }), 100);
+                        }}
+                    >
+                        <Text style={{ color: '#fff', fontWeight: 'bold', fontSize: 16 }}>Show Answers 👀</Text>
+                    </TouchableOpacity>
+                )}
             </ScrollView>
             <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ paddingHorizontal: 16, maxHeight: 40 }}>
-                {['🎮 Mnemonics','Physics doubt','Feeling stressed','⏱️ Pomodoro','🃏 Quiz me','🌐 Languages','📷 Upload Photo'].map((r, i) => (
+                {['🎮 Mnemonics','Physics doubt','Feeling stressed','⏱️ Pomodoro','🃏 Quiz me','🌐 Languages'].map((r, i) => (
                     <TouchableOpacity key={i} style={[styles.qr, { borderColor: Colors.primary + '40' }]}
                         onPress={() => {
                             if (r.includes('📷') || r.includes('Upload')) { handleImageUpload(); }
@@ -551,16 +657,13 @@ export default function SaathiScreen() {
                 </View>
             )}
 
+
+
             <View style={[styles.inputArea, { backgroundColor: theme.surface, borderTopColor: theme.border }]}>
-                {/* Image Upload Button */}
-                <TouchableOpacity style={[styles.cameraBtn, { backgroundColor: theme.background, borderColor: theme.border }]}
-                    onPress={handleImageUpload} activeOpacity={0.7}>
-                    <Text style={{ fontSize: 20 }}>🖼️</Text>
-                </TouchableOpacity>
-                {/* Camera OCR Button */}
-                <TouchableOpacity style={[styles.cameraBtn, { backgroundColor: theme.background, borderColor: theme.border }]}
-                    onPress={handleOCR} activeOpacity={0.7}>
-                    <Text style={{ fontSize: 20 }}>📷</Text>
+                {/* Plus Menu Button */}
+                <TouchableOpacity style={[styles.cameraBtn, { backgroundColor: theme.background, borderColor: theme.border, width: 44, height: 44, borderRadius: 12 }]}
+                    onPress={() => setIsMenuOpen(!isMenuOpen)} activeOpacity={0.7}>
+                    <Text style={{ fontSize: 24, color: theme.text, lineHeight: 28, textAlign: 'center' }}>+</Text>
                 </TouchableOpacity>
                 <TextInput style={[styles.input, { backgroundColor: theme.background, color: theme.text, borderColor: theme.border }]}
                     placeholder="Ask Saathi anything..." placeholderTextColor={theme.textMuted}
@@ -568,6 +671,25 @@ export default function SaathiScreen() {
                 <TouchableOpacity style={[styles.sendBtn, { backgroundColor: inputText.trim() || selectedImage ? Colors.primary : theme.border }]}
                     onPress={handleSend} disabled={!inputText.trim() && !selectedImage}><Text style={{ color: '#fff', fontSize: 20, fontWeight: '800' }}>↑</Text></TouchableOpacity>
             </View>
+
+            {/* Menu Container */}
+            {isMenuOpen && (
+                <View style={[styles.menuContainer, { backgroundColor: theme.surface, borderColor: theme.border, bottom: 70 }]}>
+                    <TouchableOpacity 
+                        style={styles.menuItem} 
+                        onPress={() => { setIsMenuOpen(false); handleImageUpload(); }}>
+                        <Feather name="paperclip" size={20} color={theme.text} style={{ marginRight: 16 }} />
+                        <Text style={[styles.menuText, { color: theme.text }]}>Add files or photos</Text>
+                    </TouchableOpacity>
+                    <View style={[styles.menuDivider, { backgroundColor: theme.border }]} />
+                    <TouchableOpacity 
+                        style={styles.menuItem} 
+                        onPress={() => { setIsMenuOpen(false); handleOCR(); }}>
+                        <Feather name="camera" size={20} color={theme.text} style={{ marginRight: 16 }} />
+                        <Text style={[styles.menuText, { color: theme.text }]}>Take a screenshot</Text>
+                    </TouchableOpacity>
+                </View>
+            )}
 
             {/* Hidden file input for web image upload */}
             {Platform.OS === 'web' && (
@@ -611,6 +733,11 @@ const styles = StyleSheet.create({
     cameraBtn: { width: 36, height: 36, borderRadius: 18, borderWidth: 1, justifyContent: 'center', alignItems: 'center' },
     imagePreviewBar: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 6, borderTopWidth: 0.5, gap: 10 },
     imageThumb: { width: 40, height: 40, borderRadius: 8 },
+    menuContainer: { position: 'absolute', bottom: 8, left: 8, borderRadius: 16, borderWidth: 1, paddingVertical: 8, width: 240, elevation: 5, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1, shadowRadius: 4 },
+    menuItem: { flexDirection: 'row', alignItems: 'center', paddingVertical: 12, paddingHorizontal: 16 },
+    menuIcon: { fontSize: 18, marginRight: 16 },
+    menuText: { fontSize: 15, fontWeight: '500' },
+    menuDivider: { height: 1, width: '100%', marginVertical: 4 },
     overlay: { ...StyleSheet.absoluteFillObject, backgroundColor: 'rgba(0,0,0,0.7)', justifyContent: 'center', alignItems: 'center', zIndex: 100, padding: 24 },
     mindCard: { backgroundColor: '#1e293b', borderRadius: 24, padding: 32, alignItems: 'center', width: '100%', maxWidth: 360 },
     mindTitle: { color: '#fff', fontSize: 24, fontWeight: '800', marginBottom: 16 },
