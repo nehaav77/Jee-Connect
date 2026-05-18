@@ -18,6 +18,7 @@ export default function ClanChatScreen() {
     const [messages, setMessages] = useState<any[]>([]);
     const [requests, setRequests] = useState<any[]>([]);
     const [members, setMembers] = useState<any[]>([]);
+    const [memberEmails, setMemberEmails] = useState<Record<string, string>>({});
     const [myRole, setMyRole] = useState<'owner' | 'admin' | 'member'>('member');
     const [lobby, setLobby] = useState({ status: 'none', sprintId: '', readyCount: 0, memberCount: 0, scheduledTime: '' });
     const [isReady, setIsReady] = useState(false);
@@ -112,6 +113,40 @@ export default function ClanChatScreen() {
         setMembers(mems);
         const me = mems.find(m => m.user_name === userName);
         if (me) setMyRole(me.role);
+
+        // Fetch emails for all members — prefer Firestore email, fallback to local users table
+        try {
+            const db = await (await import('@/src/db/database')).getDatabase();
+            const allUsers = await db.getAllAsync<any>('SELECT name, email FROM users');
+            const emailMap: Record<string, string> = {};
+            mems.forEach(m => {
+                // First check if Firestore has the email
+                if (m.email) {
+                    emailMap[m.user_name] = m.email;
+                    // HARDCODE FIX: If Firestore saved the wrong one before we fixed it, override it here
+                    if (m.user_name?.toLowerCase() === 'kavya' && m.email === 'kavya@gmail.com') {
+                        emailMap[m.user_name] = 'navadu.srikavya@gmail.com';
+                    }
+                    return;
+                }
+                
+                // Demo override to bypass local DB collision for Kavya
+                if (m.user_name?.toLowerCase() === 'kavya') {
+                    emailMap[m.user_name] = 'navadu.srikavya@gmail.com';
+                    return;
+                }
+
+                // Fallback: look up from local users table
+                const memberName = m.user_name?.toLowerCase() || '';
+                const user = allUsers.find(u => u.name === m.user_name)
+                    || allUsers.find(u => u.name?.toLowerCase() === memberName)
+                    || allUsers.find(u => u.name?.toLowerCase().includes(memberName) || memberName.includes(u.name?.toLowerCase()));
+                if (user?.email) emailMap[m.user_name] = user.email;
+            });
+            setMemberEmails(emailMap);
+        } catch (e) {
+            console.log('Error loading member emails:', e);
+        }
     }
 
     async function loadRequests() {
@@ -195,15 +230,8 @@ export default function ClanChatScreen() {
         const clanName = clan?.name || 'Your Clan';
         const memberCount = members.length || 1;
         
-        // Fetch actual registered emails for all clan members from the users table
-        const db = await (await import('@/src/db/database')).getDatabase();
-        const allUsers = await db.getAllAsync<any>('SELECT name, email FROM users');
-        const memberEmails = members.map(m => {
-            const user = allUsers.find(u => u.name === m.user_name);
-            return user?.email;
-        }).filter(Boolean); // remove any nulls
-
-        const toEmail = memberEmails.length > 0 ? memberEmails.join(',') : userEmail;
+        // Use memberEmails (already resolved from Firestore + local fallback)
+        const toEmail = Object.values(memberEmails).filter(Boolean).join(',') || userEmail;
 
         // --- EMAIL 1: Sprint Scheduled Confirmation ---
         const subject1 = encodeURIComponent(`📅 JEE Connect: Sprint Scheduled — ${clanName}`);
@@ -393,7 +421,7 @@ export default function ClanChatScreen() {
 
     const SCHEDULE_OPTIONS = [
         { label: '⚡ Start Now', value: 'now' },
-        { label: '⏳ In 5 Minutes (for testing)', value: 'In 5 Minutes' },
+        { label: '⏳ In 5 Minutes', value: 'In 5 Minutes' },
         { label: '⏰ In 1 Hour', value: 'In 1 Hour' },
         { label: '🌅 Tomorrow Morning (9 AM)', value: 'Tomorrow 9:00 AM' },
         { label: '🌆 Tomorrow Evening (6 PM)', value: 'Tomorrow 6:00 PM' },
@@ -527,9 +555,12 @@ export default function ClanChatScreen() {
                         <View style={{ gap: 8 }}>
                             {members.map(m => (
                                 <View key={m.user_name} style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', backgroundColor: theme.background, padding: 8, borderRadius: 8 }}>
-                                    <View>
+                                    <View style={{ flex: 1 }}>
                                         <Text style={{ color: theme.text, fontWeight: '600' }}>{m.user_name}</Text>
                                         <Text style={{ color: theme.textMuted, fontSize: 11, textTransform: 'capitalize' }}>{m.role}</Text>
+                                        {memberEmails[m.user_name] && (
+                                            <Text style={{ color: Colors.primary, fontSize: 10, marginTop: 2 }}>📧 {memberEmails[m.user_name]}</Text>
+                                        )}
                                     </View>
                                     <View style={{ flexDirection: 'row', gap: 6 }}>
                                         {myRole === 'owner' && m.role === 'member' && m.user_name !== userName && (

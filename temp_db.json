@@ -27535,6 +27535,26 @@
       "rank": 2,
       "sprint_id": "sprint-clan-1779108949652",
       "clan_name": null
+    },
+    {
+      "id": "lb-1779127753675-210",
+      "user_name": "Rajeswari",
+      "score": -24,
+      "accuracy": 3,
+      "time_taken_sec": 30,
+      "rank": 1,
+      "sprint_id": "sprint-clan-1779127492307",
+      "clan_name": null
+    },
+    {
+      "id": "lb-1779128770221-790",
+      "user_name": "Rajeswari",
+      "score": -14,
+      "accuracy": 10,
+      "time_taken_sec": 23,
+      "rank": 1,
+      "sprint_id": "sprint-clan-1779128350823",
+      "clan_name": null
     }
   ],
   "study_clans": [

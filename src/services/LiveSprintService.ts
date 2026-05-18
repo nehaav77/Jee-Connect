@@ -91,32 +91,69 @@ class LiveSprintServiceClass {
         ];
     }
 
-    // Get leaderboard for a sprint
-    async getLeaderboard(sprintId: string): Promise<LeaderboardEntry[]> {
-        const db = await getDatabase();
+    // Get overall leaderboard for all active clan members
+    async getLeaderboard(sprintId?: string): Promise<LeaderboardEntry[]> {
         try {
-            const entries = await db.getAllAsync<LeaderboardEntry>(
-                'SELECT * FROM leaderboard_entries WHERE sprint_id = ? ORDER BY rank ASC LIMIT 50',
-                [sprintId]
-            );
+            // 1. Fetch all active clans from Firestore
+            const clansRef = collection(firestoreDb, 'study_clans');
+            const snapshot = await getDocs(clansRef);
             
-            // Enrich entries with clan name
-            const members = await db.getAllAsync<any>('SELECT * FROM clan_members');
-            const clans = await db.getAllAsync<StudyClan>('SELECT * FROM study_clans');
+            // 2. Fetch all sprint attempts from local DB to aggregate scores
+            const db = await getDatabase();
+            const allEntries = await db.getAllAsync<LeaderboardEntry>('SELECT * FROM leaderboard_entries');
             
-            const formattedEntries = entries.map(entry => {
-                const membership = members.find(m => m.user_name === entry.user_name);
-                if (membership) {
-                    const clan = clans.find(c => c.id === membership.clan_id);
-                    if (clan) {
-                        return { ...entry, clan_name: clan.name };
+            const userStats = new Map<string, { score: number, accuracy: number, time_taken_sec: number, attempts: number, clan_name: string }>();
+            
+            // 3. Initialize all members from all active clans with 0 score (ensures everyone appears)
+            snapshot.forEach(docSnap => {
+                const clan = docSnap.data() as any;
+                const members = clan.members || [];
+                members.forEach((m: any) => {
+                    if (!userStats.has(m.user_name)) {
+                        userStats.set(m.user_name, { score: 0, accuracy: 0, time_taken_sec: 0, attempts: 0, clan_name: clan.name });
                     }
+                });
+            });
+            
+            // 4. Aggregate their actual scores from attempts
+            allEntries.forEach(entry => {
+                if (userStats.has(entry.user_name)) {
+                    const stats = userStats.get(entry.user_name)!;
+                    stats.score += entry.score;
+                    stats.accuracy += entry.accuracy;
+                    stats.time_taken_sec += entry.time_taken_sec;
+                    stats.attempts += 1;
                 }
-                return entry;
+            });
+            
+            // 5. Format into leaderboard entries
+            const formattedEntries: LeaderboardEntry[] = Array.from(userStats.entries()).map(([user_name, stats]) => {
+                return {
+                    id: 'lb-overall-' + user_name,
+                    user_name,
+                    score: stats.score,
+                    accuracy: stats.attempts > 0 ? Math.round(stats.accuracy / stats.attempts) : 0,
+                    time_taken_sec: stats.time_taken_sec,
+                    rank: 0,
+                    sprint_id: 'overall',
+                    clan_name: stats.clan_name
+                };
+            });
+            
+            // 6. Sort by score (descending), then time (ascending)
+            formattedEntries.sort((a, b) => {
+                if (b.score !== a.score) return b.score - a.score;
+                return a.time_taken_sec - b.time_taken_sec;
+            });
+            
+            // 7. Assign ranks
+            formattedEntries.forEach((entry, idx) => {
+                entry.rank = idx + 1;
             });
             
             return formattedEntries;
-        } catch {
+        } catch (e) {
+            console.log('[LiveSprint] Leaderboard error:', e);
             return [];
         }
     }
@@ -289,7 +326,7 @@ class LiveSprintServiceClass {
 
 
     // Create a new private study clan
-    async createClan(name: string, userName: string): Promise<string> {
+    async createClan(name: string, userName: string, userEmail?: string): Promise<string> {
         const inviteCode = 'clan-' + Math.random().toString(36).substring(2, 8).toUpperCase();
         try {
             const clanDoc = doc(firestoreDb, 'study_clans', inviteCode);
@@ -301,7 +338,7 @@ class LiveSprintServiceClass {
                 member_count: 1,
                 weekly_score: 0,
                 rank: 0,
-                members: [{ user_name: userName, role: 'owner' }],
+                members: [{ user_name: userName, role: 'owner', email: userEmail || '' }],
                 requests: [],
                 planned_sprint_id: null,
                 planned_sprint_status: 'none',
@@ -316,7 +353,7 @@ class LiveSprintServiceClass {
     }
 
     // Request to join a study clan by invite code
-    async joinClan(inviteCode: string, userName: string): Promise<boolean> {
+    async joinClan(inviteCode: string, userName: string, userEmail?: string): Promise<boolean> {
         try {
             const clanDoc = doc(firestoreDb, 'study_clans', inviteCode);
             const snap = await getDoc(clanDoc);
@@ -324,7 +361,7 @@ class LiveSprintServiceClass {
             
             const reqId = 'req-' + Date.now();
             await updateDoc(clanDoc, {
-                requests: arrayUnion({ id: reqId, user_name: userName, status: 'pending' })
+                requests: arrayUnion({ id: reqId, user_name: userName, status: 'pending', email: userEmail || '' })
             });
             return true;
         } catch (e) {
@@ -358,10 +395,11 @@ class LiveSprintServiceClass {
             if (reqIdx === -1) return;
             
             const requesterName = requests[reqIdx].user_name;
+            const requesterEmail = requests[reqIdx].email || '';
             requests.splice(reqIdx, 1); // remove request
             
             const members = data.members || [];
-            members.push({ user_name: requesterName, role: 'member' });
+            members.push({ user_name: requesterName, role: 'member', email: requesterEmail });
             
             await updateDoc(clanDoc, {
                 requests,

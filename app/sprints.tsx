@@ -12,7 +12,7 @@ export default function SprintsScreen() {
     const cs = useColorScheme();
     const isDark = cs === 'dark';
     const theme = isDark ? Colors.dark : Colors.light;
-    const { isOnline, userName } = useAppStore();
+    const { isOnline, userName, userEmail } = useAppStore();
 
     const [sprints, setSprints] = useState<LiveSprint[]>([]);
     const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
@@ -46,7 +46,7 @@ export default function SprintsScreen() {
 
     async function handleCreateClan() {
         if (!newClanName.trim()) return;
-        const code = await liveSprintService.createClan(newClanName.trim(), userName);
+        const code = await liveSprintService.createClan(newClanName.trim(), userName, userEmail);
         if (code) {
             Alert.alert('Clan Created!', `Your Clan Invite Code is:\n\n${code}\n\nShare this code with your friends!`);
             setIsCreateModalOpen(false);
@@ -57,7 +57,7 @@ export default function SprintsScreen() {
 
     async function handleJoinClan() {
         if (!joinInviteCode.trim()) return;
-        const success = await liveSprintService.joinClan(joinInviteCode.trim(), userName);
+        const success = await liveSprintService.joinClan(joinInviteCode.trim(), userName, userEmail);
         if (success) {
             Alert.alert('Request Sent', 'Your request to join has been sent to the clan owner. Please wait for approval.');
             setIsJoinModalOpen(false);
@@ -69,7 +69,7 @@ export default function SprintsScreen() {
     }
 
     async function handleExploreJoin(clanId: string) {
-        const success = await liveSprintService.joinClan(clanId, userName);
+        const success = await liveSprintService.joinClan(clanId, userName, userEmail);
         if (success) {
             Alert.alert('Request Sent', 'Your request to join has been sent to the clan owner.');
             loadData();
