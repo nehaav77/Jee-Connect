@@ -98,9 +98,11 @@ class LiveSprintServiceClass {
             const clansRef = collection(firestoreDb, 'study_clans');
             const snapshot = await getDocs(clansRef);
             
-            // 2. Fetch all sprint attempts from local DB to aggregate scores
-            const db = await getDatabase();
-            const allEntries = await db.getAllAsync<LeaderboardEntry>('SELECT * FROM leaderboard_entries');
+            // 2. Fetch all sprint attempts from Firestore to aggregate scores globally
+            const lbRef = collection(firestoreDb, 'leaderboard_entries');
+            const lbSnap = await getDocs(lbRef);
+            const allEntries: LeaderboardEntry[] = [];
+            lbSnap.forEach(d => allEntries.push(d.data() as LeaderboardEntry));
             
             const userStats = new Map<string, { score: number, accuracy: number, time_taken_sec: number, attempts: number, clan_name: string }>();
             
@@ -177,35 +179,30 @@ class LiveSprintServiceClass {
         const db = await getDatabase();
         try {
             const id = 'lb-' + Date.now() + '-' + Math.floor(Math.random() * 1000);
+            
+            // 1. Push to Firestore for global cross-device leaderboard sync
+            try {
+                const entryDoc = doc(collection(firestoreDb, 'leaderboard_entries'), id);
+                await setDoc(entryDoc, {
+                    id,
+                    user_name: userName,
+                    score,
+                    accuracy,
+                    time_taken_sec: timeTakenSec,
+                    sprint_id: sprintId,
+                    timestamp: Date.now()
+                });
+            } catch (e) {
+                console.log('[LiveSprint] Firestore submit error:', e);
+            }
+
+            // 2. Save locally to prevent redirect loops (hasCompletedSprint relies on this)
             await db.runAsync(
                 `INSERT INTO leaderboard_entries (id, user_name, score, accuracy, time_taken_sec, rank, sprint_id)
                  VALUES (?, ?, ?, ?, ?, 0, ?)`,
                 [id, userName, score, accuracy, timeTakenSec, sprintId]
             );
 
-            // Re-calculate ranks for this sprint
-            const entries = await db.getAllAsync<LeaderboardEntry>(
-                'SELECT * FROM leaderboard_entries WHERE sprint_id = ? ORDER BY score DESC, time_taken_sec ASC',
-                [sprintId]
-            );
-            
-            for (let i = 0; i < entries.length; i++) {
-                await db.runAsync(
-                    'UPDATE leaderboard_entries SET rank = ? WHERE id = ?',
-                    [i + 1, entries[i].id]
-                );
-            }
-
-            // Award points to the user's clan if they scored positive
-            if (score > 0) {
-                const member = await db.getFirstAsync<any>('SELECT clan_id FROM clan_members WHERE user_name = ?', [userName]);
-                if (member && member.clan_id) {
-                    const clan = await db.getFirstAsync<StudyClan>('SELECT weekly_score FROM study_clans WHERE id = ?', [member.clan_id]);
-                    if (clan) {
-                        await db.runAsync('UPDATE study_clans SET weekly_score = ? WHERE id = ?', [(clan.weekly_score || 0) + score, member.clan_id]);
-                    }
-                }
-            }
         } catch (e) {
             console.log('[LiveSprint] Submit attempt error:', e);
         }
