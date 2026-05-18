@@ -205,8 +205,7 @@ export default function ClanChatScreen() {
 
         if (status.status === 'active' && status.sprintId) {
             // Prevent redirect loop if the user has already completed this sprint
-            const lb = await liveSprintService.getLeaderboard(status.sprintId);
-            const alreadyFinished = lb.some((l: any) => l.user_name === userName);
+            const alreadyFinished = await liveSprintService.hasCompletedSprint(status.sprintId, userName);
             
             if (!alreadyFinished) {
                 router.replace(`/sprint/${status.sprintId}?clanId=${clanId}` as any);

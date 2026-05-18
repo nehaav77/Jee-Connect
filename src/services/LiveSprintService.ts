@@ -158,6 +158,20 @@ class LiveSprintServiceClass {
         }
     }
 
+    // Check if a user has completed a specific sprint attempt locally
+    async hasCompletedSprint(sprintId: string, userName: string): Promise<boolean> {
+        try {
+            const db = await getDatabase();
+            const entries = await db.getAllAsync<LeaderboardEntry>(
+                'SELECT * FROM leaderboard_entries WHERE sprint_id = ? AND user_name = ?',
+                [sprintId, userName]
+            );
+            return entries.length > 0;
+        } catch {
+            return false;
+        }
+    }
+
     // Submit a sprint attempt and update leaderboard
     async submitSprintAttempt(sprintId: string, userName: string, score: number, accuracy: number, timeTakenSec: number): Promise<void> {
         const db = await getDatabase();
