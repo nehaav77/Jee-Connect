@@ -97,7 +97,7 @@ export default function AuthScreen() {
         setLoading(false);
         
         if (result.success) {
-            showAlert('OTP Sent (SIMULATED)', `${result.message}\n\nYOUR OTP CODE IS: ${result.otp}`);
+            showAlert('Success', 'Email sent successfully');
             setAuthMode('reset');
         } else {
             showAlert('Error', result.message);

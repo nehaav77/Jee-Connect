@@ -22,7 +22,7 @@ export default function TestsScreen() {
     const [adaptiveLoading, setAdaptiveLoading] = useState(false);
     const [showSubjectPicker, setShowSubjectPicker] = useState(false);
     const [lastBreakdown, setLastBreakdown] = useState<AdaptiveBreakdown | null>(null);
-    const [activeTab, setActiveTab] = useState<'mock' | 'quick'>('mock');
+    const [activeTab, setActiveTab] = useState<'mock' | 'quick' | 'recent'>('mock');
 
     useEffect(() => { loadTests(); loadHistory(); }, [userEmail]);
 
@@ -59,30 +59,42 @@ export default function TestsScreen() {
         if (!userEmail) return;
         try {
             const db = await getDatabase();
-            const results = await db.getAllAsync<any>(
-                `SELECT ta.*, t.title as test_title, t.test_type as test_type 
-                 FROM test_attempts ta JOIN tests t ON ta.test_id = t.id 
-                 WHERE ta.user_email = ? AND ta.status = 'completed' 
-                 ORDER BY ta.started_at DESC LIMIT 20`,
+            // Web DB Simulator doesn't support JOINs, so we fetch attempts and map manually
+            const attempts = await db.getAllAsync<any>(
+                `SELECT * FROM test_attempts WHERE user_email = ? AND status = 'completed' ORDER BY started_at DESC LIMIT 20`,
                 [userEmail]
             );
+            
+            const allTests = await db.getAllAsync<any>('SELECT id, title, test_type FROM tests');
+            const testMap = new Map();
+            allTests.forEach(t => testMap.set(t.id, t));
+
+            const results = attempts.map(a => {
+                const t = testMap.get(a.test_id);
+                return {
+                    ...a,
+                    test_title: t?.title,
+                    test_type: t?.test_type
+                };
+            });
+            
             setHistory(results);
         } catch (e) { console.log('History error:', e); }
     }
 
     function getTestDisplayName(item: any): string {
-        // If the test already has a meaningful title, use it
-        if (item.test_title && item.test_title !== 'undefined') {
-            return item.test_title;
-        }
-        // Generate descriptive name from test_type
+        if (item.test_title && item.test_title !== 'undefined') return item.test_title;
+        
         const type = item.test_type;
+        const testId = String(item.test_id || '');
         const date = new Date(item.started_at).toLocaleDateString();
-        if (type === 'custom') return `Smart Test · ${date}`;
-        if (type === 'subject') return `Subject Quick Test · ${date}`;
-        if (type === 'chapter') return `Chapter Quick Test · ${date}`;
-        if (type === 'full') return `Full Mock Test · ${date}`;
-        return `Practice Test · ${date}`;
+
+        if (type === 'custom' || testId.includes('custom') || testId.includes('adaptive')) return `Smart Test · ${date}`;
+        if (type === 'subject' || testId.includes('subject') || testId.includes('phy') || testId.includes('chem') || testId.includes('math')) return `Subject Quick Test · ${date}`;
+        if (type === 'chapter' || testId.includes('chapter')) return `Chapter Quick Test · ${date}`;
+        if (type === 'full' || testId.includes('full') || testId.includes('mock')) return `Full Mock Test · ${date}`;
+        
+        return `Quick Test · ${date}`;
     }
 
     function getTestTypeBadge(item: any): { label: string; color: string } {
@@ -131,7 +143,8 @@ export default function TestsScreen() {
 
     const TABS = [
         { id: 'mock', label: 'Mock Full' },
-        { id: 'quick', label: 'Quick Tests' }
+        { id: 'quick', label: 'Quick Tests' },
+        { id: 'recent', label: 'Recent Activity' }
     ];
 
     const renderTestGroup = (groupTests: Test[]) => {
@@ -288,6 +301,46 @@ export default function TestsScreen() {
             {activeTab === 'mock' && renderTestGroup(fullTests)}
 
             {activeTab === 'quick' && renderTestGroup(quickTests)}
+
+            {activeTab === 'recent' && (
+                <View style={{ marginBottom: Spacing.sm }}>
+                    {history.length === 0 ? (
+                        <View style={[styles.emptyState, { backgroundColor: theme.surface, borderColor: theme.cardBorder }]}>
+                            <Text style={{ fontSize: 32, marginBottom: 12 }}>⏳</Text>
+                            <Text style={[styles.emptyTitle, { color: theme.text }]}>No History Yet</Text>
+                            <Text style={[styles.emptyDesc, { color: theme.textSecondary }]}>Take a test to see it here</Text>
+                        </View>
+                    ) : (
+                        history.map((item, idx) => {
+                            const badge = getTestTypeBadge(item);
+                            return (
+                                <TouchableOpacity 
+                                    key={idx} 
+                                    style={[styles.historyCard, { backgroundColor: theme.surface, borderColor: theme.border }]}
+                                    activeOpacity={0.7}
+                                    onPress={() => router.push({ pathname: '/result/[attemptId]', params: { attemptId: item.id } } as any)}
+                                >
+                                    <View style={{ flex: 1, gap: 4 }}>
+                                        <Text style={[styles.historyTitle, { color: theme.text }]}>{getTestDisplayName(item)}</Text>
+                                        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                                            <View style={[styles.typeBadge, { backgroundColor: badge.color + '15' }]}>
+                                                <Text style={{ fontSize: 10, fontWeight: '700', color: badge.color }}>{badge.label}</Text>
+                                            </View>
+                                            <Text style={{ fontSize: 12, color: theme.textMuted }}>
+                                                {new Date(item.started_at).toLocaleDateString()}
+                                            </Text>
+                                        </View>
+                                    </View>
+                                    <View style={{ alignItems: 'flex-end' }}>
+                                        <Text style={[styles.historyScore, { color: Colors.primary }]}>{item.score}</Text>
+                                        <Text style={{ fontSize: 11, color: theme.textMuted, fontWeight: '600' }}>marks</Text>
+                                    </View>
+                                </TouchableOpacity>
+                            );
+                        })
+                    )}
+                </View>
+            )}
 
             <View style={{ height: 32 }} />
         </ScrollView>

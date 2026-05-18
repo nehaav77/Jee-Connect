@@ -10,7 +10,7 @@ const DB_FILE = path.join(__dirname, '..', 'temp_db.json');
 // I've filled in your SID from the screenshot.
 // Click "My first Twilio account" on your screen to find these 2 missing items:
 const TWILIO_SID = 'AC6071297da2b77f498aebae782bca97e5';
-const TWILIO_TOKEN = 'fe595893e5126d2b84f62de96c281071';
+const TWILIO_TOKEN = '1e9be822f25ec5d15bb82a1fbfac3897';
 const TWILIO_PHONE = '+13203378607'; 
 
 const server = http.createServer((req, res) => {

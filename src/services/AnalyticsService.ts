@@ -237,83 +237,95 @@ class AnalyticsServiceClass {
         const db = await getDatabase();
 
         try {
-            const totalTests = await db.getFirstAsync<{ count: number }>(
-                `SELECT COUNT(*) as count FROM test_attempts WHERE status = 'completed' AND user_email = ?`,
+            // Fetch all attempts in one go to calculate everything in JS (Web Simulator safe)
+            const attempts = await db.getAllAsync<any>(
+                `SELECT * FROM test_attempts WHERE status = 'completed' AND user_email = ?`,
                 [studentEmail]
             );
 
-            const avgScore = await db.getFirstAsync<{ avg: number }>(
-                `SELECT AVG(CAST(correct_count AS FLOAT) / CASE WHEN (correct_count + wrong_count) = 0 THEN 1 ELSE (correct_count + wrong_count) END * 100) as avg
-                 FROM test_attempts WHERE status = 'completed' AND user_email = ?`,
-                [studentEmail]
-            );
+            const totalTests = attempts.length;
 
-            // Get recent test scores
-            const recentAttempts = await db.getAllAsync<{
-                score: number; started_at: string; test_id: string;
-            }>(
-                `SELECT ta.score, ta.started_at, t.total_marks 
-                 FROM test_attempts ta JOIN tests t ON ta.test_id = t.id
-                 WHERE ta.status = 'completed' AND ta.user_email = ? 
-                 ORDER BY ta.started_at DESC LIMIT 5`,
-                [studentEmail]
-            );
+            // Calculate accuracy
+            let totalAccuracySum = 0;
+            let validAccuracyCount = 0;
+            attempts.forEach(a => {
+                const correct = a.correct_count || 0;
+                const wrong = a.wrong_count || 0;
+                const total = correct + wrong;
+                if (total > 0) {
+                    totalAccuracySum += (correct / total) * 100;
+                    validAccuracyCount++;
+                }
+            });
+            const overallAccuracy = validAccuracyCount > 0 ? Math.round(totalAccuracySum / validAccuracyCount) : 0;
 
-            // Get mood average from chat sentiment
-            const moodAvg = await db.getFirstAsync<{ avg: number }>(
-                `SELECT AVG(sentiment_score) as avg FROM chat_messages WHERE role = 'user' AND sentiment_score IS NOT NULL AND user_email = ?`,
-                [studentEmail]
-            );
-
-            // Calculate total study hours using actual time spent on tests
-            const allAttemptsForTime = await db.getAllAsync<{ started_at: string; ended_at: string; test_id: string }>(
-                `SELECT started_at, ended_at, test_id FROM test_attempts WHERE status = 'completed' AND user_email = ?`,
-                [studentEmail]
-            );
-
+            // Calculate study hours
             let totalMin = 0;
-            if (allAttemptsForTime) {
-                for (const attempt of allAttemptsForTime) {
-                    let usedActualTime = false;
-                    if (attempt.started_at && attempt.ended_at) {
-                        const start = new Date(attempt.started_at).getTime();
-                        const end = new Date(attempt.ended_at).getTime();
-                        const diffMin = (end - start) / (1000 * 60);
-                        if (diffMin > 0 && !isNaN(diffMin)) {
-                            totalMin += diffMin;
-                            usedActualTime = true;
-                        }
-                    }
-                    if (!usedActualTime) {
-                        const test = await db.getFirstAsync<{ duration_min: number }>(
-                            `SELECT duration_min FROM tests WHERE id = ?`, [attempt.test_id]
-                        );
-                        totalMin += (test?.duration_min || 15);
+            for (const attempt of attempts) {
+                let usedActualTime = false;
+                if (attempt.started_at && attempt.ended_at) {
+                    const start = new Date(attempt.started_at).getTime();
+                    const end = new Date(attempt.ended_at).getTime();
+                    const diffMin = (end - start) / (1000 * 60);
+                    if (diffMin > 0 && !isNaN(diffMin)) {
+                        totalMin += diffMin;
+                        usedActualTime = true;
                     }
                 }
+                if (!usedActualTime) {
+                    const test = await db.getFirstAsync<{ duration_min: number }>(
+                        `SELECT duration_min FROM tests WHERE id = ?`, [attempt.test_id]
+                    );
+                    totalMin += (test?.duration_min || 15);
+                }
             }
-
-            // Accurate study hours based on actual time spent taking the tests
             let hours = 0;
             if (totalMin > 0) {
                 hours = Math.max(0.1, Math.round((totalMin / 60) * 10) / 10);
             }
 
+            // Streak (actual from gamification service)
+            const { gamificationService } = require('./GamificationService');
+            const streakInfo = await gamificationService.getStreakInfo(studentEmail);
+            const streak = streakInfo.currentStreak || 0;
+
+            // Get recent test scores
+            const recentAttempts = attempts
+                .sort((a, b) => new Date(b.started_at).getTime() - new Date(a.started_at).getTime())
+                .slice(0, 5);
+
+            // Fetch tests to get total marks for recent attempts (since JOIN fails on Web DB)
+            const allTests = await db.getAllAsync<any>('SELECT id, total_marks FROM tests');
+            const testMap = new Map();
+            allTests.forEach((t: any) => testMap.set(t.id, t));
+
+            // Get mood average from chat sentiment
+            const moodMsgs = await db.getAllAsync<any>(
+                `SELECT sentiment_score FROM chat_messages WHERE role = 'user' AND sentiment_score IS NOT NULL AND user_email = ?`,
+                [studentEmail]
+            );
+            let moodSum = 0;
+            moodMsgs.forEach((m: any) => moodSum += m.sentiment_score);
+            const moodAvg = moodMsgs.length > 0 ? (moodSum / moodMsgs.length) : 0.5;
+
             return {
                 student_name: studentName,
-                total_tests: totalTests?.count || 0,
+                total_tests: totalTests,
                 total_study_hours: hours,
-                current_streak: 0,
-                overall_accuracy: Math.round(avgScore?.avg || 0),
+                current_streak: streak,
+                overall_accuracy: overallAccuracy,
                 strongest_subject: 'Loading...',
                 weakest_subject: 'Loading...',
-                recent_scores: recentAttempts.map((a: any) => ({
-                    date: a.started_at || a.ended_at || new Date().toISOString(), 
-                    score: a.score || 0, 
-                    total: a.total_marks || (a.test_id?.includes('subject') ? 100 : 300),
-                })),
+                recent_scores: recentAttempts.map((a: any) => {
+                    const t = testMap.get(a.test_id);
+                    return {
+                        date: a.started_at || a.ended_at || new Date().toISOString(), 
+                        score: a.score || 0, 
+                        total: t?.total_marks || (a.test_id?.includes('subject') ? 100 : 300),
+                    };
+                }),
                 weekly_progress: 0,
-                mood_average: moodAvg?.avg || 0.5,
+                mood_average: moodAvg,
             };
         } catch (e) {
             console.log('[Analytics] Parent dashboard error:', e);
@@ -405,9 +417,10 @@ class AnalyticsServiceClass {
                 hours = Math.max(0.1, Math.round((totalMinutes / 60) * 10) / 10);
             }
 
-            // Streak calculation (placeholder logic based on recent attempts)
-            // In a full implementation, we'd check daily_logs table
-            const streak = attempts.length > 0 ? 1 : 0; 
+            // Streak calculation using gamification service
+            const { gamificationService } = require('./GamificationService');
+            const streakInfo = await gamificationService.getStreakInfo(userEmail);
+            const streak = streakInfo.currentStreak || 0; 
             
             console.log(`[DB] Activity for ${userEmail}: ${attempts.length} tests, ${hours}h study.`);
             
