@@ -135,6 +135,20 @@ export async function initializeDatabase(): Promise<void> {
         // Column already exists, ignore
     }
 
+    // Migration: add scheduled_sprint_time to study_clans
+    try {
+        await db.execAsync('ALTER TABLE study_clans ADD COLUMN scheduled_sprint_time TEXT');
+    } catch (_) {
+        // Column already exists, ignore
+    }
+
+    // Migration: add clan_name to leaderboard_entries
+    try {
+        await db.execAsync('ALTER TABLE leaderboard_entries ADD COLUMN clan_name TEXT');
+    } catch (_) {
+        // Column already exists, ignore
+    }
+
     // Seed data if subjects are empty
     const existing = await db.getFirstAsync<{ count: number }>(
         'SELECT COUNT(*) as count FROM subjects'
@@ -247,6 +261,20 @@ async function seedWebStore(): Promise<void> {
                     window.localStorage.setItem('jee_connect_clans_cleared_v1', 'true');
                     window.localStorage.setItem(STORAGE_KEY, JSON.stringify(webStore));
                     console.log('[DB] Auto-cleared clans data for fresh start');
+                }
+
+                // Patch: clan_name and scheduled_sprint_time
+                if (webStore['study_clans']) {
+                    webStore['study_clans'] = webStore['study_clans'].map((c: any) => ({
+                        ...c,
+                        scheduled_sprint_time: c.scheduled_sprint_time ?? null,
+                    }));
+                }
+                if (webStore['leaderboard_entries']) {
+                    webStore['leaderboard_entries'] = webStore['leaderboard_entries'].map((l: any) => ({
+                        ...l,
+                        clan_name: l.clan_name ?? null,
+                    }));
                 }
 
                 // --- ONE-TIME MIGRATION: Sprint 9 Gamification Tables ---

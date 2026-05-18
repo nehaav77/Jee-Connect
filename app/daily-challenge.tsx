@@ -295,7 +295,7 @@ export default function DailyChallengeScreen() {
             {/* Header */}
             <View style={styles.header}>
                 <TouchableOpacity onPress={() => router.back()} style={styles.backArrow}>
-                    <Text style={{ color: Colors.primary, fontSize: 16, fontWeight: '700' }}>← Back</Text>
+                    <Text style={{ color: Colors.primary, fontSize: 20, fontWeight: '700' }}>{'<-'}</Text>
                 </TouchableOpacity>
                 <Text style={[styles.headerTitle, { color: theme.text }]}>⚡ Question of the Day</Text>
                 <View style={{ width: 60 }} />

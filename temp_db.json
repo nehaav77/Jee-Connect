@@ -4603,6 +4603,16 @@
       "total_questions": 171,
       "test_type": "full",
       "user_email": null
+    },
+    {
+      "id": "1779100811335-tp17044fn",
+      "title": "🎯 Smart Practice",
+      "description": "Adaptive · 57Q · 14 Easy, 41 Med, 2 Hard",
+      "duration_min": 143,
+      "total_marks": 228,
+      "total_questions": 57,
+      "test_type": "full",
+      "user_email": "rajeswarikrishna2409@gmail.com"
     }
   ],
   "test_questions": [
@@ -25685,6 +25695,291 @@
       "test_id": "1779048284353-iltn0oe4i",
       "question_id": "ja-mathematics-mcq-12",
       "order_num": 171
+    },
+    {
+      "test_id": "1779100811335-tp17044fn",
+      "question_id": "pyq-phy-2023-1",
+      "order_num": 1
+    },
+    {
+      "test_id": "1779100811335-tp17044fn",
+      "question_id": "pyq-phy-2023-2",
+      "order_num": 2
+    },
+    {
+      "test_id": "1779100811335-tp17044fn",
+      "question_id": "jm-physics-mcq-4",
+      "order_num": 3
+    },
+    {
+      "test_id": "1779100811335-tp17044fn",
+      "question_id": "pyq-phy-2023-3",
+      "order_num": 4
+    },
+    {
+      "test_id": "1779100811335-tp17044fn",
+      "question_id": "jm-physics-mcq-13",
+      "order_num": 5
+    },
+    {
+      "test_id": "1779100811335-tp17044fn",
+      "question_id": "pyq-phy-2024-4",
+      "order_num": 6
+    },
+    {
+      "test_id": "1779100811335-tp17044fn",
+      "question_id": "pyq-chem-2024-2",
+      "order_num": 7
+    },
+    {
+      "test_id": "1779100811335-tp17044fn",
+      "question_id": "pyq-chem-2024-1",
+      "order_num": 8
+    },
+    {
+      "test_id": "1779100811335-tp17044fn",
+      "question_id": "pyq-chem-2022-1",
+      "order_num": 9
+    },
+    {
+      "test_id": "1779100811335-tp17044fn",
+      "question_id": "pyq-chem-2023-1",
+      "order_num": 10
+    },
+    {
+      "test_id": "1779100811335-tp17044fn",
+      "question_id": "pyq-math-2024-2",
+      "order_num": 11
+    },
+    {
+      "test_id": "1779100811335-tp17044fn",
+      "question_id": "pyq-math-2023-1",
+      "order_num": 12
+    },
+    {
+      "test_id": "1779100811335-tp17044fn",
+      "question_id": "pyq-math-2024-4",
+      "order_num": 13
+    },
+    {
+      "test_id": "1779100811335-tp17044fn",
+      "question_id": "pyq-math-2024-1",
+      "order_num": 14
+    },
+    {
+      "test_id": "1779100811335-tp17044fn",
+      "question_id": "pyq-math-2022-2",
+      "order_num": 15
+    },
+    {
+      "test_id": "1779100811335-tp17044fn",
+      "question_id": "pyq-math-2024-3",
+      "order_num": 16
+    },
+    {
+      "test_id": "1779100811335-tp17044fn",
+      "question_id": "pyq-math-2023-2",
+      "order_num": 17
+    },
+    {
+      "test_id": "1779100811335-tp17044fn",
+      "question_id": "pyq-math-2022-1",
+      "order_num": 18
+    },
+    {
+      "test_id": "1779100811335-tp17044fn",
+      "question_id": "jm-physics-mcq-5",
+      "order_num": 19
+    },
+    {
+      "test_id": "1779100811335-tp17044fn",
+      "question_id": "jm-physics-mcq-6",
+      "order_num": 20
+    },
+    {
+      "test_id": "1779100811335-tp17044fn",
+      "question_id": "pyq-phy-2024-3",
+      "order_num": 21
+    },
+    {
+      "test_id": "1779100811335-tp17044fn",
+      "question_id": "jm-physics-mcq-8",
+      "order_num": 22
+    },
+    {
+      "test_id": "1779100811335-tp17044fn",
+      "question_id": "jm-physics-mcq-9",
+      "order_num": 23
+    },
+    {
+      "test_id": "1779100811335-tp17044fn",
+      "question_id": "jm-physics-mcq-10",
+      "order_num": 24
+    },
+    {
+      "test_id": "1779100811335-tp17044fn",
+      "question_id": "jm-physics-mcq-11",
+      "order_num": 25
+    },
+    {
+      "test_id": "1779100811335-tp17044fn",
+      "question_id": "jm-physics-mcq-14",
+      "order_num": 26
+    },
+    {
+      "test_id": "1779100811335-tp17044fn",
+      "question_id": "jm-physics-mcq-15",
+      "order_num": 27
+    },
+    {
+      "test_id": "1779100811335-tp17044fn",
+      "question_id": "jm-physics-mcq-17",
+      "order_num": 28
+    },
+    {
+      "test_id": "1779100811335-tp17044fn",
+      "question_id": "jm-physics-mcq-18",
+      "order_num": 29
+    },
+    {
+      "test_id": "1779100811335-tp17044fn",
+      "question_id": "jm-physics-mcq-19",
+      "order_num": 30
+    },
+    {
+      "test_id": "1779100811335-tp17044fn",
+      "question_id": "jm-physics-mcq-20",
+      "order_num": 31
+    },
+    {
+      "test_id": "1779100811335-tp17044fn",
+      "question_id": "jm-chemistry-mcq-2",
+      "order_num": 32
+    },
+    {
+      "test_id": "1779100811335-tp17044fn",
+      "question_id": "jm-chemistry-mcq-3",
+      "order_num": 33
+    },
+    {
+      "test_id": "1779100811335-tp17044fn",
+      "question_id": "jm-chemistry-mcq-8",
+      "order_num": 34
+    },
+    {
+      "test_id": "1779100811335-tp17044fn",
+      "question_id": "jm-chemistry-mcq-9",
+      "order_num": 35
+    },
+    {
+      "test_id": "1779100811335-tp17044fn",
+      "question_id": "jm-chemistry-mcq-10",
+      "order_num": 36
+    },
+    {
+      "test_id": "1779100811335-tp17044fn",
+      "question_id": "jm-chemistry-mcq-11",
+      "order_num": 37
+    },
+    {
+      "test_id": "1779100811335-tp17044fn",
+      "question_id": "jm-chemistry-mcq-13",
+      "order_num": 38
+    },
+    {
+      "test_id": "1779100811335-tp17044fn",
+      "question_id": "jm-chemistry-mcq-14",
+      "order_num": 39
+    },
+    {
+      "test_id": "1779100811335-tp17044fn",
+      "question_id": "jm-chemistry-mcq-15",
+      "order_num": 40
+    },
+    {
+      "test_id": "1779100811335-tp17044fn",
+      "question_id": "jm-chemistry-mcq-16",
+      "order_num": 41
+    },
+    {
+      "test_id": "1779100811335-tp17044fn",
+      "question_id": "jm-mathematics-mcq-3",
+      "order_num": 42
+    },
+    {
+      "test_id": "1779100811335-tp17044fn",
+      "question_id": "jm-mathematics-mcq-4",
+      "order_num": 43
+    },
+    {
+      "test_id": "1779100811335-tp17044fn",
+      "question_id": "jm-mathematics-mcq-6",
+      "order_num": 44
+    },
+    {
+      "test_id": "1779100811335-tp17044fn",
+      "question_id": "jm-mathematics-mcq-7",
+      "order_num": 45
+    },
+    {
+      "test_id": "1779100811335-tp17044fn",
+      "question_id": "jm-mathematics-mcq-9",
+      "order_num": 46
+    },
+    {
+      "test_id": "1779100811335-tp17044fn",
+      "question_id": "jm-mathematics-mcq-11",
+      "order_num": 47
+    },
+    {
+      "test_id": "1779100811335-tp17044fn",
+      "question_id": "jm-mathematics-mcq-12",
+      "order_num": 48
+    },
+    {
+      "test_id": "1779100811335-tp17044fn",
+      "question_id": "jm-mathematics-mcq-13",
+      "order_num": 49
+    },
+    {
+      "test_id": "1779100811335-tp17044fn",
+      "question_id": "jm-mathematics-mcq-14",
+      "order_num": 50
+    },
+    {
+      "test_id": "1779100811335-tp17044fn",
+      "question_id": "jm-mathematics-mcq-17",
+      "order_num": 51
+    },
+    {
+      "test_id": "1779100811335-tp17044fn",
+      "question_id": "jm-mathematics-mcq-18",
+      "order_num": 52
+    },
+    {
+      "test_id": "1779100811335-tp17044fn",
+      "question_id": "jm-mathematics-mcq-19",
+      "order_num": 53
+    },
+    {
+      "test_id": "1779100811335-tp17044fn",
+      "question_id": "jm-mathematics-mcq-20",
+      "order_num": 54
+    },
+    {
+      "test_id": "1779100811335-tp17044fn",
+      "question_id": "pyq-phy-2024-1",
+      "order_num": 55
+    },
+    {
+      "test_id": "1779100811335-tp17044fn",
+      "question_id": "pyq-chem-2023-2",
+      "order_num": 56
+    },
+    {
+      "test_id": "1779100811335-tp17044fn",
+      "question_id": "pyq-chem-2022-2",
+      "order_num": 57
     }
   ],
   "test_attempts": [
@@ -26115,7 +26410,9 @@
       "score": 0,
       "correct_count": 0,
       "wrong_count": 0,
-      "is_disqualified": 1
+      "is_disqualified": 1,
+      "tab_violations": 0,
+      "xp_awarded": 0
     },
     {
       "id": "1779048591983-ros4at71u",
@@ -26131,7 +26428,98 @@
       "score": 0,
       "correct_count": 0,
       "wrong_count": 0,
-      "is_disqualified": 1
+      "is_disqualified": 1,
+      "tab_violations": 0,
+      "xp_awarded": 0
+    },
+    {
+      "id": "1779095419708-53r4bio4o",
+      "test_id": "test-phy-quick",
+      "started_at": "2026-05-18T09:10:19.709Z",
+      "status": "completed",
+      "answers": "{\"pyq-phy-2023-2\":\"A\",\"ja-physics-mcq-12\":\"A\",\"pyq-phy-2021-1\":\"A\",\"ja-physics-mcq-2\":\"A\",\"jm-physics-mcq-16\":\"A\",\"pyq-phy-2023-1\":\"A\",\"ja-physics-numerical-8\":\"5\"}",
+      "time_per_question": "{\"pyq-phy-2023-2\":0,\"ja-physics-mcq-12\":0,\"pyq-phy-2021-1\":0,\"ja-physics-mcq-2\":0,\"jm-physics-mcq-16\":0,\"pyq-phy-2023-1\":0,\"ja-physics-numerical-8\":0}",
+      "question_ids": "[\"pyq-phy-2023-2\",\"ja-physics-mcq-12\",\"pyq-phy-2021-1\",\"ja-physics-mcq-2\",\"jm-physics-mcq-16\",\"pyq-phy-2023-1\",\"ja-physics-numerical-8\"]",
+      "user_email": "rajeswarikrishna2409@gmail.com",
+      "total_attempted": 7,
+      "ended_at": "2026-05-18T09:18:04.132Z",
+      "score": 19,
+      "correct_count": 5,
+      "wrong_count": 2,
+      "is_disqualified": 0,
+      "xp_awarded": 1,
+      "tab_violations": 0
+    },
+    {
+      "id": "1779095932683-y24iixnsr",
+      "test_id": "test-phy-quick",
+      "started_at": "2026-05-18T09:18:52.684Z",
+      "status": "completed",
+      "answers": "{\"ja-physics-numerical-8\":\"1.1\",\"jm-physics-mcq-3\":\"B\",\"pyq-phy-2022-2\":\"B\",\"pyq-phy-2024-1\":\"A\",\"pyq-phy-2024-4\":\"B\",\"pyq-phy-2023-1\":\"B\"}",
+      "time_per_question": "{\"ja-physics-numerical-8\":0,\"jm-physics-mcq-3\":0,\"pyq-phy-2022-2\":0,\"pyq-phy-2024-1\":0,\"pyq-phy-2024-4\":0,\"pyq-phy-2023-1\":0}",
+      "question_ids": "[\"ja-physics-numerical-8\",\"jm-physics-mcq-3\",\"pyq-phy-2022-2\",\"pyq-phy-2024-1\",\"pyq-phy-2024-4\",\"pyq-phy-2023-1\",\"jm-physics-num-6\"]",
+      "user_email": "rajeswarikrishna2409@gmail.com",
+      "total_attempted": 6,
+      "ended_at": "2026-05-18T09:27:35.912Z",
+      "score": 0,
+      "correct_count": 1,
+      "wrong_count": 5,
+      "is_disqualified": 0,
+      "xp_awarded": 1,
+      "tab_violations": 0
+    },
+    {
+      "id": "1779097468388-0bh3upq78",
+      "test_id": "test-phy-quick",
+      "started_at": "2026-05-18T09:44:28.390Z",
+      "status": "completed",
+      "answers": "{\"pyq-phy-2021-1\":\"D\",\"jm-physics-mcq-3\":\"D\",\"ja-physics-numerical-8\":\"10\",\"pyq-phy-2024-4\":\"D\",\"pyq-phy-2023-1\":\"D\",\"ja-physics-mcq-3\":\"D\",\"pyq-phy-2022-2\":\"D\"}",
+      "time_per_question": "{\"pyq-phy-2021-1\":0,\"jm-physics-mcq-3\":0,\"ja-physics-numerical-8\":0,\"pyq-phy-2024-4\":0,\"pyq-phy-2023-1\":0,\"ja-physics-mcq-3\":0,\"pyq-phy-2022-2\":0}",
+      "question_ids": "[\"pyq-phy-2021-1\",\"jm-physics-mcq-3\",\"ja-physics-numerical-8\",\"pyq-phy-2024-4\",\"pyq-phy-2023-1\",\"ja-physics-mcq-3\",\"pyq-phy-2022-2\"]",
+      "user_email": "rajeswarikrishna2409@gmail.com",
+      "total_attempted": 7,
+      "ended_at": "2026-05-18T09:44:52.438Z",
+      "score": 0,
+      "correct_count": 0,
+      "wrong_count": 0,
+      "is_disqualified": 1,
+      "tab_violations": 0,
+      "xp_awarded": 0
+    },
+    {
+      "id": "1779097727356-nyu1sq0sw",
+      "test_id": "test-chem-quick",
+      "started_at": "2026-05-18T09:48:47.357Z",
+      "status": "completed",
+      "answers": "{\"pyq-chem-2023-2\":\"A\",\"pyq-chem-2022-1\":\"B\",\"pyq-chem-2022-3\":\"A\",\"ja-chemistry-multi_answer-7\":[\"A\",\"D\",\"B\"],\"pyq-chem-2023-1\":\"B\",\"ja-chemistry-numerical-1\":\"1\",\"jm-chemistry-mcq-17\":\"B\"}",
+      "time_per_question": "{\"pyq-chem-2023-2\":0,\"pyq-chem-2022-1\":0,\"pyq-chem-2022-3\":0,\"ja-chemistry-multi_answer-7\":0,\"pyq-chem-2023-1\":0,\"ja-chemistry-numerical-1\":0,\"jm-chemistry-mcq-17\":0}",
+      "question_ids": "[\"pyq-chem-2023-2\",\"pyq-chem-2022-1\",\"pyq-chem-2022-3\",\"ja-chemistry-multi_answer-7\",\"pyq-chem-2023-1\",\"ja-chemistry-numerical-1\",\"jm-chemistry-mcq-17\"]",
+      "user_email": "rajeswarikrishna2409@gmail.com",
+      "total_attempted": 7,
+      "ended_at": "2026-05-18T09:56:54.311Z",
+      "score": 4,
+      "correct_count": 2,
+      "wrong_count": 5,
+      "is_disqualified": 0,
+      "xp_awarded": 1,
+      "tab_violations": 0
+    },
+    {
+      "id": "1779100816604-4tr9hj6zz",
+      "test_id": "1779100811335-tp17044fn",
+      "started_at": "2026-05-18T10:40:16.606Z",
+      "status": "completed",
+      "answers": "{}",
+      "time_per_question": "{}",
+      "question_ids": "[\"jm-physics-mcq-1\",\"ja-chemistry-mcq-4\",\"pyq-math-2024-1\",\"jm-physics-num-5\",\"ja-physics-numerical-4\",\"ja-physics-mcq-9\",\"pyq-chem-2022-1\",\"ja-chemistry-numerical-1\",\"jm-mathematics-mcq-7\",\"pyq-phy-2023-1\",\"jm-mathematics-num-10\",\"pyq-chem-2024-3\",\"jm-physics-num-3\",\"jm-chemistry-num-8\",\"ja-chemistry-mcq-12\",\"pyq-math-2023-2\",\"pyq-chem-2024-2\",\"jm-physics-mcq-19\",\"jm-mathematics-mcq-15\",\"jm-chemistry-mcq-15\",\"pyq-phy-2023-1\",\"jm-chemistry-mcq-7\",\"ja-mathematics-mcq-8\",\"jm-mathematics-num-4\",\"pyq-chem-2022-3\",\"pyq-math-2022-1\",\"pyq-phy-2024-3\",\"pyq-math-2022-2\",\"jm-physics-num-8\",\"pyq-phy-2024-4\",\"pyq-chem-2024-4\",\"jm-chemistry-num-10\",\"ja-chemistry-multi_answer-7\",\"jm-physics-mcq-10\",\"pyq-phy-2022-1\",\"jm-chemistry-mcq-14\",\"jm-chemistry-num-2\",\"ja-physics-multi_answer-6\",\"jm-mathematics-mcq-8\",\"pyq-chem-2021-1\",\"pyq-phy-2022-2\",\"jm-mathematics-mcq-4\",\"jm-chemistry-mcq-18\",\"jm-physics-mcq-13\",\"pyq-phy-2024-1\",\"pyq-chem-2023-1\",\"ja-mathematics-mcq-12\",\"jm-physics-mcq-12\",\"ja-chemistry-numerical-8\",\"jm-physics-mcq-18\",\"jm-mathematics-mcq-9\",\"jm-physics-mcq-5\",\"jm-mathematics-mcq-19\",\"jm-chemistry-mcq-3\",\"ja-physics-mcq-7\",\"ja-physics-mcq-12\",\"jm-mathematics-num-9\"]",
+      "user_email": "rajeswarikrishna2409@gmail.com",
+      "ended_at": "2026-05-18T10:40:22.203Z",
+      "score": 0,
+      "correct_count": 0,
+      "wrong_count": 0,
+      "is_disqualified": 1,
+      "tab_violations": 0,
+      "xp_awarded": 0
     }
   ],
   "chat_messages": [
@@ -26497,6 +26885,21 @@
       "content": "📖 Probability & Combinatorics\n\n🔑 Permutations & Combinations:\n• nPr = n!/(n-r)! (order matters)\n• nCr = n!/[r!(n-r)!] (order doesn't matter)\n\n🎲 Probability:\n• P(A) = favorable outcomes / total outcomes\n• P(A∪B) = P(A) + P(B) - P(A∩B)\n• P(A|B) = P(A∩B)/P(B) (conditional)\n• Bayes: P(A|B) = P(B|A)·P(A) / P(B)\n\n📐 Distributions:\n• Binomial: P(x=r) = nCr · p^r · q^(n-r)\n\n📌 Go to Subjects → Mathematics → Probability for resources & PYQs!\n\n💡 Draw tree diagrams for conditional probability — makes it visual!",
       "timestamp": "2026-05-17T20:52:48.501Z",
       "user_email": "nishitha@gmail.com"
+    },
+    {
+      "id": "1779103414074-rz1ib49n4",
+      "role": "user",
+      "content": "Feeling stressed",
+      "sentiment_score": 0.35,
+      "timestamp": "2026-05-18T11:23:34.074Z",
+      "user_email": "rajeswarikrishna2409@gmail.com"
+    },
+    {
+      "id": "1779103414914-c3ujgeujq",
+      "role": "assistant",
+      "content": "I can sense you're feeling stressed. Let's pause together 🧘\n\n🌬️ Try this: Inhale 4s → Hold 4s → Exhale 6s\n\nRepeat 3 times. Every JEE topper had tough days too. You're not alone — and you've got this! 💪\n\n📌 When ready, go to Subjects tab → pick any chapter → practice 3 easy PYQs to rebuild confidence!",
+      "timestamp": "2026-05-18T11:23:34.914Z",
+      "user_email": "rajeswarikrishna2409@gmail.com"
     }
   ],
   "mindfulness_logs": [],
@@ -26752,6 +27155,59 @@
       "payload": "{\"attemptId\":\"1779048591983-ros4at71u\",\"testId\":\"test-chem-quick\",\"score\":0,\"correct_count\":0,\"wrong_count\":0,\"total_attempted\":7,\"completed_at\":\"2026-05-17T20:14:12.634Z\"}",
       "synced": "1",
       "sync_attempts": "0"
+    },
+    {
+      "id": "1779095884142-y5jw4t09t",
+      "table_name": "test_attempts",
+      "record_id": "1779095419708-53r4bio4o",
+      "action": "insert",
+      "payload": "{\"attemptId\":\"1779095419708-53r4bio4o\",\"testId\":\"test-phy-quick\",\"score\":19,\"correct_count\":5,\"wrong_count\":2,\"total_attempted\":7,\"completed_at\":\"2026-05-18T09:18:04.142Z\"}",
+      "synced": "1",
+      "sync_attempts": "0"
+    },
+    {
+      "id": "1779096455956-lqs5oz8ji",
+      "table_name": "test_attempts",
+      "record_id": "1779095932683-y24iixnsr",
+      "action": "insert",
+      "payload": "{\"attemptId\":\"1779095932683-y24iixnsr\",\"testId\":\"test-phy-quick\",\"score\":0,\"correct_count\":1,\"wrong_count\":5,\"total_attempted\":6,\"completed_at\":\"2026-05-18T09:27:35.956Z\"}",
+      "synced": "1",
+      "sync_attempts": "0"
+    },
+    {
+      "id": "1779097492501-jl3jidcpn",
+      "table_name": "test_attempts",
+      "record_id": "1779097468388-0bh3upq78",
+      "action": "insert",
+      "payload": "{\"attemptId\":\"1779097468388-0bh3upq78\",\"testId\":\"test-phy-quick\",\"score\":0,\"correct_count\":0,\"wrong_count\":0,\"total_attempted\":7,\"completed_at\":\"2026-05-18T09:44:52.501Z\"}",
+      "synced": "1",
+      "sync_attempts": "0"
+    },
+    {
+      "id": "1779098214331-r4ig475t1",
+      "table_name": "test_attempts",
+      "record_id": "1779097727356-nyu1sq0sw",
+      "action": "insert",
+      "payload": "{\"attemptId\":\"1779097727356-nyu1sq0sw\",\"testId\":\"test-chem-quick\",\"score\":4,\"correct_count\":2,\"wrong_count\":5,\"total_attempted\":7,\"completed_at\":\"2026-05-18T09:56:54.331Z\"}",
+      "synced": "1",
+      "sync_attempts": "0"
+    },
+    {
+      "id": "1779100822213-wmewqf74q",
+      "table_name": "test_attempts",
+      "record_id": "1779100816604-4tr9hj6zz",
+      "action": "insert",
+      "payload": "{\"attemptId\":\"1779100816604-4tr9hj6zz\",\"testId\":\"1779100811335-tp17044fn\",\"score\":0,\"correct_count\":0,\"wrong_count\":0,\"total_attempted\":0,\"completed_at\":\"2026-05-18T10:40:22.213Z\"}",
+      "synced": "1",
+      "sync_attempts": "0"
+    },
+    {
+      "id": "1779108072552-2spup2bws",
+      "table_name": "users",
+      "record_id": "1779108072532-wyoxq850t",
+      "action": "update",
+      "payload": "{\"id\":\"1779108072532-wyoxq850t\",\"email\":\"navadu.srikavya@gmail.com\",\"name\":\"Kavya Sri\",\"password\":\"1234567@\",\"created_at\":\"2026-05-18T12:41:12.532Z\"}",
+      "synced": "1"
     }
   ],
   "user_settings": [
@@ -26806,13 +27262,28 @@
       "updated_at": "2026-05-17T19:17:02.887Z"
     },
     {
-      "key": "current_user_email",
-      "value": "nishitha@gmail.com"
-    },
-    {
       "key": "daily_challenge_nishitha@gmail.com_2026-05-17",
       "value": "solved",
       "updated_at": "2026-05-17T19:34:25.943Z"
+    },
+    {
+      "key": "daily_challenge_rajeswarikrishna2409@gmail.com_2026-05-18",
+      "value": "attempted",
+      "updated_at": "2026-05-18T09:09:48.100Z"
+    },
+    {
+      "key": "spin_rajeswarikrishna2409@gmail.com_2026-05-18",
+      "value": "used",
+      "updated_at": "2026-05-18T11:20:24.336Z"
+    },
+    {
+      "key": "daily_challenge_devagayathri0609@gmail.com_2026-05-18",
+      "value": "solved",
+      "updated_at": "2026-05-18T11:53:56.594Z"
+    },
+    {
+      "key": "current_user_email",
+      "value": "rajeswarikrishna2409@gmail.com"
     },
     {
       "key": "is_parent_session",
@@ -26882,6 +27353,13 @@
       "name": "nishitha",
       "password": "nishi1234",
       "created_at": "2026-05-17T19:34:10.278Z"
+    },
+    {
+      "id": "1779108072532-wyoxq850t",
+      "email": "navadu.srikavya@gmail.com",
+      "name": "Kavya Sri",
+      "password": "1234567@",
+      "created_at": "2026-05-18T12:41:12.532Z"
     }
   ],
   "download_queue": [],
@@ -26893,7 +27371,8 @@
       "accuracy": 0,
       "time_taken_sec": 8,
       "rank": 1,
-      "sprint_id": "sprint-1"
+      "sprint_id": "sprint-1",
+      "clan_name": null
     },
     {
       "id": "lb-1778229667250-49",
@@ -26902,7 +27381,108 @@
       "accuracy": 0,
       "time_taken_sec": 8,
       "rank": 2,
-      "sprint_id": "sprint-1"
+      "sprint_id": "sprint-1",
+      "clan_name": null
+    },
+    {
+      "id": "lb-1779105461011-780",
+      "user_name": "Deva Gayathri",
+      "score": -9,
+      "accuracy": 0,
+      "time_taken_sec": 6,
+      "rank": 3,
+      "sprint_id": "sprint-1",
+      "clan_name": null
+    },
+    {
+      "id": "lb-1779107635539-609",
+      "user_name": "Deva Gayathri",
+      "score": -9,
+      "accuracy": 0,
+      "time_taken_sec": 18,
+      "rank": 1,
+      "sprint_id": "sprint-clan-1779107464196",
+      "clan_name": null
+    },
+    {
+      "id": "lb-1779107721211-421",
+      "user_name": "Deva Gayathri",
+      "score": -9,
+      "accuracy": 0,
+      "time_taken_sec": 7,
+      "rank": 2,
+      "sprint_id": "sprint-clan-1779107464196",
+      "clan_name": null
+    },
+    {
+      "id": "lb-1779107747967-908",
+      "user_name": "Deva Gayathri",
+      "score": -19,
+      "accuracy": 0,
+      "time_taken_sec": 15,
+      "rank": 1,
+      "sprint_id": "sprint-3",
+      "clan_name": null
+    },
+    {
+      "id": "lb-1779107760938-140",
+      "user_name": "Deva Gayathri",
+      "score": -9,
+      "accuracy": 0,
+      "time_taken_sec": 6,
+      "rank": 3,
+      "sprint_id": "sprint-clan-1779107464196",
+      "clan_name": null
+    },
+    {
+      "id": "lb-1779107776799-199",
+      "user_name": "Deva Gayathri",
+      "score": -9,
+      "accuracy": 0,
+      "time_taken_sec": 11,
+      "rank": 4,
+      "sprint_id": "sprint-clan-1779107464196",
+      "clan_name": null
+    },
+    {
+      "id": "lb-1779107994109-479",
+      "user_name": "Deva Gayathri",
+      "score": -9,
+      "accuracy": 0,
+      "time_taken_sec": 5,
+      "rank": 5,
+      "sprint_id": "sprint-clan-1779107464196",
+      "clan_name": null
+    },
+    {
+      "id": "lb-1779109020169-765",
+      "user_name": "Rajeswari",
+      "score": 31,
+      "accuracy": 41,
+      "time_taken_sec": 24,
+      "rank": 1,
+      "sprint_id": "sprint-clan-1779108949652",
+      "clan_name": null
+    },
+    {
+      "id": "lb-1779109038201-794",
+      "user_name": "Rajeswari",
+      "score": -4,
+      "accuracy": 17,
+      "time_taken_sec": 10,
+      "rank": 3,
+      "sprint_id": "sprint-clan-1779108949652",
+      "clan_name": null
+    },
+    {
+      "id": "lb-1779109101677-895",
+      "user_name": "Rajeswari",
+      "score": 11,
+      "accuracy": 28,
+      "time_taken_sec": 61,
+      "rank": 2,
+      "sprint_id": "sprint-clan-1779108949652",
+      "clan_name": null
     }
   ],
   "study_clans": [
@@ -26915,7 +27495,44 @@
       "weekly_score": 0,
       "rank": 0,
       "planned_sprint_id": "sprint-clan-1777835159389",
-      "planned_sprint_status": "lobby"
+      "planned_sprint_status": "lobby",
+      "scheduled_sprint_time": null
+    },
+    {
+      "id": "clan-QPYA6Q",
+      "name": "Study Buddies",
+      "icon": "👥",
+      "owner_name": "Rajeswari",
+      "member_count": 2,
+      "weekly_score": 42,
+      "rank": 0,
+      "planned_sprint_id": "sprint-clan-1779107464196",
+      "planned_sprint_status": "active",
+      "scheduled_sprint_time": null
+    },
+    {
+      "id": "clan-RIL1ZS",
+      "name": "TestGroup",
+      "icon": "👥",
+      "owner_name": "Kavya Sri",
+      "member_count": 1,
+      "weekly_score": 0,
+      "rank": 0,
+      "planned_sprint_id": "sprint-clan-1779108460611",
+      "planned_sprint_status": "lobby",
+      "scheduled_sprint_time": "Tomorrow 9:00 AM"
+    },
+    {
+      "id": "clan-40C632",
+      "name": "Test Group",
+      "icon": "👥",
+      "owner_name": "Kavya Sri",
+      "member_count": 2,
+      "weekly_score": 0,
+      "rank": 0,
+      "planned_sprint_id": "sprint-clan-1779113371992",
+      "planned_sprint_status": "lobby",
+      "scheduled_sprint_time": "In 5 Minutes"
     }
   ],
   "clan_members": [
@@ -26932,6 +27549,31 @@
     {
       "clan_id": "clan-8IZSYQ",
       "user_name": "krishna",
+      "role": "member"
+    },
+    {
+      "clan_id": "clan-QPYA6Q",
+      "user_name": "Rajeswari",
+      "role": "owner"
+    },
+    {
+      "clan_id": "clan-QPYA6Q",
+      "user_name": "Deva Gayathri",
+      "role": "member"
+    },
+    {
+      "clan_id": "clan-RIL1ZS",
+      "user_name": "Kavya Sri",
+      "role": "owner"
+    },
+    {
+      "clan_id": "clan-40C632",
+      "user_name": "Kavya Sri",
+      "role": "owner"
+    },
+    {
+      "clan_id": "clan-40C632",
+      "user_name": "Rajeswari",
       "role": "member"
     }
   ],
@@ -26953,15 +27595,58 @@
       "clan_id": "clan-8IZSYQ",
       "user_name": "Deva Gayathri",
       "status": "pending"
+    },
+    {
+      "id": "req-1779105546961",
+      "clan_id": "clan-8IZSYQ",
+      "user_name": "Rajeswari",
+      "status": "pending"
+    },
+    {
+      "id": "req-1779107328221",
+      "clan_id": "clan-QPYA6Q",
+      "user_name": "Deva Gayathri",
+      "status": "accepted"
+    },
+    {
+      "id": "req-1779108163606",
+      "clan_id": "clan-RIL1ZS",
+      "user_name": "Rajeswari",
+      "status": "pending"
+    },
+    {
+      "id": "req-1779108821344",
+      "clan_id": "clan-40C632",
+      "user_name": "Rajeswari",
+      "status": "accepted"
     }
   ],
   "clan_lobby_ready": [
     {
       "clan_id": "clan-8IZSYQ",
       "user_name": "krishna"
+    },
+    {
+      "clan_id": "clan-QPYA6Q",
+      "user_name": "Rajeswari"
+    },
+    {
+      "clan_id": "clan-QPYA6Q",
+      "user_name": "Deva Gayathri"
+    },
+    {
+      "clan_id": "clan-RIL1ZS",
+      "user_name": "Kavya Sri"
     }
   ],
-  "clan_messages": [],
+  "clan_messages": [
+    {
+      "id": "cmsg-1779112623150",
+      "clan_id": "clan-40C632",
+      "user_name": "Rajeswari",
+      "message": "[IMAGE]data:image/jpeg;base64,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"
+    }
+  ],
   "doubt_marketplace": [
     {
       "id": "1779043554071-u0f3wjl9p",
@@ -26970,6 +27655,15 @@
       "chapter": "",
       "posted_by": "Deva Gayathri",
       "answers_count": "answers_count - 1",
+      "is_resolved": "0"
+    },
+    {
+      "id": "1779105171893-ob854828n",
+      "question_text": "Can you Guys explain me how organic chemistry works",
+      "subject": "Chemistry",
+      "chapter": "",
+      "posted_by": "Rajeswari",
+      "answers_count": "0",
       "is_resolved": "0"
     }
   ],
@@ -27314,6 +28008,62 @@
       "action": "saathi_chat",
       "xp_earned": 5,
       "created_at": "2026-05-17T20:52:48.535Z"
+    },
+    {
+      "id": "mpazr5wee1uapzcyj",
+      "user_email": "rajeswarikrishna2409@gmail.com",
+      "action": "test_complete",
+      "xp_earned": 33,
+      "created_at": "2026-05-18T09:18:04.190Z"
+    },
+    {
+      "id": "mpazr5za7efdam9x9",
+      "user_email": "rajeswarikrishna2409@gmail.com",
+      "action": "badge_ach-first-test",
+      "xp_earned": 50,
+      "created_at": "2026-05-18T09:18:04.294Z"
+    },
+    {
+      "id": "mpazr60e5ggpie4vi",
+      "user_email": "rajeswarikrishna2409@gmail.com",
+      "action": "badge_ach-five-tests",
+      "xp_earned": 75,
+      "created_at": "2026-05-18T09:18:04.334Z"
+    },
+    {
+      "id": "mpb03f4haoe3skepk",
+      "user_email": "rajeswarikrishna2409@gmail.com",
+      "action": "test_complete",
+      "xp_earned": 14,
+      "created_at": "2026-05-18T09:27:36.017Z"
+    },
+    {
+      "id": "mpb153vy2vnf9zs7m",
+      "user_email": "rajeswarikrishna2409@gmail.com",
+      "action": "test_complete",
+      "xp_earned": 13,
+      "created_at": "2026-05-18T09:56:54.382Z"
+    },
+    {
+      "id": "mpb44hls7s93v18o3",
+      "user_email": "rajeswarikrishna2409@gmail.com",
+      "action": "daily_spin",
+      "xp_earned": 3,
+      "created_at": "2026-05-18T11:20:24.352Z"
+    },
+    {
+      "id": "mpb48knlm4m89b2ug",
+      "user_email": "rajeswarikrishna2409@gmail.com",
+      "action": "saathi_chat",
+      "xp_earned": 5,
+      "created_at": "2026-05-18T11:23:34.929Z"
+    },
+    {
+      "id": "mpb5bm9vwpcijw3t1",
+      "user_email": "devagayathri0609@gmail.com",
+      "action": "daily_challenge",
+      "xp_earned": 6,
+      "created_at": "2026-05-18T11:53:56.611Z"
     }
   ],
   "daily_streaks": [
@@ -27404,6 +28154,30 @@
       "xp_earned": 494,
       "questions_solved": 84,
       "tests_completed": 12
+    },
+    {
+      "id": "mpazg0ks6k6s4ful6",
+      "user_email": "rajeswarikrishna2409@gmail.com",
+      "date": "2026-05-18",
+      "xp_earned": 253,
+      "questions_solved": 20,
+      "tests_completed": 3
+    },
+    {
+      "id": "mpb5bb44wubnx2ky9",
+      "user_email": "devagayathri0609@gmail.com",
+      "date": "2026-05-18",
+      "xp_earned": 6,
+      "questions_solved": 0,
+      "tests_completed": 0
+    },
+    {
+      "id": "mpb70gjw58r17qmn4",
+      "user_email": "navadu.srikavya@gmail.com",
+      "date": "2026-05-18",
+      "xp_earned": 0,
+      "questions_solved": 0,
+      "tests_completed": 0
     }
   ],
   "achievements": [
@@ -27570,6 +28344,18 @@
       "user_email": "nishitha@gmail.com",
       "achievement_id": "ach-night-owl",
       "unlocked_at": "2026-05-17T19:44:02.370Z"
+    },
+    {
+      "id": "mpazr5z1co3w66fd9",
+      "user_email": "rajeswarikrishna2409@gmail.com",
+      "achievement_id": "ach-first-test",
+      "unlocked_at": "2026-05-18T09:18:04.285Z"
+    },
+    {
+      "id": "mpazr600nqdxxyjtu",
+      "user_email": "rajeswarikrishna2409@gmail.com",
+      "achievement_id": "ach-five-tests",
+      "unlocked_at": "2026-05-18T09:18:04.320Z"
     }
   ],
   "spaced_repetition": [],
@@ -27683,6 +28469,18 @@
     {
       "id": "mpa6bopyyhkks03ud",
       "user_email": "nishitha@gmail.com",
+      "key": "onboarding_complete",
+      "value": "true"
+    },
+    {
+      "id": "mpb70gjn1tw7zo57l",
+      "user_email": "navadu.srikavya@gmail.com",
+      "key": "onboarding_complete",
+      "value": "true"
+    },
+    {
+      "id": "mpbdiffo5zwh7xhxd",
+      "user_email": "rajeswarikrishna2409@gmail.com",
       "key": "onboarding_complete",
       "value": "true"
     }

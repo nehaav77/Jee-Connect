@@ -1,27 +1,45 @@
 const fs = require('fs');
 const path = require('path');
+const { initializeApp } = require('firebase/app');
+const { getFirestore, collection, getDocs } = require('firebase/firestore');
+
+const firebaseConfig = {
+  apiKey: "AIzaSyACdzHfG2_mHP0bYYHKzYWhqXbB-3wOTws",
+  authDomain: "jee-connect.firebaseapp.com",
+  projectId: "jee-connect",
+  storageBucket: "jee-connect.firebasestorage.app",
+  messagingSenderId: "440484760844",
+  appId: "1:440484760844:web:6ec978f1805c79a5478d29",
+  measurementId: "G-NQ0NZQD1R1"
+};
+
+const app = initializeApp(firebaseConfig);
+const firestoreDb = getFirestore(app);
 
 const DB_FILE = path.join(__dirname, 'temp_db.json');
 
-function viewDb() {
-    if (!fs.existsSync(DB_FILE)) {
-        console.log('\n❌ ERROR: No database data found yet.');
-        console.log('1. Make sure you are running "node scripts/db-bridge.js" in another terminal.');
-        console.log('2. Perform an action in the app (Login/Signup) to sync the data.\n');
-        return;
+async function viewDb() {
+    let localDb = { tests: [], test_attempts: [] };
+    if (fs.existsSync(DB_FILE)) {
+        try {
+            const raw = fs.readFileSync(DB_FILE, 'utf8');
+            localDb = JSON.parse(raw);
+        } catch(e) {}
     }
 
     try {
-        const raw = fs.readFileSync(DB_FILE, 'utf8');
-        const db = JSON.parse(raw);
+        console.log('\nFetching live data from Firebase Cloud...');
+        const usersRef = collection(firestoreDb, 'users');
+        const snapshot = await getDocs(usersRef);
+        const users = [];
+        snapshot.forEach(doc => users.push(doc.data()));
 
-        const users = db.users || [];
-        const attempts = db.test_attempts || [];
+        const attempts = localDb.test_attempts || [];
 
-        console.log('\n=== JEE CONNECT: USER ACTIVITY DATABASE ===\n');
+        console.log('\n=== JEE CONNECT: USER ACTIVITY DATABASE (CLOUD SYNCED) ===\n');
 
         if (users.length === 0) {
-            console.log('No users found in the database yet.');
+            console.log('No users found in Firebase Cloud yet. Go sign up!');
         } else {
             const tableData = users.map(u => {
                 const completed = attempts.filter(a =>
@@ -40,7 +58,7 @@ function viewDb() {
                         }
                     }
                     if (!usedActualTime) {
-                        const test = (db.tests || []).find(t => t.id === a.test_id);
+                        const test = (localDb.tests || []).find(t => t.id === a.test_id);
                         totalMin += (test && test.duration_min) ? test.duration_min : 15;
                     }
                 });
@@ -65,10 +83,32 @@ function viewDb() {
             });
             console.table(tableData);
         }
-        console.log('============================================\n');
+        console.log('==========================================================\n');
+
+        // --- Third Table: Study Clans (New) ---
+        console.log('\n=== JEE CONNECT: LIVE SPRINT CLANS (CLOUD) ===\n');
+        const clansRef = collection(firestoreDb, 'study_clans');
+        const clanSnap = await getDocs(clansRef);
+        const clans = [];
+        clanSnap.forEach(doc => clans.push(doc.data()));
+
+        if (clans.length === 0) {
+            console.log('No clans created yet.');
+        } else {
+            const clanData = clans.map(c => ({
+                id: c.id,
+                name: c.name,
+                owner: c.owner_name,
+                members: c.member_count,
+                status: c.planned_sprint_status || 'none'
+            }));
+            console.table(clanData);
+        }
+        console.log('==============================================\n');
+
 
         // --- Second Table: Individual Test Marks ---
-        console.log('\n=== JEE CONNECT: DETAILED TEST MARKS ===\n');
+        console.log('\n=== JEE CONNECT: DETAILED TEST MARKS (LOCAL) ===\n');
         
         const completedAttempts = attempts.filter(a => a.status === 'completed' && a.user_email);
         
@@ -77,7 +117,7 @@ function viewDb() {
         } else {
             const marksData = completedAttempts.map(a => {
                 const user = users.find(u => u.email === a.user_email);
-                const test = (db.tests || []).find(t => t.id === a.test_id);
+                const test = (localDb.tests || []).find(t => t.id === a.test_id);
                 
                 return {
                     student_name: user ? user.name : 'Unknown',
@@ -92,9 +132,13 @@ function viewDb() {
             });
             console.table(marksData);
         }
-        console.log('============================================\n');
+        console.log('================================================\n');
+
+        process.exit(0);
+
     } catch (e) {
         console.error('❌ Failed to read database:', e.message);
+        process.exit(1);
     }
 }
 

@@ -9,12 +9,14 @@ import { useAppStore } from '@/src/store/appStore';
 import MathText from '@/components/MathText';
 
 export default function SprintQuizScreen() {
-    const { sprintId } = useLocalSearchParams<{ sprintId: string }>();
+    const { sprintId, clanId } = useLocalSearchParams<{ sprintId: string; clanId?: string }>();
     const router = useRouter();
     const cs = useColorScheme();
     const isDark = cs === 'dark';
     const theme = isDark ? Colors.dark : Colors.light;
     const { userName } = useAppStore();
+
+    const isClanSprint = sprintId?.startsWith('sprint-clan-');
 
     const [sprint, setSprint] = useState<LiveSprint | null>(null);
     const [questions, setQuestions] = useState<any[]>([]);
@@ -45,33 +47,35 @@ export default function SprintQuizScreen() {
     }, [sprintId]);
 
     async function loadSprint() {
-        const sprints = await liveSprintService.getAvailableSprints();
-        let found = sprints.find(s => s.id === sprintId);
-        
-        // Support clan-generated sprints (IDs like sprint-clan-XXXX)
-        if (!found && sprintId.startsWith('sprint-clan-')) {
-            // Create a virtual sprint for the clan battle
-            const subjects = ['Physics', 'Chemistry', 'Mathematics'];
-            const subjectPick = subjects[Math.floor(Math.random() * subjects.length)];
-            found = {
+        if (isClanSprint) {
+            // Clan sprint: 30 MCQ questions, 5 min timer
+            const clanSprintObj: LiveSprint = {
                 id: sprintId,
-                title: `Clan Battle - ${subjectPick}`,
-                subject: subjectPick,
-                num_questions: 10,
-                duration_sec: 300,
+                title: 'Clan Battle — Mixed',
+                subject: 'Mixed',
+                num_questions: 30,
+                duration_sec: 300, // 5 minutes
                 status: 'active',
                 participants: 2,
                 max_participants: 50,
                 created_at: new Date().toISOString(),
             };
-        }
-        
-        if (found) {
-            setSprint(found);
-            setTimeLeft(found.duration_sec);
-            const qs = await liveSprintService.getQuestionsForSprint(found.subject, found.num_questions);
+            setSprint(clanSprintObj);
+            setTimeLeft(300);
+            const qs = await liveSprintService.getClanSprintQuestions();
             setQuestions(qs);
-            startTimer(found.duration_sec);
+            startTimer(300);
+        } else {
+            // Regular sprint
+            const sprints = await liveSprintService.getAvailableSprints();
+            const found = sprints.find(s => s.id === sprintId);
+            if (found) {
+                setSprint(found);
+                setTimeLeft(found.duration_sec);
+                const qs = await liveSprintService.getQuestionsForSprint(found.subject, found.num_questions);
+                setQuestions(qs);
+                startTimer(found.duration_sec);
+            }
         }
     }
 
@@ -101,7 +105,13 @@ export default function SprintQuizScreen() {
         const q = questions[currentIndex];
         const correctAnswers = JSON.parse(q.correct_answers || '[]');
         
-        if (correctAnswers.includes(selectedOption)) {
+        // Check answer - extract letter from option text if needed
+        const selectedLetter = selectedOption.charAt(0);
+        const isCorrect = correctAnswers.some((ca: string) => 
+            ca === selectedOption || ca === selectedLetter || selectedOption.startsWith(ca)
+        );
+
+        if (isCorrect) {
             setScore(prev => prev + 4);
             setCorrectCount(prev => prev + 1);
         } else {
@@ -133,12 +143,15 @@ export default function SprintQuizScreen() {
     if (isFinished) {
         const totalAnswered = correctCount + incorrectCount;
         const accuracy = totalAnswered > 0 ? Math.round((correctCount / totalAnswered) * 100) : 0;
+        const unanswered = questions.length - totalAnswered;
         return (
             <View style={[styles.container, { backgroundColor: theme.background }]}>
                 <Stack.Screen options={{ headerShown: false }} />
                 <View style={styles.resultContainer}>
                     <Text style={{ fontSize: 48, marginBottom: 12 }}>🏁</Text>
-                    <Text style={[styles.resultTitle, { color: theme.text }]}>Sprint Completed!</Text>
+                    <Text style={[styles.resultTitle, { color: theme.text }]}>
+                        {isClanSprint ? 'Clan Battle Complete!' : 'Sprint Completed!'}
+                    </Text>
                     
                     <View style={[styles.scoreCard, { backgroundColor: theme.surface, borderColor: theme.cardBorder }]}>
                         <View style={styles.scoreRow}>
@@ -155,12 +168,37 @@ export default function SprintQuizScreen() {
                                 <Text style={[styles.scoreLabel, { color: theme.textSecondary }]}>Time Used</Text>
                             </View>
                         </View>
+
+                        {/* Detailed breakdown */}
+                        <View style={{ marginTop: 16, paddingTop: 16, borderTopWidth: 1, borderTopColor: theme.cardBorder }}>
+                            <View style={{ flexDirection: 'row', justifyContent: 'space-around' }}>
+                                <View style={{ alignItems: 'center' }}>
+                                    <Text style={{ color: Colors.success, fontWeight: '800', fontSize: 20 }}>{correctCount}</Text>
+                                    <Text style={{ color: theme.textMuted, fontSize: 11 }}>Correct (+4)</Text>
+                                </View>
+                                <View style={{ alignItems: 'center' }}>
+                                    <Text style={{ color: Colors.error, fontWeight: '800', fontSize: 20 }}>{incorrectCount}</Text>
+                                    <Text style={{ color: theme.textMuted, fontSize: 11 }}>Wrong (-1)</Text>
+                                </View>
+                                <View style={{ alignItems: 'center' }}>
+                                    <Text style={{ color: theme.textMuted, fontWeight: '800', fontSize: 20 }}>{unanswered}</Text>
+                                    <Text style={{ color: theme.textMuted, fontSize: 11 }}>Unanswered</Text>
+                                </View>
+                            </View>
+                        </View>
                     </View>
 
-                    <TouchableOpacity style={[styles.btnPrimary, { backgroundColor: Colors.primary }]}
-                        onPress={() => router.replace('/sprints')} activeOpacity={0.7}>
-                        <Text style={{ color: '#fff', fontWeight: '700', fontSize: 16 }}>Return to Leaderboard</Text>
-                    </TouchableOpacity>
+                    {isClanSprint && clanId ? (
+                        <TouchableOpacity style={[styles.btnPrimary, { backgroundColor: Colors.primary }]}
+                            onPress={() => router.replace(`/clan/${clanId}` as any)} activeOpacity={0.7}>
+                            <Text style={{ color: '#fff', fontWeight: '700', fontSize: 16 }}>💬 Return to Clan Chat</Text>
+                        </TouchableOpacity>
+                    ) : (
+                        <TouchableOpacity style={[styles.btnPrimary, { backgroundColor: Colors.primary }]}
+                            onPress={() => router.replace('/sprints')} activeOpacity={0.7}>
+                            <Text style={{ color: '#fff', fontWeight: '700', fontSize: 16 }}>Return to Leaderboard</Text>
+                        </TouchableOpacity>
+                    )}
                 </View>
             </View>
         );
@@ -175,13 +213,21 @@ export default function SprintQuizScreen() {
             
             {/* Header */}
             <View style={[styles.header, { backgroundColor: theme.surface, borderBottomColor: theme.cardBorder }]}>
-                <View>
+                <View style={{ flex: 1 }}>
                     <Text style={[styles.sprintTitle, { color: theme.text }]}>{sprint.title}</Text>
-                    <Text style={[styles.sprintMeta, { color: theme.textSecondary }]}>Question {currentIndex + 1} of {questions.length}</Text>
+                    <Text style={[styles.sprintMeta, { color: theme.textSecondary }]}>
+                        Question {currentIndex + 1} of {questions.length}
+                        {isClanSprint ? '  ·  +4 / -1 marks' : ''}
+                    </Text>
                 </View>
-                <View style={[styles.timerBox, { backgroundColor: timeLeft < 30 ? Colors.error + '20' : Colors.primary + '20' }]}>
-                    <Text style={[styles.timerText, { color: timeLeft < 30 ? Colors.error : Colors.primary }]}>
-                        ⏱ {formatTime(timeLeft)}
+                <View style={{ alignItems: 'flex-end' }}>
+                    <View style={[styles.timerBox, { backgroundColor: timeLeft < 60 ? Colors.error + '20' : Colors.primary + '20' }]}>
+                        <Text style={[styles.timerText, { color: timeLeft < 60 ? Colors.error : Colors.primary }]}>
+                            ⏱ {formatTime(timeLeft)}
+                        </Text>
+                    </View>
+                    <Text style={{ color: theme.textMuted, fontSize: 11, marginTop: 4 }}>
+                        Score: {score}
                     </Text>
                 </View>
             </View>
@@ -197,8 +243,8 @@ export default function SprintQuizScreen() {
                     )}
                 </View>
 
-                {/* Options */}
-                {q.question_type === 'mcq' && options.length > 0 ? (
+                {/* Options - MCQ only for clan sprints */}
+                {options.length > 0 ? (
                     <View style={styles.optionsList}>
                         {options.map((opt: string, idx: number) => {
                             const letter = String.fromCharCode(65 + idx);

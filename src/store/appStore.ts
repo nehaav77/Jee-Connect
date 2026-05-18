@@ -129,26 +129,32 @@ export const useAppStore = create<AppState>((set) => ({
 
     // Auth actions
     login: async (email, password, isParent = false) => {
-        const user = await userRepository.findByEmail(email);
-        if (!user) {
-            return { success: false, message: 'No account found with this email. Please sign up.' };
+        set({ isLoading: true });
+        try {
+            const user = await userRepository.findByEmail(email);
+            if (!user) {
+                return { success: false, message: 'No account found with this email. Please sign up.' };
+            }
+
+            if (user.password !== password) {
+                return { success: false, message: 'Incorrect password. Please try again.' };
+            }
+
+            set({ isAuthenticated: true, isParent, userEmail: user.email, userName: user.name });
+
+            // Persist session
+            const db = await getDatabase();
+            await db.runAsync('INSERT OR REPLACE INTO user_settings (key, value) VALUES (?, ?)', ['current_user_email', user.email]);
+            await db.runAsync('INSERT OR REPLACE INTO user_settings (key, value) VALUES (?, ?)', ['is_parent_session', isParent ? 'true' : 'false']);
+
+            return { success: true, message: isParent ? 'Welcome Parent!' : 'Welcome back!', user };
+        } finally {
+            set({ isLoading: false });
         }
-
-        if (user.password !== password) {
-            return { success: false, message: 'Incorrect password. Please try again.' };
-        }
-
-        set({ isAuthenticated: true, isParent, userEmail: user.email, userName: user.name });
-
-        // Persist session
-        const db = await getDatabase();
-        await db.runAsync('INSERT OR REPLACE INTO user_settings (key, value) VALUES (?, ?)', ['current_user_email', user.email]);
-        await db.runAsync('INSERT OR REPLACE INTO user_settings (key, value) VALUES (?, ?)', ['is_parent_session', isParent ? 'true' : 'false']);
-
-        return { success: true, message: isParent ? 'Welcome Parent!' : 'Welcome back!', user };
     },
 
     signup: async (email, name, password) => {
+        set({ isLoading: true });
         try {
             const existing = await userRepository.findByEmail(email);
             if (existing) {
@@ -166,6 +172,8 @@ export const useAppStore = create<AppState>((set) => ({
         } catch (e) {
             console.error('Signup error:', e);
             return { success: false, message: 'Something went wrong. Please try again later.' };
+        } finally {
+            set({ isLoading: false });
         }
     },
 
@@ -241,11 +249,7 @@ export const useAppStore = create<AppState>((set) => ({
 
             // Update user password and save via repository to ensure sync
             user.password = newPassword;
-            await userRepository.save(
-                user,
-                ['id', 'email', 'name', 'password', 'created_at'],
-                [user.id, user.email, user.name, user.password, user.created_at]
-            );
+            await userRepository.updateUser(user);
 
             delete (global as any)._current_otp;
             return { success: true, message: 'Password reset successfully! You can now login.' };

@@ -22,6 +22,7 @@ export default function TestsScreen() {
     const [adaptiveLoading, setAdaptiveLoading] = useState(false);
     const [showSubjectPicker, setShowSubjectPicker] = useState(false);
     const [lastBreakdown, setLastBreakdown] = useState<AdaptiveBreakdown | null>(null);
+    const [activeTab, setActiveTab] = useState<'mock' | 'quick'>('mock');
 
     useEffect(() => { loadTests(); loadHistory(); }, [userEmail]);
 
@@ -59,14 +60,38 @@ export default function TestsScreen() {
         try {
             const db = await getDatabase();
             const results = await db.getAllAsync<any>(
-                `SELECT ta.*, t.title as test_title 
+                `SELECT ta.*, t.title as test_title, t.test_type as test_type 
                  FROM test_attempts ta JOIN tests t ON ta.test_id = t.id 
                  WHERE ta.user_email = ? AND ta.status = 'completed' 
-                 ORDER BY ta.started_at DESC LIMIT 10`,
+                 ORDER BY ta.started_at DESC LIMIT 20`,
                 [userEmail]
             );
             setHistory(results);
         } catch (e) { console.log('History error:', e); }
+    }
+
+    function getTestDisplayName(item: any): string {
+        // If the test already has a meaningful title, use it
+        if (item.test_title && item.test_title !== 'undefined') {
+            return item.test_title;
+        }
+        // Generate descriptive name from test_type
+        const type = item.test_type;
+        const date = new Date(item.started_at).toLocaleDateString();
+        if (type === 'custom') return `Smart Test · ${date}`;
+        if (type === 'subject') return `Subject Quick Test · ${date}`;
+        if (type === 'chapter') return `Chapter Quick Test · ${date}`;
+        if (type === 'full') return `Full Mock Test · ${date}`;
+        return `Practice Test · ${date}`;
+    }
+
+    function getTestTypeBadge(item: any): { label: string; color: string } {
+        const type = item.test_type;
+        if (type === 'custom') return { label: '🎯 Smart', color: '#6366f1' };
+        if (type === 'subject') return { label: '⚡ Quick', color: '#10b981' };
+        if (type === 'chapter') return { label: '📖 Chapter', color: '#f59e0b' };
+        if (type === 'full') return { label: '📋 Mock', color: Colors.primary };
+        return { label: '📝 Test', color: theme.textSecondary };
     }
 
     async function generateAdaptiveTest(subjectFilter?: string) {
@@ -81,6 +106,7 @@ export default function TestsScreen() {
             );
             setLastBreakdown(breakdown);
             await loadTests();
+
             router.push({ pathname: '/test/instructions', params: { testId } } as any);
         } catch (e: any) {
             Alert.alert('Smart Practice', e.message || 'Could not generate adaptive test. Try taking a few tests first!');
@@ -100,17 +126,55 @@ export default function TestsScreen() {
         { key: 'Mathematics', label: '📐 Maths Only', desc: 'Focus on Maths weak areas', color: '#f59e0b' },
     ];
 
+    const fullTests = tests.filter(t => t.test_type === 'full' && !(t.title && t.title.toLowerCase().includes('smart')));
+    const quickTests = tests.filter(t => (t.test_type === 'subject' || t.test_type === 'chapter') && !(t.title && t.title.toLowerCase().includes('smart')));
+
+    const TABS = [
+        { id: 'mock', label: 'Mock Full' },
+        { id: 'quick', label: 'Quick Tests' }
+    ];
+
+    const renderTestGroup = (groupTests: Test[]) => {
+        if (groupTests.length === 0) {
+             return (
+                 <View style={[styles.emptyState, { backgroundColor: theme.surface, borderColor: theme.cardBorder }]}>
+                     <Text style={{ fontSize: 32, marginBottom: 12 }}>📝</Text>
+                     <Text style={[styles.emptyTitle, { color: theme.text }]}>No Tests Found</Text>
+                 </View>
+             );
+        }
+        return (
+            <View style={{ marginBottom: Spacing.sm }}>
+                {groupTests.map(test => (
+                    <View key={test.id} style={[styles.testCard, { backgroundColor: theme.surface, borderColor: theme.cardBorder }]}>
+                        <View style={styles.testHeader}>
+                            <Text style={[styles.testTitle, { color: theme.text }]}>{test.title}</Text>
+                            <View style={[styles.badge, { backgroundColor: Colors.primary + '15' }]}>
+                                <Text style={[styles.badgeText, { color: Colors.primary }]}>{test.total_questions} Q</Text>
+                            </View>
+                        </View>
+                        {test.description ? (
+                            <Text style={[styles.testDesc, { color: theme.textSecondary }]} numberOfLines={2}>{test.description}</Text>
+                        ) : null}
+                        <View style={styles.testMeta}>
+                            <Text style={[styles.metaItem, { color: theme.textSecondary }]}>⏱ {test.duration_min} min</Text>
+                            <Text style={[styles.metaItem, { color: theme.textSecondary }]}>📊 {test.total_marks} marks</Text>
+                        </View>
+                        <TouchableOpacity style={[styles.startBtn, { backgroundColor: Colors.primary }]} 
+                            onPress={() => startTest(test)} activeOpacity={0.7}>
+                            <Text style={styles.startBtnText}>Start Test →</Text>
+                        </TouchableOpacity>
+                    </View>
+                ))}
+            </View>
+        );
+    };
+
     return (
         <ScrollView style={[styles.container, { backgroundColor: theme.background }]}
             contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-            <Text style={[styles.heading, { color: theme.text }]}>Mock Tests</Text>
-            <Text style={[styles.subheading, { color: theme.textSecondary }]}>Practice offline with JEE-pattern questions</Text>
-
-            {/* Offline Badge */}
-            <View style={[styles.offlineBadge, { backgroundColor: Colors.success + '15', borderColor: Colors.success + '30' }]}>
-                <Text style={{ fontSize: 12 }}>✅</Text>
-                <Text style={[styles.offlineText, { color: Colors.success }]}>All tests work offline — localized to your account</Text>
-            </View>
+            <Text style={[styles.heading, { color: theme.text }]}>Practice Tests</Text>
+            <Text style={[styles.subheading, { color: theme.textSecondary }]}>Offline JEE-pattern test series</Text>
 
             {/* Smart Practice Section */}
             <View style={[styles.smartCard, {
@@ -133,15 +197,11 @@ export default function TestsScreen() {
                 <View style={[styles.adaptiveInfo, { backgroundColor: isDark ? '#ffffff08' : '#ffffff80', borderColor: theme.border }]}>
                     <View style={styles.adaptiveRow}>
                         <Text style={{ fontSize: 12 }}>🔴</Text>
-                        <Text style={[styles.adaptiveText, { color: theme.textSecondary }]}>Weak topics → Easy questions (build confidence)</Text>
-                    </View>
-                    <View style={styles.adaptiveRow}>
-                        <Text style={{ fontSize: 12 }}>🟡</Text>
-                        <Text style={[styles.adaptiveText, { color: theme.textSecondary }]}>Moderate → Medium questions (strengthen)</Text>
+                        <Text style={[styles.adaptiveText, { color: theme.textSecondary }]}>Weak topics → Easy questions</Text>
                     </View>
                     <View style={styles.adaptiveRow}>
                         <Text style={{ fontSize: 12 }}>🟢</Text>
-                        <Text style={[styles.adaptiveText, { color: theme.textSecondary }]}>Strong topics → 1-2 Hard questions (challenge)</Text>
+                        <Text style={[styles.adaptiveText, { color: theme.textSecondary }]}>Strong topics → Hard questions</Text>
                     </View>
                 </View>
 
@@ -197,57 +257,38 @@ export default function TestsScreen() {
                 )}
             </View>
 
-            {/* Recent History Section */}
-            {history.length > 0 && (
-                <>
-                    <Text style={[styles.sectionTitle, { color: theme.text, marginTop: Spacing.md }]}>Recent Activity</Text>
-                    {history.map(item => (
-                        <TouchableOpacity key={item.id} 
-                            style={[styles.historyCard, { backgroundColor: theme.surface, borderColor: theme.cardBorder }]}
-                            onPress={() => router.push(`/result/${item.id}` as any)}>
-                            <View style={{ flex: 1 }}>
-                                <Text style={[styles.historyTitle, { color: theme.text }]} numberOfLines={1}>{item.test_title}</Text>
-                                <Text style={[{ fontSize: 11, color: theme.textMuted }]}>{new Date(item.started_at).toLocaleDateString()}</Text>
-                            </View>
-                            <View style={{ alignItems: 'flex-end' }}>
-                                <Text style={[styles.historyScore, { color: Colors.primary }]}>{item.score} pts</Text>
-                                <Text style={[{ fontSize: 10, color: theme.textSecondary }]}>{Math.round((item.correct_count / (item.correct_count + item.wrong_count || 1)) * 100)}% Accuracy</Text>
-                            </View>
-                        </TouchableOpacity>
-                    ))}
-                </>
-            )}
+            {/* Custom Tabs */}
+            <View style={{ marginBottom: Spacing.md }}>
+                <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 8, paddingBottom: 4 }}>
+                    {TABS.map(tab => {
+                        const isActive = activeTab === tab.id;
+                        return (
+                            <TouchableOpacity 
+                                key={tab.id} 
+                                style={[
+                                    styles.tabBtn, 
+                                    { borderColor: theme.border },
+                                    isActive && { backgroundColor: Colors.primary, borderColor: Colors.primary }
+                                ]} 
+                                onPress={() => setActiveTab(tab.id as any)}
+                            >
+                                <Text style={[
+                                    styles.tabText, 
+                                    { color: theme.textSecondary },
+                                    isActive && { color: '#fff', fontWeight: '700' }
+                                ]}>{tab.label}</Text>
+                            </TouchableOpacity>
+                        );
+                    })}
+                </ScrollView>
+            </View>
 
-            <Text style={[styles.sectionTitle, { color: theme.text, marginTop: Spacing.lg }]}>Available Tests</Text>
-            {tests.map(test => (
-                <View key={test.id} style={[styles.testCard, { backgroundColor: theme.surface, borderColor: theme.cardBorder }]}>
-                    <View style={styles.testHeader}>
-                        <Text style={[styles.testTitle, { color: theme.text }]}>{test.title}</Text>
-                        <View style={[styles.badge, { backgroundColor: Colors.primary + '15' }]}>
-                            <Text style={[styles.badgeText, { color: Colors.primary }]}>{test.total_questions} Q</Text>
-                        </View>
-                    </View>
-                    {test.description ? (
-                        <Text style={[styles.testDesc, { color: theme.textSecondary }]} numberOfLines={2}>{test.description}</Text>
-                    ) : null}
-                    <View style={styles.testMeta}>
-                        <Text style={[styles.metaItem, { color: theme.textSecondary }]}>⏱ {test.duration_min} min</Text>
-                        <Text style={[styles.metaItem, { color: theme.textSecondary }]}>📊 {test.total_marks} marks</Text>
-                    </View>
-                    <TouchableOpacity style={[styles.startBtn, { backgroundColor: Colors.primary }]} 
-                        onPress={() => startTest(test)} activeOpacity={0.7}>
-                        <Text style={styles.startBtnText}>Start Test →</Text>
-                    </TouchableOpacity>
-                </View>
-            ))}
 
-            {tests.length === 0 && !loading && (
-                <View style={[styles.emptyState, { backgroundColor: theme.surface, borderColor: theme.cardBorder }]}>
-                    <Text style={{ fontSize: 48, marginBottom: 12 }}>📝</Text>
-                    <Text style={[styles.emptyTitle, { color: theme.text }]}>No Tests Available</Text>
-                    <Text style={[styles.emptyDesc, { color: theme.textSecondary }]}>Tests are auto-generated from PYQ data</Text>
-                </View>
-            )}
+
+            {activeTab === 'mock' && renderTestGroup(fullTests)}
+
+            {activeTab === 'quick' && renderTestGroup(quickTests)}
+
             <View style={{ height: 32 }} />
         </ScrollView>
     );
@@ -298,4 +339,7 @@ const styles = StyleSheet.create({
     historyTitle: { fontSize: FontSize.sm, fontWeight: '700' },
     historyScore: { fontSize: FontSize.sm, fontWeight: '800' },
     sectionTitle: { fontSize: FontSize.md, fontWeight: '700', marginBottom: Spacing.md },
+    tabBtn: { paddingHorizontal: 16, paddingVertical: 10, borderRadius: BorderRadius.full, borderWidth: 1, backgroundColor: 'transparent' },
+    tabText: { fontSize: FontSize.sm, fontWeight: '600' },
+    typeBadge: { paddingHorizontal: 8, paddingVertical: 3, borderRadius: BorderRadius.full },
 });

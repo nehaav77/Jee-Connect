@@ -120,8 +120,8 @@ class AdaptiveTestServiceClass {
 
         const durationMin = Math.max(15, Math.round(selectedQuestionIds.length * 2.5));
 
-        const subjectTag = subjectFilter ? ` (${subjectFilter})` : '';
-        const title = `🎯 Smart Practice${subjectTag}`;
+        const subjectTag = subjectFilter || 'All Subjects';
+        const title = `${subjectTag} Smart Test`;
         const description = `Adaptive · ${selectedQuestionIds.length}Q · ${easyCount} Easy, ${mediumCount} Med, ${hardCount} Hard`;
 
         const testId = await testRepository.createTest(
@@ -129,7 +129,7 @@ class AdaptiveTestServiceClass {
             description,
             durationMin,
             selectedQuestionIds,
-            testType === 'full' ? 'full' : 'subject',
+            'custom',
             userEmail
         );
 

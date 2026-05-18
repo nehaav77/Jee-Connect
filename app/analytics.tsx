@@ -155,42 +155,6 @@ export default function AnalyticsScreen() {
                 </TouchableOpacity>
             )}
 
-            {/* Improvement Tracker */}
-            {significantImprovements.length > 0 && (
-                <View style={[styles.improvementSection, { backgroundColor: theme.surface, borderColor: theme.cardBorder }]}>
-                    <Text style={[styles.sectionTitle, { color: theme.text, marginBottom: 10 }]}>📈 Improvement Tracker</Text>
-                    {significantImprovements.slice(0, 5).map((imp, idx) => (
-                        <View key={idx} style={[styles.improvementRow, { borderColor: theme.border }]}>
-                            <View style={{ flex: 1 }}>
-                                <Text style={[{ color: theme.text, fontSize: 13, fontWeight: '600' }]} numberOfLines={1}>
-                                    {imp.chapter}
-                                </Text>
-                                <Text style={{ color: theme.textMuted, fontSize: 11 }}>{imp.subject}</Text>
-                            </View>
-                            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-                                <Text style={{ color: theme.textSecondary, fontSize: 12 }}>
-                                    {imp.previousAccuracy}%
-                                </Text>
-                                <Text style={{ color: theme.textMuted, fontSize: 10 }}>→</Text>
-                                <Text style={{ color: theme.text, fontSize: 12, fontWeight: '700' }}>
-                                    {imp.currentAccuracy}%
-                                </Text>
-                                <View style={[styles.changeBadge, {
-                                    backgroundColor: imp.change > 0 ? Colors.success + '20' : Colors.error + '20',
-                                }]}>
-                                    <Text style={{
-                                        color: imp.change > 0 ? Colors.success : Colors.error,
-                                        fontSize: 11,
-                                        fontWeight: '800',
-                                    }}>
-                                        {imp.change > 0 ? '+' : ''}{imp.change}%
-                                    </Text>
-                                </View>
-                            </View>
-                        </View>
-                    ))}
-                </View>
-            )}
 
             {/* Subject Breakdown Cards */}
             <Text style={[styles.sectionTitle, { color: theme.text }]}>Subject Overview</Text>

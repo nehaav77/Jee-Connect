@@ -76,30 +76,27 @@ export default function ResultScreen() {
             // Sprint 9: Award XP for test completion (difficulty-based)
             if (userEmail && !xpProcessed && Number(attempt.is_disqualified) !== 1 && Number(attempt.xp_awarded) !== 1) {
                 try {
-                    // Base XP depends on test type (full=20, subject=10, chapter=5)
+                    // Max XP depends on test type (e.g., chapter = 15, subject = 30, full = 60)
                     const testType = test?.test_type || 'full';
-                    let xp = getTestCompleteXP(testType);
-
-                    // Add per-question XP based on difficulty for each correct answer
-                    const qs = await testRepository.getTestQuestions(attempt.test_id, attemptId as string);
-                    const userAnswers = JSON.parse(attempt.answers || '{}');
-                    for (const q of qs) {
-                        const userAns = userAnswers[q.id];
-                        if (userAns === undefined || userAns === null || String(userAns).trim() === '') continue;
-                        let correctAnsArray: string[] = [];
-                        try { correctAnsArray = JSON.parse(q.correct_answers); } catch { correctAnsArray = [q.correct_answers]; }
-                        const correctAnsStr = Array.isArray(correctAnsArray) ? correctAnsArray[0] : correctAnsArray;
-                        let isCorrect = false;
-                        if (q.question_type === 'numerical') {
-                            isCorrect = parseFloat(String(userAns).trim()) === parseFloat(String(correctAnsStr).trim());
-                        } else {
-                            isCorrect = String(userAns).trim().toUpperCase() === String(correctAnsStr).trim().toUpperCase();
-                        }
-                        if (isCorrect) {
-                            xp += getXPForDifficulty(q.difficulty || 3);
-                        }
+                    const baseXP = getTestCompleteXP(testType);
+                    const maxXP = baseXP * 3; // Max achievable XP without perfect score bonus
+                    
+                    let xp = 0;
+                    if (percentage >= 82) {
+                        // >= ~82% marks (e.g. 23/28) -> Full XP
+                        xp = maxXP;
+                    } else if (percentage >= 35) {
+                        // >= ~35% marks (e.g. 10/28) -> ~75% of Max XP (e.g. 11 XP for max 15)
+                        xp = Math.round(maxXP * 0.75);
+                    } else if (percentage > 0) {
+                        // > 0 marks (e.g. 1/28 to 10/28) -> ~45% of Max XP (e.g. 7 XP for max 15)
+                        xp = Math.round(maxXP * 0.45);
+                    } else {
+                        // 0 or negative marks -> 0 XP
+                        xp = 0;
                     }
 
+                    // Bonus for perfect score
                     const totalQ = test?.total_questions || 0;
                     if (totalQ > 0 && (attempt.correct_count || 0) === totalQ) {
                         xp += XP_VALUES.perfect_score; // +15 for perfect
@@ -179,7 +176,7 @@ export default function ResultScreen() {
                             <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 8 }}>
                                 <Text style={{ color: theme.textSecondary, fontWeight: '700' }}>Question {idx + 1}</Text>
                                 <Text style={{ color: isUnattempted ? theme.textMuted : isCorrect ? Colors.success : Colors.error, fontWeight: '700' }}>
-                                    {isUnattempted ? 'Not Attempted' : isCorrect ? '+4 Marks' : '-1 Mark'}
+                                    {isUnattempted ? 'Not Attempted' : isCorrect ? `+${q.marks || 4} Marks` : `${q.negative_marks !== undefined ? q.negative_marks : -1} Mark${Math.abs(q.negative_marks || -1) !== 1 ? 's' : ''}`}
                                 </Text>
                             </View>
                             <Text style={{ color: theme.text, fontSize: 16, marginBottom: 6 }}>{q.question_text}</Text>

@@ -1,11 +1,12 @@
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import { useFonts } from 'expo-font';
-import { Stack, Redirect } from 'expo-router';
+import { Stack, Redirect, useRouter } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect, useState } from 'react';
 import { StatusBar } from 'expo-status-bar';
 import 'react-native-reanimated';
+import { TouchableOpacity, Text } from 'react-native';
 
 import { useColorScheme } from '@/components/useColorScheme';
 import { initializeDatabase } from '@/src/db/database';
@@ -78,6 +79,7 @@ export default function RootLayout() {
 function RootLayoutNav() {
   const colorScheme = useColorScheme();
   const isAuthenticated = useAppStore((s) => s.isAuthenticated);
+  const router = useRouter();
 
   const customDarkTheme = {
     ...DarkTheme,
@@ -108,7 +110,15 @@ function RootLayoutNav() {
       <StatusBar style={colorScheme === 'dark' ? 'light' : 'dark'} />
       <XPToast />
       {!isAuthenticated && <Redirect href="/auth" />}
-      <Stack>
+      <Stack
+        screenOptions={{
+          headerLeft: ({ canGoBack }) => canGoBack ? (
+            <TouchableOpacity onPress={() => router.back()} style={{ marginLeft: 16, padding: 8 }}>
+              <Text style={{ fontSize: 22, color: colorScheme === 'dark' ? '#f8fafc' : '#0f172a', fontWeight: 'bold' }}>{'<-'}</Text>
+            </TouchableOpacity>
+          ) : undefined,
+        }}
+      >
         <Stack.Screen name="auth" options={{ headerShown: false }} />
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen

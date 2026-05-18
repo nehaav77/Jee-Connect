@@ -24,7 +24,6 @@ export default function DoubtsScreen() {
     const [showCompose, setShowCompose] = useState(false);
     const [newQuestion, setNewQuestion] = useState('');
     const [newSubject, setNewSubject] = useState('Physics');
-    const [filter, setFilter] = useState<'all' | 'replies'>('all');
 
     // Detail view state
     const [selectedDoubt, setSelectedDoubt] = useState<DoubtPost | null>(null);
@@ -166,11 +165,6 @@ export default function DoubtsScreen() {
         const days = Math.floor(hours / 24);
         return `${days}d ago`;
     }
-
-    const filtered = doubts.filter(d => {
-        if (filter === 'replies') return d.answers_count > 0;
-        return true;
-    });
 
     const subjectIcon = (s: string) =>
         s === 'Physics' ? '⚛️' : s === 'Chemistry' ? '🧪' : s === 'Mathematics' ? '📐' : '📖';
@@ -358,19 +352,6 @@ export default function DoubtsScreen() {
                 <Text style={styles.headerSub}>Post doubts, help peers, earn reputation</Text>
             </View>
 
-            {/* Filter Row */}
-            <View style={styles.filterRow}>
-                {(['all', 'replies'] as const).map(f => (
-                    <TouchableOpacity key={f}
-                        style={[styles.filterBtn, filter === f && { backgroundColor: Colors.primary }]}
-                        onPress={() => setFilter(f)} activeOpacity={0.7}>
-                        <Text style={[{ fontWeight: '600', fontSize: 13, color: filter === f ? '#fff' : theme.textSecondary }]}>
-                            {f === 'all' ? '📋 All' : '💬 Replies'}
-                        </Text>
-                    </TouchableOpacity>
-                ))}
-            </View>
-
             {/* Post Doubt Button */}
             <TouchableOpacity style={[styles.composeBtn, { backgroundColor: Colors.primary + '15', borderColor: Colors.primary + '30' }]}
                 onPress={() => setShowCompose(!showCompose)} activeOpacity={0.7}>
@@ -410,7 +391,7 @@ export default function DoubtsScreen() {
             )}
 
             {/* Doubt Cards */}
-            {filtered.map(doubt => (
+            {doubts.map(doubt => (
                 <TouchableOpacity key={doubt.id}
                     style={[styles.doubtCard, { backgroundColor: theme.surface, borderColor: theme.cardBorder }]}
                     onPress={() => openDoubtDetail(doubt)} activeOpacity={0.7}>
@@ -440,7 +421,7 @@ export default function DoubtsScreen() {
                 </TouchableOpacity>
             ))}
 
-            {filtered.length === 0 && (
+            {doubts.length === 0 && (
                 <View style={[styles.emptyState, { backgroundColor: theme.surface, borderColor: theme.cardBorder }]}>
                     <Text style={{ fontSize: 48, marginBottom: 12 }}>🤝</Text>
                     <Text style={[{ fontSize: 16, fontWeight: '700', color: theme.text }]}>No Doubts Yet</Text>

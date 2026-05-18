@@ -3,6 +3,8 @@
 
 import { getDatabase } from '../db/database';
 import { generateId } from '../repositories/BaseRepository';
+import { firestoreDb } from '../db/firebaseConfig';
+import { collection, query, where, getDocs, setDoc, doc, updateDoc, arrayUnion, getDoc, deleteDoc } from 'firebase/firestore';
 
 export interface LiveSprint {
     id: string;
@@ -24,6 +26,7 @@ export interface LeaderboardEntry {
     time_taken_sec: number;
     rank: number;
     sprint_id: string;
+    clan_name?: string;
 }
 
 export interface StudyClan {
@@ -97,7 +100,7 @@ class LiveSprintServiceClass {
                 [sprintId]
             );
             
-            // Format user names to include clan name if they belong to one
+            // Enrich entries with clan name
             const members = await db.getAllAsync<any>('SELECT * FROM clan_members');
             const clans = await db.getAllAsync<StudyClan>('SELECT * FROM study_clans');
             
@@ -106,7 +109,7 @@ class LiveSprintServiceClass {
                 if (membership) {
                     const clan = clans.find(c => c.id === membership.clan_id);
                     if (clan) {
-                        return { ...entry, user_name: `${entry.user_name} (${clan.name})` };
+                        return { ...entry, clan_name: clan.name };
                     }
                 }
                 return entry;
@@ -186,73 +189,111 @@ class LiveSprintServiceClass {
         }
     }
 
-    // Get active study clans for user
-    async getStudyClans(userName: string): Promise<StudyClan[]> {
+    // Fetch 30 MCQ-only questions for clan sprint (10 per subject)
+    async getClanSprintQuestions(): Promise<any[]> {
         const db = await getDatabase();
         try {
-            // Because webStore mock lacks complex JOINs, we fetch locally
-            const allClans = await db.getAllAsync<StudyClan>('SELECT * FROM study_clans');
-            const members = await db.getAllAsync<any>('SELECT * FROM clan_members');
-            const requests = await db.getAllAsync<any>('SELECT * FROM clan_requests');
+            const allSubjects = await db.getAllAsync<any>('SELECT * FROM subjects');
+            const allUnits = await db.getAllAsync<any>('SELECT * FROM units');
+            const allChapters = await db.getAllAsync<any>('SELECT * FROM chapters');
+            const allQuestions = await db.getAllAsync<any>('SELECT * FROM questions');
 
-            const myClans: StudyClan[] = [];
+            const result: any[] = [];
 
-            for (const clan of allClans) {
-                const isMember = members.find(m => m.clan_id === clan.id && m.user_name === userName);
-                if (isMember) {
-                    myClans.push({ ...clan, membership_status: isMember.role });
-                    continue;
-                }
-                const isPending = requests.find(r => r.clan_id === clan.id && r.user_name === userName && r.status === 'pending');
-                if (isPending) {
-                    myClans.push({ ...clan, membership_status: 'pending' });
-                }
+            for (const sub of allSubjects) {
+                const units = allUnits.filter(u => String(u.subject_id) === String(sub.id));
+                const unitIds = units.map(u => String(u.id));
+                const chapters = allChapters.filter(c => unitIds.includes(String(c.unit_id)));
+                const chapterIds = chapters.map(c => String(c.id));
+
+                let subjectQs = allQuestions.filter(q =>
+                    chapterIds.includes(String(q.chapter_id)) &&
+                    q.question_type === 'mcq'
+                );
+
+                // Randomize and pick 10
+                subjectQs.sort(() => 0.5 - Math.random());
+                result.push(...subjectQs.slice(0, 10));
             }
 
-            return myClans.sort((a, b) => a.rank - b.rank);
-        } catch {
+            // Final shuffle so subjects are mixed
+            result.sort(() => 0.5 - Math.random());
+            return result;
+        } catch (e) {
+            console.log('[LiveSprint] Get clan sprint questions error:', e);
             return [];
         }
+    }
+
+    // Get active study clans for user
+    async getStudyClans(userName: string): Promise<StudyClan[]> {
+        try {
+            const clansRef = collection(firestoreDb, 'study_clans');
+            const snapshot = await getDocs(clansRef);
+            const myClans: StudyClan[] = [];
+            
+            snapshot.forEach(docSnap => {
+                const clan = docSnap.data() as any;
+                const members = clan.members || [];
+                const requests = clan.requests || [];
+                
+                const isMember = members.find((m: any) => m.user_name === userName);
+                if (isMember) {
+                    myClans.push({ ...clan, membership_status: isMember.role });
+                } else {
+                    const isPending = requests.find((r: any) => r.user_name === userName && r.status === 'pending');
+                    if (isPending) {
+                        myClans.push({ ...clan, membership_status: 'pending' });
+                    }
+                }
+            });
+            return myClans.sort((a, b) => a.rank - b.rank);
+        } catch(e) { console.log(e); return []; }
     }
 
     // Get public clans that the user is NOT a part of
     async getExploreClans(userName: string): Promise<StudyClan[]> {
-        const db = await getDatabase();
         try {
-            const allClans = await db.getAllAsync<StudyClan>('SELECT * FROM study_clans');
-            const members = await db.getAllAsync<any>('SELECT * FROM clan_members');
-            const requests = await db.getAllAsync<any>('SELECT * FROM clan_requests');
-
+            const clansRef = collection(firestoreDb, 'study_clans');
+            const snapshot = await getDocs(clansRef);
             const exploreClans: StudyClan[] = [];
-
-            for (const clan of allClans) {
-                const isMember = members.some(m => m.clan_id === clan.id && m.user_name === userName);
-                const isPending = requests.some(r => r.clan_id === clan.id && r.user_name === userName && r.status === 'pending');
+            
+            snapshot.forEach(docSnap => {
+                const clan = docSnap.data() as any;
+                const members = clan.members || [];
+                const requests = clan.requests || [];
+                
+                const isMember = members.some((m: any) => m.user_name === userName);
+                const isPending = requests.some((r: any) => r.user_name === userName && r.status === 'pending');
                 
                 if (!isMember && !isPending) {
-                    exploreClans.push({ ...clan, membership_status: 'none' as any });
+                    exploreClans.push({ ...clan, membership_status: 'none' });
                 }
-            }
-
+            });
             return exploreClans.sort((a, b) => b.member_count - a.member_count);
-        } catch {
-            return [];
-        }
+        } catch(e) { console.log(e); return []; }
     }
 
     // Create a new private study clan
     async createClan(name: string, userName: string): Promise<string> {
-        const db = await getDatabase();
         const inviteCode = 'clan-' + Math.random().toString(36).substring(2, 8).toUpperCase();
         try {
-            await db.runAsync(
-                'INSERT INTO study_clans (id, name, icon, owner_name, member_count, weekly_score, rank) VALUES (?, ?, ?, ?, ?, ?, ?)',
-                [inviteCode, name, '👥', userName, 1, 0, 0]
-            );
-            await db.runAsync(
-                'INSERT INTO clan_members (clan_id, user_name, role) VALUES (?, ?, ?)',
-                [inviteCode, userName, 'owner']
-            );
+            const clanDoc = doc(firestoreDb, 'study_clans', inviteCode);
+            await setDoc(clanDoc, {
+                id: inviteCode,
+                name,
+                icon: '👥',
+                owner_name: userName,
+                member_count: 1,
+                weekly_score: 0,
+                rank: 0,
+                members: [{ user_name: userName, role: 'owner' }],
+                requests: [],
+                planned_sprint_id: null,
+                planned_sprint_status: 'none',
+                scheduled_sprint_time: null,
+                ready_members: []
+            });
             return inviteCode;
         } catch (e) {
             console.log('[LiveSprint] Create clan error:', e);
@@ -262,17 +303,15 @@ class LiveSprintServiceClass {
 
     // Request to join a study clan by invite code
     async joinClan(inviteCode: string, userName: string): Promise<boolean> {
-        const db = await getDatabase();
         try {
-            // Check if clan genuinely exists in the local database
-            const existing = await db.getFirstAsync<any>('SELECT id FROM study_clans WHERE id = ?', [inviteCode]);
-            if (!existing) return false;
-
-            const id = 'req-' + Date.now();
-            await db.runAsync(
-                'INSERT INTO clan_requests (id, clan_id, user_name, status) VALUES (?, ?, ?, ?)',
-                [id, inviteCode, userName, 'pending']
-            );
+            const clanDoc = doc(firestoreDb, 'study_clans', inviteCode);
+            const snap = await getDoc(clanDoc);
+            if (!snap.exists()) return false;
+            
+            const reqId = 'req-' + Date.now();
+            await updateDoc(clanDoc, {
+                requests: arrayUnion({ id: reqId, user_name: userName, status: 'pending' })
+            });
             return true;
         } catch (e) {
             console.log('[LiveSprint] Join clan error:', e);
@@ -282,95 +321,124 @@ class LiveSprintServiceClass {
 
     // Get pending requests for clans owned by user
     async getPendingRequests(clanId: string): Promise<any[]> {
-        const db = await getDatabase();
         try {
-            const reqs = await db.getAllAsync<any>('SELECT * FROM clan_requests WHERE clan_id = ? AND status = ?', [clanId, 'pending']);
-            return reqs || [];
+            const clanDoc = doc(firestoreDb, 'study_clans', clanId);
+            const snap = await getDoc(clanDoc);
+            if (!snap.exists()) return [];
+            return (snap.data().requests || []).filter((r: any) => r.status === 'pending');
         } catch {
             return [];
         }
     }
 
     async acceptJoinRequest(requestId: string, clanId: string, _ownerName: string): Promise<void> {
-        const db = await getDatabase();
         try {
-            // Look up the actual requester's name from the request record
-            const request = await db.getFirstAsync<any>('SELECT * FROM clan_requests WHERE id = ?', [requestId]);
-            if (!request) return;
-            const requesterName = request.user_name;
-
-            await db.runAsync('UPDATE clan_requests SET status = ? WHERE id = ?', ['accepted', requestId]);
-            await db.runAsync('INSERT INTO clan_members (clan_id, user_name, role) VALUES (?, ?, ?)', [clanId, requesterName, 'member']);
+            const clanDoc = doc(firestoreDb, 'study_clans', clanId);
+            const snap = await getDoc(clanDoc);
+            if (!snap.exists()) return;
+            const data = snap.data();
             
-            // Increment member count
-            const clan = await db.getFirstAsync<StudyClan>('SELECT * FROM study_clans WHERE id = ?', [clanId]);
-            if (clan) {
-                await db.runAsync('UPDATE study_clans SET member_count = ? WHERE id = ?', [clan.member_count + 1, clanId]);
-            }
+            // Find request
+            const requests = data.requests || [];
+            const reqIdx = requests.findIndex((r: any) => r.id === requestId);
+            if (reqIdx === -1) return;
+            
+            const requesterName = requests[reqIdx].user_name;
+            requests.splice(reqIdx, 1); // remove request
+            
+            const members = data.members || [];
+            members.push({ user_name: requesterName, role: 'member' });
+            
+            await updateDoc(clanDoc, {
+                requests,
+                members,
+                member_count: members.length
+            });
         } catch (e) {
             console.log('[LiveSprint] Accept join request error:', e);
         }
     }
 
     // Simulate an incoming request for testing offline
-    async simulateIncomingRequest(clanId: string): Promise<void> {
-        // Feature removed. Genuine database logic enforces true cross-device request simulation.
-    }
+    async simulateIncomingRequest(clanId: string): Promise<void> {}
 
     // Clan Battles & Lobby Management
     async planClanSprint(clanId: string): Promise<string> {
-        const db = await getDatabase();
         try {
             const sprintId = 'sprint-clan-' + Date.now();
-            await db.runAsync(
-                'UPDATE study_clans SET planned_sprint_id = ?, planned_sprint_status = ? WHERE id = ?',
-                [sprintId, 'lobby', clanId]
-            );
-            // Clear old ready states
-            await db.runAsync('DELETE FROM clan_lobby_ready WHERE clan_id = ?', [clanId]);
+            const clanDoc = doc(firestoreDb, 'study_clans', clanId);
+            await updateDoc(clanDoc, {
+                planned_sprint_id: sprintId,
+                planned_sprint_status: 'lobby',
+                ready_members: []
+            });
             return sprintId;
         } catch (e) {
-            console.log('[LiveSprint] Plan clan sprint error:', e);
             return '';
         }
     }
 
-    async setClanMemberReady(clanId: string, userName: string): Promise<void> {
-        const db = await getDatabase();
+    async scheduleClanSprint(clanId: string, timeLabel: string): Promise<void> {
         try {
-            const existing = await db.getFirstAsync<any>('SELECT * FROM clan_lobby_ready WHERE clan_id = ? AND user_name = ?', [clanId, userName]);
-            if (!existing) {
-                await db.runAsync('INSERT INTO clan_lobby_ready (clan_id, user_name) VALUES (?, ?)', [clanId, userName]);
-            }
-            
-            // Check if at least 2 members are ready (per user requirements)
-            const readyRows = await db.getAllAsync<any>('SELECT user_name FROM clan_lobby_ready WHERE clan_id = ?', [clanId]);
-            
-            if (readyRows.length >= 2) {
-                // At least 2 ready -> start test
-                await db.runAsync('UPDATE study_clans SET planned_sprint_status = ? WHERE id = ?', ['active', clanId]);
-            }
-        } catch (e) {
-            console.log('[LiveSprint] Set clan member ready error:', e);
-        }
+            const sprintId = 'sprint-clan-' + Date.now();
+            const clanDoc = doc(firestoreDb, 'study_clans', clanId);
+            await updateDoc(clanDoc, {
+                planned_sprint_id: sprintId,
+                planned_sprint_status: 'scheduled',
+                scheduled_sprint_time: timeLabel,
+                ready_members: []
+            });
+        } catch (e) {}
     }
 
-    async getClanLobbyStatus(clanId: string): Promise<{ status: string, sprintId: string, readyCount: number, memberCount: number }> {
-        const db = await getDatabase();
+    async cancelScheduledSprint(clanId: string): Promise<void> {
         try {
-            const clan = await db.getFirstAsync<any>('SELECT member_count, planned_sprint_id, planned_sprint_status FROM study_clans WHERE id = ?', [clanId]);
-            if (!clan) return { status: 'none', sprintId: '', readyCount: 0, memberCount: 0 };
+            const clanDoc = doc(firestoreDb, 'study_clans', clanId);
+            await updateDoc(clanDoc, {
+                planned_sprint_id: null,
+                planned_sprint_status: 'none',
+                scheduled_sprint_time: null,
+                ready_members: []
+            });
+        } catch (e) {}
+    }
+
+    async setClanMemberReady(clanId: string, userName: string): Promise<void> {
+        try {
+            const clanDoc = doc(firestoreDb, 'study_clans', clanId);
+            const snap = await getDoc(clanDoc);
+            if (!snap.exists()) return;
             
-            const readyRows = await db.getAllAsync<any>('SELECT user_name FROM clan_lobby_ready WHERE clan_id = ?', [clanId]);
+            let ready_members = snap.data().ready_members || [];
+            if (!ready_members.includes(userName)) {
+                ready_members.push(userName);
+            }
             
+            const updates: any = { ready_members };
+            if (ready_members.length >= 2) {
+                updates.planned_sprint_status = 'active';
+            }
+            
+            await updateDoc(clanDoc, updates);
+        } catch (e) {}
+    }
+
+    async getClanLobbyStatus(clanId: string): Promise<{ status: string, sprintId: string, readyCount: number, memberCount: number, scheduledTime: string }> {
+        try {
+            const clanDoc = doc(firestoreDb, 'study_clans', clanId);
+            const snap = await getDoc(clanDoc);
+            if (!snap.exists()) return { status: 'none', sprintId: '', readyCount: 0, memberCount: 0, scheduledTime: '' };
+            
+            const data = snap.data();
             return {
-                status: clan.planned_sprint_status || 'none',
-                sprintId: clan.planned_sprint_id || '',
-                readyCount: readyRows.length,
-                memberCount: clan.member_count || 1
+                status: data.planned_sprint_status || 'none',
+                sprintId: data.planned_sprint_id || '',
+                readyCount: (data.ready_members || []).length,
+                memberCount: data.member_count || 1,
+                scheduledTime: data.scheduled_sprint_time || ''
             };
         } catch {
-            return { status: 'none', sprintId: '', readyCount: 0, memberCount: 0 };
+            return { status: 'none', sprintId: '', readyCount: 0, memberCount: 0, scheduledTime: '' };
         }
     }
 
@@ -378,10 +446,11 @@ class LiveSprintServiceClass {
 
     // Get all members of a clan
     async getClanMembers(clanId: string): Promise<any[]> {
-        const db = await getDatabase();
         try {
-            const members = await db.getAllAsync<any>('SELECT * FROM clan_members WHERE clan_id = ? ORDER BY role DESC', [clanId]);
-            return members || [];
+            const clanDoc = doc(firestoreDb, 'study_clans', clanId);
+            const snap = await getDoc(clanDoc);
+            if (!snap.exists()) return [];
+            return (snap.data().members || []).map((m: any) => ({ ...m, clan_id: clanId }));
         } catch {
             return [];
         }
@@ -389,66 +458,65 @@ class LiveSprintServiceClass {
 
     // Delete a clan entirely
     async deleteClan(clanId: string): Promise<void> {
-        const db = await getDatabase();
         try {
-            await db.runAsync('DELETE FROM study_clans WHERE id = ?', [clanId]);
-            await db.runAsync('DELETE FROM clan_members WHERE clan_id = ?', [clanId]);
-            await db.runAsync('DELETE FROM clan_requests WHERE clan_id = ?', [clanId]);
-            await db.runAsync('DELETE FROM clan_messages WHERE clan_id = ?', [clanId]);
-        } catch (e) {
-            console.log('[LiveSprint] Delete clan error:', e);
-        }
+            await deleteDoc(doc(firestoreDb, 'study_clans', clanId));
+        } catch (e) {}
     }
 
     // Remove a member from a clan
     async removeClanMember(clanId: string, targetUserName: string): Promise<void> {
-        const db = await getDatabase();
         try {
-            await db.runAsync('DELETE FROM clan_members WHERE clan_id = ? AND user_name = ?', [clanId, targetUserName]);
-            // Decrement member count
-            const clan = await db.getFirstAsync<StudyClan>('SELECT * FROM study_clans WHERE id = ?', [clanId]);
-            if (clan && clan.member_count > 0) {
-                await db.runAsync('UPDATE study_clans SET member_count = ? WHERE id = ?', [clan.member_count - 1, clanId]);
-            }
-        } catch (e) {
-            console.log('[LiveSprint] Remove member error:', e);
-        }
+            const clanDoc = doc(firestoreDb, 'study_clans', clanId);
+            const snap = await getDoc(clanDoc);
+            if (!snap.exists()) return;
+            const data = snap.data();
+            let members = data.members || [];
+            members = members.filter((m: any) => m.user_name !== targetUserName);
+            await updateDoc(clanDoc, { members, member_count: members.length });
+        } catch (e) {}
     }
 
     // Promote a member to admin
     async promoteClanAdmin(clanId: string, targetUserName: string): Promise<void> {
-        const db = await getDatabase();
         try {
-            await db.runAsync("UPDATE clan_members SET role = 'admin' WHERE clan_id = ? AND user_name = ?", [clanId, targetUserName]);
-        } catch (e) {
-            console.log('[LiveSprint] Promote admin error:', e);
-        }
+            const clanDoc = doc(firestoreDb, 'study_clans', clanId);
+            const snap = await getDoc(clanDoc);
+            if (!snap.exists()) return;
+            const data = snap.data();
+            let members = data.members || [];
+            const idx = members.findIndex((m: any) => m.user_name === targetUserName);
+            if (idx > -1) {
+                members[idx].role = 'admin';
+                await updateDoc(clanDoc, { members });
+            }
+        } catch (e) {}
     }
 
     // Chat in study clans
     async getClanMessages(clanId: string): Promise<any[]> {
-        const db = await getDatabase();
         try {
-            return await db.getAllAsync<any>(
-                'SELECT * FROM clan_messages WHERE clan_id = ? ORDER BY created_at ASC',
-                [clanId]
-            );
+            const msgsRef = collection(firestoreDb, 'clan_messages');
+            const q = query(msgsRef, where('clan_id', '==', clanId));
+            const snap = await getDocs(q);
+            const msgs = snap.docs.map(doc => doc.data());
+            return msgs.sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
         } catch {
             return [];
         }
     }
 
     async postClanMessage(clanId: string, userName: string, message: string): Promise<void> {
-        const db = await getDatabase();
         try {
             const id = 'cmsg-' + Date.now();
-            await db.runAsync(
-                'INSERT INTO clan_messages (id, clan_id, user_name, message) VALUES (?, ?, ?, ?)',
-                [id, clanId, userName, message]
-            );
-        } catch (e) {
-            console.log('[LiveSprint] Post clan message error:', e);
-        }
+            const msgDoc = doc(firestoreDb, 'clan_messages', id);
+            await setDoc(msgDoc, {
+                id,
+                clan_id: clanId,
+                user_name: userName,
+                message,
+                created_at: new Date().toISOString()
+            });
+        } catch (e) {}
     }
 
     // Doubt Marketplace operations
@@ -516,10 +584,25 @@ class LiveSprintServiceClass {
     async getAnswersForDoubt(doubtId: string): Promise<DoubtAnswer[]> {
         const db = await getDatabase();
         try {
-            return await db.getAllAsync<DoubtAnswer>(
+            const answers = await db.getAllAsync<DoubtAnswer>(
                 'SELECT * FROM doubt_answers WHERE doubt_id = ? ORDER BY created_at ASC',
                 [doubtId]
             );
+            if (answers && answers.length > 0) {
+                return answers;
+            }
+            
+            // Return mock answers if none found (for mock doubts)
+            if (doubtId === 'doubt-1') {
+                return [{ id: 'ans-1', doubt_id: doubtId, answer_text: "Use the kinematic equations, particularly the ones that don't require the angle if you have other parameters.", answered_by: 'Rahul M.', upvotes: 2, is_accepted: false, created_at: new Date().toISOString() }, { id: 'ans-1b', doubt_id: doubtId, answer_text: "Draw a free body diagram first, it usually helps visualize the missing components.", answered_by: 'Priya S.', upvotes: 1, is_accepted: true, created_at: new Date().toISOString() }, { id: 'ans-1c', doubt_id: doubtId, answer_text: "Check if you can use conservation of energy instead.", answered_by: 'Teacher_John', upvotes: 5, is_accepted: false, created_at: new Date().toISOString() }];
+            }
+            if (doubtId === 'doubt-2') {
+                 return [{ id: 'ans-2', doubt_id: doubtId, answer_text: "For secondary substrates, SN2 is favored by strong nucleophiles and polar aprotic solvents, while SN1 is favored by weak nucleophiles and polar protic solvents.", answered_by: 'Priya S.', upvotes: 4, is_accepted: true, created_at: new Date().toISOString() }, { id: 'ans-2b', doubt_id: doubtId, answer_text: "Look at the leaving group too!", answered_by: 'Amit K.', upvotes: 1, is_accepted: false, created_at: new Date().toISOString() }, { id: 'ans-2c', doubt_id: doubtId, answer_text: "SN1 usually gives a racemic mixture.", answered_by: 'Teacher_Sarah', upvotes: 2, is_accepted: false, created_at: new Date().toISOString() }, { id: 'ans-2d', doubt_id: doubtId, answer_text: "Don't forget rearrangements in SN1.", answered_by: 'Deva Gayathri', upvotes: 0, is_accepted: false, created_at: new Date().toISOString() }, { id: 'ans-2e', doubt_id: doubtId, answer_text: "Yup, polar aprotic is key for SN2.", answered_by: 'Rohan P.', upvotes: 1, is_accepted: false, created_at: new Date().toISOString() }];
+            }
+            if (doubtId === 'doubt-3') {
+                 return [{ id: 'ans-3', doubt_id: doubtId, answer_text: "Split the integral at the critical points where the absolute value changes sign.", answered_by: 'Vikram A.', upvotes: 1, is_accepted: true, created_at: new Date().toISOString() }, { id: 'ans-3b', doubt_id: doubtId, answer_text: "Draw the graph of the function to see the areas.", answered_by: 'Neha S.', upvotes: 2, is_accepted: false, created_at: new Date().toISOString() }];
+            }
+            return [];
         } catch {
             return [];
         }

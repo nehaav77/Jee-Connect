@@ -169,6 +169,7 @@ export const CREATE_TABLES_SQL = [
     time_taken_sec INTEGER DEFAULT 0,
     rank INTEGER DEFAULT 0,
     sprint_id TEXT,
+    clan_name TEXT,
     created_at TEXT DEFAULT (datetime('now'))
   )`,
 
@@ -183,6 +184,7 @@ export const CREATE_TABLES_SQL = [
     rank INTEGER DEFAULT 0,
     planned_sprint_id TEXT,
     planned_sprint_status TEXT DEFAULT 'none',
+    scheduled_sprint_time TEXT,
     created_at TEXT DEFAULT (datetime('now'))
   )`,
 

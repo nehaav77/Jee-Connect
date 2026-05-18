@@ -268,6 +268,11 @@ export default function SprintsScreen() {
                                     </View>
                                     <View style={{ flex: 1, marginLeft: 12 }}>
                                         <Text style={[styles.cardTitle, { color: theme.text }]}>{entry.user_name}</Text>
+                                        {entry.clan_name ? (
+                                            <Text style={{ color: Colors.primary, fontSize: 11, fontWeight: '700', marginTop: 1 }}>
+                                                👥 {entry.clan_name}
+                                            </Text>
+                                        ) : null}
                                         <Text style={[styles.cardMeta, { color: theme.textSecondary }]}>
                                             🎯 {entry.accuracy}% accuracy · ⏱ {Math.floor(entry.time_taken_sec / 60)}m {entry.time_taken_sec % 60}s
                                         </Text>
