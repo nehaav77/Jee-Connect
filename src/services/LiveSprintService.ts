@@ -458,21 +458,27 @@ class LiveSprintServiceClass {
     async setClanMemberReady(clanId: string, userName: string): Promise<void> {
         try {
             const clanDoc = doc(firestoreDb, 'study_clans', clanId);
+            
+            // 1. Atomically add the user to ready_members to prevent race conditions
+            await updateDoc(clanDoc, {
+                ready_members: arrayUnion(userName)
+            });
+            
+            // 2. Fetch the newly updated document to check the count
             const snap = await getDoc(clanDoc);
             if (!snap.exists()) return;
             
-            let ready_members = snap.data().ready_members || [];
-            if (!ready_members.includes(userName)) {
-                ready_members.push(userName);
-            }
+            const ready_members = snap.data().ready_members || [];
             
-            const updates: any = { ready_members };
+            // 3. If enough members are ready, transition lobby to 'active'
             if (ready_members.length >= 2) {
-                updates.planned_sprint_status = 'active';
+                await updateDoc(clanDoc, {
+                    planned_sprint_status: 'active'
+                });
             }
-            
-            await updateDoc(clanDoc, updates);
-        } catch (e) {}
+        } catch (e) {
+            console.log('[LiveSprint] setClanMemberReady error:', e);
+        }
     }
 
     async getClanLobbyStatus(clanId: string): Promise<{ status: string, sprintId: string, readyCount: number, memberCount: number, scheduledTime: string }> {
