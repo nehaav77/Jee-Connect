@@ -7,7 +7,7 @@ import { Colors, Spacing, BorderRadius, FontSize, Shadow } from '@/src/constants
 import { getDatabase } from '@/src/db/database';
 import { testRepository } from '@/src/repositories/TestRepository';
 import { adaptiveTestService } from '@/src/services/AdaptiveTestService';
-import { gamificationService, XP_VALUES, getXPForDifficulty, getTestCompleteXP } from '@/src/services/GamificationService';
+import { gamificationService, XP_VALUES } from '@/src/services/GamificationService';
 import { useAppStore } from '@/src/store/appStore';
 import MathText from '@/components/MathText';
 
@@ -73,40 +73,66 @@ export default function ResultScreen() {
                 } catch (ie) { console.log('Improvement data:', ie); }
             }
 
-            // Sprint 9: Award XP for test completion (difficulty-based)
+            // Sprint 9: Award XP for test completion (marks-based, per test type)
             if (userEmail && !xpProcessed && Number(attempt.is_disqualified) !== 1 && Number(attempt.xp_awarded) !== 1) {
                 try {
-                    // Max XP depends on test type (e.g., chapter = 15, subject = 30, full = 60)
                     const testType = test?.test_type || 'full';
-                    const baseXP = getTestCompleteXP(testType);
-                    const maxXP = baseXP * 3; // Max achievable XP without perfect score bonus
-                    
-                    let xp = 0;
-                    if (percentage >= 82) {
-                        // >= ~82% marks (e.g. 23/28) -> Full XP
-                        xp = maxXP;
-                    } else if (percentage >= 35) {
-                        // >= ~35% marks (e.g. 10/28) -> ~75% of Max XP (e.g. 11 XP for max 15)
-                        xp = Math.round(maxXP * 0.75);
-                    } else if (percentage > 0) {
-                        // > 0 marks (e.g. 1/28 to 10/28) -> ~45% of Max XP (e.g. 7 XP for max 15)
-                        xp = Math.round(maxXP * 0.45);
+                    const totalMarksForXP = test?.total_marks || 0;
+                    const scoreForXP = attempt.score || 0;
+                    // Calculate percentage LOCALLY here (not from render-time state)
+                    const pct = totalMarksForXP > 0 ? (scoreForXP / totalMarksForXP) * 100 : 0;
+
+                    // XP ranges by test type (scaled by marks percentage):
+                    // Quick  (subject/chapter): 6–7 XP
+                    // Smart  (custom/adaptive): 10–15 XP
+                    // Full Mock (full):          15–20 XP
+                    let xpMin = 6;
+                    let xpMax = 7;
+                    if (testType === 'full') {
+                        xpMin = 15; xpMax = 20;
+                    } else if (testType === 'custom') {
+                        xpMin = 10; xpMax = 15;
                     } else {
-                        // 0 or negative marks -> 0 XP
+                        // subject / chapter → quick test
+                        xpMin = 6; xpMax = 7;
+                    }
+
+                    let xp = 0;
+                    if (pct >= 80) {
+                        // >= 80% → full top XP
+                        xp = xpMax;
+                    } else if (pct >= 50) {
+                        // 50–79% → proportionally between min and max
+                        const ratio = (pct - 50) / 30; // 0 at 50%, 1 at 80%
+                        xp = Math.round(xpMin + ratio * (xpMax - xpMin));
+                    } else if (pct >= 20) {
+                        // 20–49% → minimum XP
+                        xp = xpMin;
+                    } else if (pct > 0) {
+                        // 1–19% → half of minimum (at least 1)
+                        xp = Math.max(1, Math.round(xpMin / 2));
+                    } else {
+                        // 0 or negative → no XP
                         xp = 0;
                     }
 
                     // Bonus for perfect score
                     const totalQ = test?.total_questions || 0;
                     if (totalQ > 0 && (attempt.correct_count || 0) === totalQ) {
-                        xp += XP_VALUES.perfect_score; // +15 for perfect
+                        xp += XP_VALUES.perfect_score; // +15 bonus
                     }
-                    await gamificationService.awardXP(userEmail, 'test_complete', xp);
-                    await gamificationService.recordDailyActivity(userEmail, xp, attempt.total_attempted || 0, 1);
+
+                    if (xp > 0) {
+                        await gamificationService.awardXP(userEmail, 'test_complete', xp);
+                        await gamificationService.recordDailyActivity(userEmail, xp, attempt.total_attempted || 0, 1);
+                    } else {
+                        // Still record the test completion activity even with 0 XP
+                        await gamificationService.recordDailyActivity(userEmail, 0, attempt.total_attempted || 0, 1);
+                    }
                     await testRepository.markXPAwarded(attemptId as string);
-                    
+
                     setXPAwarded(xp);
-                    triggerXPToast(xp, 'Test Complete');
+                    if (xp > 0) triggerXPToast(xp, 'Test Complete');
 
                     // Check achievements
                     const badges = await gamificationService.checkAndUnlockAchievements(userEmail);
@@ -114,7 +140,7 @@ export default function ResultScreen() {
                     const allNew = [...badges.filter(b => b.unlocked)];
                     if (perfect && perfect.unlocked) allNew.push(perfect);
                     setNewBadges(allNew);
-                    
+
                     refreshGamificationData(userEmail);
                     setXPProcessed(true);
                 } catch (e) { console.log('[Gamification] XP award error:', e); }
