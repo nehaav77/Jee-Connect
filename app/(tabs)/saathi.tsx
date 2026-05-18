@@ -93,9 +93,10 @@ async function generateResponse(msg: string, sentiment: number): Promise<string>
     if (sentiment < 0.45 || l.includes('stress') || l.includes('anxious') || l.includes('worried')
         || l.includes('scared') || l.includes('depress') || l.includes('panic') || l.includes('nervous')) {
         const r = [
-            "I can sense you're feeling stressed. Let's pause together 🧘\n\n🌬️ Try this: Inhale 4s → Hold 4s → Exhale 6s\n\nRepeat 3 times. Every JEE topper had tough days too. You're not alone — and you've got this! 💪\n\n📌 When ready, go to Subjects tab → pick any chapter → practice 3 easy PYQs to rebuild confidence!",
-            "It's completely okay to feel this way. Here's what helps:\n\n1. 🧘 Take 3 deep breaths right now\n2. 🚶 Walk for 5 minutes\n3. 🎵 Listen to your favorite song\n4. 📝 Then tackle ONE small problem\n\nSmall wins build momentum! 🌟\n\n💡 Try going to Tests tab and attempt a short 5-question mock test — quick wins feel great!",
-            "Hey, I hear you. JEE prep can feel overwhelming.\n\nRemember — you don't have to conquer everything today.\n\n🎯 Focus on just ONE topic\n⏰ Study for just 25 minutes\n🏆 Then celebrate that small win!\n\nYou're stronger than you think! 💪\n\n📚 Head to Subjects → pick any chapter to review resources at your pace."
+            "I'm sorry you're carrying that right now. Stress can build up fast, especially when you've been juggling exams, projects, coding work, presentations, and everything else you've been handling recently.\n\nRight now, don't try to solve everything at once. Try this for the next 10 minutes:\n\n1. Put your phone/laptop down for 2 minutes.\n2. Take slow breaths:\n   • inhale for 4 seconds\n   • hold for 4\n   • exhale for 6\n3. Drink some water.\n4. Write down only 3 things that are actually urgent today.\n\nWhen stress gets high, the brain treats *everything* like an emergency. Making the list smaller helps regain control.\n\nAlso remember:\n\n• One bad exam/question/score does not define your future.\n• Feeling overwhelmed does not mean you're failing.\n• You've already handled difficult things before — research work, coding projects, presentations, and technical subjects. This feeling will pass too.\n\nIf you want, you can also tell me:\n\n• what's stressing you most right now (exam, marks, project, people, future, etc.)\n• or whether you want help calming down, planning tasks, or just venting.",
+            "It sounds like things are feeling really heavy right now. I hear you. 🫂\n\nWhen the pressure of preparation mounts up, it's easy to feel lost. Let's take a step back and reset your mind.\n\nHere is a quick circuit breaker for your stress:\n\n1. Look around you and name 3 things you can see.\n2. Unclench your jaw and drop your shoulders. 🧘\n3. Splash some cold water on your face.\n4. Step outside or look out a window for 5 minutes.\n\nRight now, your mind is racing. Let's slow it down:\n\n• You don't need to finish the whole syllabus today.\n• Taking a break is not a waste of time; it's a necessary recharge.\n• Your mental health is far more important than any test score.\n\nWhen you're ready, try writing down exactly what's bothering you. Is it a specific subject? A pending deadline? Fear of the outcome?\nLet me know if you want to talk about it, or if you'd rather we do a fun Quiz or Pomodoro session to distract you!",
+            "I can feel how overwhelmed you are, and I want you to know it's completely valid to feel this way. 💙\n\nThis is a marathon, and sometimes you just hit a wall. It happens to the absolute best of students.\n\nLet's try a quick 'Reset Protocol':\n\n1. 🛑 Stop studying for the next 15 minutes.\n2. 🎧 Put on your favorite instrumental or calming music.\n3. 📝 Do a \"Brain Dump\" — write down every single thing you're worried about on a blank piece of paper.\n4. 🗑️ Cross out everything that is out of your control.\n\nKeep these truths in mind:\n\n• A low score today is just feedback, not a final verdict.\n• Progress isn't always a straight line; setbacks are part of the process.\n• You have the resilience to get through this, just like you've overcome past challenges.\n\nWould you like to:\n\n• Just vent to me? I'm here to listen.\n• Plan a small, easy task to get your momentum back?\n• Do a quick breathing exercise?",
+            "Take a deep breath. 🌬️ I'm here for you.\n\nIt is completely normal to feel burnt out and stressed when you're working so hard for a massive goal.\n\nLet's do a quick 'Grounding Exercise' to get you out of the stress loop:\n\n1. 🦶 Plant your feet firmly on the floor.\n2. 🌬️ Breathe in deeply for 4 seconds, hold for 4, exhale for 6. (Repeat this 3 times).\n3. 💧 Go drink a full glass of water.\n4. 🛌 Rest your eyes by looking at something 20 feet away for 20 seconds.\n\nRemember this:\n\n• The effort you are putting in right now is already making you stronger.\n• You don't have to be perfect; you just have to be consistent.\n• Give yourself permission to have a bad day. It's okay.\n\nWhat do you need right now?\n\n• We can map out a study plan for just the next 1 hour.\n• We can review a simple topic to build your confidence.\n• Or we can just talk about what's making you anxious. I'm all ears!"
         ];
         return r[Math.floor(Math.random() * r.length)];
     }
@@ -661,13 +662,20 @@ export default function SaathiScreen() {
 
             <View style={[styles.inputArea, { backgroundColor: theme.surface, borderTopColor: theme.border }]}>
                 {/* Plus Menu Button */}
-                <TouchableOpacity style={[styles.cameraBtn, { backgroundColor: theme.background, borderColor: theme.border, width: 44, height: 44, borderRadius: 12 }]}
+                <TouchableOpacity style={[styles.cameraBtn, { backgroundColor: theme.background, borderColor: theme.border, width: 44, height: 44, borderRadius: 22 }]}
                     onPress={() => setIsMenuOpen(!isMenuOpen)} activeOpacity={0.7}>
                     <Text style={{ fontSize: 24, color: theme.text, lineHeight: 28, textAlign: 'center' }}>+</Text>
                 </TouchableOpacity>
                 <TextInput style={[styles.input, { backgroundColor: theme.background, color: theme.text, borderColor: theme.border }]}
                     placeholder="Ask Saathi anything..." placeholderTextColor={theme.textMuted}
-                    value={inputText} onChangeText={setInputText} onSubmitEditing={handleSend} returnKeyType="send" multiline maxLength={500} />
+                    value={inputText} onChangeText={setInputText} onSubmitEditing={handleSend} returnKeyType="send" multiline maxLength={500}
+                    onKeyPress={(e: any) => {
+                        if (Platform.OS === 'web' && e.nativeEvent.key === 'Enter' && !e.nativeEvent.shiftKey) {
+                            e.preventDefault();
+                            handleSend();
+                        }
+                    }}
+                />
                 <TouchableOpacity style={[styles.sendBtn, { backgroundColor: inputText.trim() || selectedImage ? Colors.primary : theme.border }]}
                     onPress={handleSend} disabled={!inputText.trim() && !selectedImage}><Text style={{ color: '#fff', fontSize: 20, fontWeight: '800' }}>↑</Text></TouchableOpacity>
             </View>
