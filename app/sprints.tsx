@@ -110,18 +110,15 @@ export default function SprintsScreen() {
                                 <View style={{ flex: 1, marginLeft: 12 }}>
                                     <Text style={[styles.cardTitle, { color: theme.text }]}>{sprint.title}</Text>
                                     <Text style={[styles.cardMeta, { color: theme.textSecondary }]}>
-                                        {sprint.num_questions} Qs · {Math.floor(sprint.duration_sec / 60)}min
+                                        {sprint.num_questions} Qs · {Math.floor(sprint.duration_sec / 60)}min · Practice Only
                                     </Text>
                                 </View>
                                 <View style={{ alignItems: 'flex-end' }}>
-                                    <View style={[styles.statusDot, { backgroundColor: statusColor(sprint.status) + '20' }]}>
-                                        <Text style={[{ color: statusColor(sprint.status), fontSize: 11, fontWeight: '700' }]}>
-                                            {sprint.status.toUpperCase()}
+                                    <View style={[styles.statusDot, { backgroundColor: Colors.primary + '20' }]}>
+                                        <Text style={[{ color: Colors.primary, fontSize: 11, fontWeight: '700' }]}>
+                                            PRACTICE
                                         </Text>
                                     </View>
-                                    <Text style={[{ color: theme.textMuted, fontSize: 12, marginTop: 4 }]}>
-                                        👥 {sprint.participants}/{sprint.max_participants}
-                                    </Text>
                                 </View>
                             </View>
                         </TouchableOpacity>

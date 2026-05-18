@@ -101,9 +101,8 @@ export default function ClanChatScreen() {
     }, [autoToast]);
 
     async function loadClan() {
-        // Because of our local mock limitations, we need to fetch all clans
-        const db = await (await import('@/src/db/database')).getDatabase();
-        const found = await db.getFirstAsync<StudyClan>('SELECT * FROM study_clans WHERE id = ?', [clanId]);
+        if (!clanId) return;
+        const found = await liveSprintService.getClan(clanId as string);
         if (found) setClan(found);
     }
 

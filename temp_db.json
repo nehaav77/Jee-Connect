@@ -27332,6 +27332,14 @@
     {
       "key": "parent_sms_active",
       "value": "true"
+    },
+    {
+      "key": "current_user_email",
+      "value": "rajeswarikrishna2409@gmail.com"
+    },
+    {
+      "key": "is_parent_session",
+      "value": "false"
     }
   ],
   "users": [

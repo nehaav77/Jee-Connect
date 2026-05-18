@@ -274,6 +274,20 @@ class LiveSprintServiceClass {
         } catch(e) { console.log(e); return []; }
     }
 
+    // Get a specific clan by its ID
+    async getClan(clanId: string): Promise<StudyClan | null> {
+        try {
+            const clanDoc = doc(firestoreDb, 'study_clans', clanId);
+            const snap = await getDoc(clanDoc);
+            if (!snap.exists()) return null;
+            return snap.data() as StudyClan;
+        } catch (e) {
+            console.log('[LiveSprint] Get clan error:', e);
+            return null;
+        }
+    }
+
+
     // Create a new private study clan
     async createClan(name: string, userName: string): Promise<string> {
         const inviteCode = 'clan-' + Math.random().toString(36).substring(2, 8).toUpperCase();
